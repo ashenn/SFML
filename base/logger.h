@@ -27,42 +27,63 @@
     #define LOGGER_FILE_WRITE S_IRUSR|S_IWUSR|S_IXUSR|S_IRGRP|S_IWGRP
 #endif // _WIN32
 
-typedef struct Log{
-	short lvl;	// Output min lvl
-	short isInit;
-	short enabled;
+#include <iostream>
+#include <stdio.h>
 
-	char* file;	// LogFile Path
-	int f;
+class Log
+{
+    public:
+        Log(Log const&)     = delete;
+        void operator=(Log const&)  = delete;
 
-	void* init;
-	void* log;
 
-	void (*dbg)(unsigned int tag, const char* msg, ...);
-	void (*inf)(unsigned int tag, const char* msg, ...);
-	void (*err)(unsigned int tag, const char* msg, ...);
-	void (*war)(unsigned int tag, const char* msg, ...);
-	void (*close)();
+		static void init(int argc, char** argv);
 
-	char** lvls; // Existing debug lvl
-	char** lvlColors; // Existing debug lvl colors
+		static void setLvl(int lvl);
+		static void setFile(const char* path);
 
-	ListManager* args;
-	ListManager* tags;
+		static void enable();
+		static void disable();
+		static bool isEnable();
+		static void toggle(bool e);
 
-	pthread_cond_t cond;
-	pthread_mutex_t mutex;
-} Log;
+		static bool enableTag(unsigned int  tag);
+		static bool disableTag(unsigned int  tag);
+		static void addTag(unsigned int  tag, const char* name, bool active);
 
-Log* getLogger();
-Log* initLogger(int argc, char** argv);
-void closeLogger();
-void setLogLvl(int lvl);
-void setLogFile(void* l, void* file);
-void logg(short lvl, unsigned int tag, const char* msg, va_list* args);
+		static void dbg(unsigned int tag, const char* msg, ...);
+		static void inf(unsigned int tag, const char* msg, ...);
+		static void err(unsigned int tag, const char* msg, ...);
+		static void war(unsigned int tag, const char* msg, ...);
+		static void closeLog();
+		
+    private:
+        Log() {}
+        static void setLvls();
+        static void setLvlColors();
 
-void addLoggerTag(unsigned int  tag, const char* name, short active);
-short enableLoggerTag(unsigned int  tag);
-short disableLoggerTag(unsigned int  tag);
+        static void clearlvls();
+        static void closeFile();
+        static void clearlvlColors();
+		
+		static int f;		// File Id
+    	static bool isInit;
+		static bool enabled;
+
+		static short lvl;	// Output min lvl
+		static char* file;	// LogFile Path
+		static char** lvls; // Existing debug lvl
+		static char** lvlColors; // Existing debug lvl colors
+
+		static ListManager* args;
+		static ListManager* tags;
+
+		static pthread_cond_t cond;
+		static pthread_mutex_t mutex;
+
+		static void setArgs();
+    	static void log2file(const char* tagName, const char* lvl, const  char* msg);
+    	static void logg(short lvl, unsigned int tag, const char* msg, va_list* args);
+};
 
 #endif

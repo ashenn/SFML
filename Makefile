@@ -9,6 +9,8 @@ SRC	=	main.c                  \
                 base/file.c             \
                 base/lib/jsmn/jsmn.c    \
                 base/json.c             \
+                core/abstractClass.c    \
+                core/project/project.c  \
                 
 
 OBJ	=	$(SRC:%.c=%.o)

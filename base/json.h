@@ -6,8 +6,6 @@
 #include "logger.h"
 #include "libList.h"
 
-#define LOG_JSON 1
-
 #define JSON_TYPES(TYPE) \
 	TYPE(JSON_NULL) \
 	TYPE(JSON_BOOL) \
