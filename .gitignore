@@ -1,0 +1,8 @@
+*.cbp
+*.depend
+*.layout
+obj
+obj/*
+bin
+bin/*
+*.out
