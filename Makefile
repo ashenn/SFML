@@ -1,4 +1,4 @@
-CC	=	g++ --std=c++11 -g
+CC	=	g++ --std=c++11 -g -Wall
 NAME	=	mario
 SRC	=	main.c                  \
                 base/basic.c            \

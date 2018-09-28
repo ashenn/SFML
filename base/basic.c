@@ -335,11 +335,12 @@ float percent(const float x, const float y) {
 
 void charReplace(char search, char replace, unsigned int index, char* str) {
 	int len = strlen(str);
-	if (index >= len) {
+	int intIndex = (int) index;
+	if (intIndex >= len) {
 		return;
 	}
 
-	for (unsigned int i = index; i < len; ++i) {
+	for (int i = intIndex; i < len; ++i) {
 		if (str[i] == search) {
 			str[i] = replace;
 		}
@@ -387,13 +388,13 @@ char* join(const char* glue, char** arr, unsigned int count, unsigned int size) 
 
 	char* res = StrE(size+1);
 
-
+	int intCount = (int) count;
     char sep[len];
     memset(sep, 0, len);
     strcpy(sep, glue);
-	for (int i = 0; i < count; ++i) {
+	for (int i = 0; i < intCount; ++i) {
 
-		if (i >= count-1) {
+		if (i >= intCount-1) {
             memset(sep, 0, len);
             strcpy(sep, "");
 		}
