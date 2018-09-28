@@ -8,18 +8,15 @@
 int main(int argc, char** argv) {
     logger = initLogger(argc, argv);
 
-    fprintf(stderr, "MAIN-0: %s\n", logger->lvls[0]);
-    logger->inf(LOG_MAIN, "LOAD JSON");
 
+    addLoggerTag(LOG_JSON, "json", 1);
+    logger->inf(LOG_JSON, "LOAD JSON");
 
-    char* t = Str("test.json");
-    logger->inf(LOG_MAIN, "MAIN-2: %s\n", t);
-    Json* json  = loadJsonFile(t);
+    Json* json  = loadJsonFile("test.json");
 
     jsonPrint(json, 0);
 
     deleteJson(json);
-    free(t);
     closeLogger();
 
     return 0;

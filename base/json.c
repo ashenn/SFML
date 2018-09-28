@@ -82,6 +82,7 @@ void jsonFill(Json* json, char* data) {
 		char buffer[length];
 		memset(buffer, 0, length);
 		memcpy(buffer, &data[tokens[i].start], tokens[i].end - tokens[i].start);
+		logger->dbg(LOG_JSON, "-- Buffer: %s", buffer);
 
 		if (isKey && !inArray) {
 			isKey = 0;
@@ -412,41 +413,52 @@ short jsonPrintData(int i, Node* n, short* deleteJson, void* param, va_list* arg
 
 	char format[250];
 	memset(format, 0, 250);
-//	snprintf(format, 250, "");
+//	snprintf(formatformat, 250, "");
 	curTab = 0;
 
 	if (json->key != NULL && json->parent->type != JSON_ARRAY) {
+		logger->inf(LOG_JSON, "=== TEST-2.0");
+
 		short keyLen = strlen(json->key)+1;
+		logger->inf(LOG_JSON, "-- Key: %s", json->key);
 		logger->inf(LOG_JSON, "-- Len: %d", keyLen);
 
 		logger->inf(LOG_JSON, "-- Init Key");
 		char keyName[keyLen];
 		memset(keyName, 0, keyLen);
 
-		logger->inf(LOG_JSON, "-- Init Format");
+		// logger->inf(LOG_JSON, "-- Init Format");
 
 
-		logger->inf(LOG_JSON, "-- Set Key Format: %s", format);
+		// logger->inf(LOG_JSON, "-- Set Key Format: %s", format);
 
-		logger->inf(LOG_JSON, "-- Tabs: %d", tab);
-		for (int i = 0; i < curTab; ++i) {
-			strcpy(tmpFormat, format);
-			snprintf(format, 250, "%s%s", "  ", tmpFormat);
-		}
-		snprintf(format, 250, "%s\"%%s\": ", tmpFormat);
+		
+		//memset(format, 0, 250);
+		//memset(tmpFormat, 0, 250);
+		// logger->inf(LOG_JSON, "-- Tabs: %d", tab);
+		// for (int i = 0; i < curTab; ++i) {
+		// 	strcpy(tmpFormat, format);
+		// 	snprintf(format, 250, "%s%s", "  ", tmpFormat);
+		// }
+		//snprintf(format, 250, "%s\"%%s\": ", tmpFormat);
 
-		snprintf(keyName, 250, format, json->key);
+		snprintf(keyName, 250, "%s", json->key);
 
-		key = keyName;
+		key = Str(keyName);
+		//logger->err(LOG_JSON, "-- Key Result: %s", key);
 	}
 	else{
 		logger->inf(LOG_JSON, "=== TEST-2.1");
 		char keyName[curTab+1];
+		
+		memset(format, 0, 250);
+		memset(tmpFormat, 0, 250);
 		memset(keyName, 0, curTab+1);
-		for (int i = 0; i <= curTab; ++i) {
-			strcpy(tmpFormat, format);
-			snprintf(format, 250, "%s%s", "  ", tmpFormat);
-		}
+		
+		// for (int i = 0; i <= curTab; ++i) {
+		// 	strcpy(tmpFormat, format);
+		// 	snprintf(format, 250, "%s%s", "  ", tmpFormat);
+		// }
 
 		key = format;
 	}
@@ -510,6 +522,8 @@ short jsonPrintData(int i, Node* n, short* deleteJson, void* param, va_list* arg
 	logger->inf(LOG_JSON, "-- Key-7: %s", key);
 	fprintf(stdout, "%s%s", key, value);
 
+	free(key);
+
 	if (json->type == JSON_ARRAY) {
 		listIterateFnc(json->childs, jsonPrintData, NULL, (void*) &curTab);
 		fprintf(stdout, "\n%s]", tmpFormat);
@@ -549,7 +563,7 @@ void jsonPrint(Json* json, int tab) {
 		}
 
 		snprintf(format, 250, "%s\"%%s\": ", tmpFormat);
-		snprintf(keyName, 250, format, json->key);
+		snprintf(keyName, 250, "%s", json->key);
 
 		key = keyName;
 	}
