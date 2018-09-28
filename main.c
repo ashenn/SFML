@@ -16,7 +16,7 @@ int main(int argc, char** argv) {
     logger->inf(LOG_MAIN, "MAIN-2: %s\n", t);
     Json* json  = loadJsonFile(t);
 
-    //jsonPrint(json, 0);
+    jsonPrint(json, 0);
 
     deleteJson(json);
     free(t);
