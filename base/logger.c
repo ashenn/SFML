@@ -39,6 +39,7 @@ void logg(short lvl, unsigned int  tag, const char* msg, va_list* args){
 	Log* logger = getLogger();
 
 
+
 	if (!logger->enabled && lvl < WARNING) {
 		return;
 	}

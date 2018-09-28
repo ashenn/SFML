@@ -6,6 +6,9 @@ SRC	=	main.c                  \
                 base/libParse.c         \
                 base/logger.c           \
                 base/math.c             \
+                base/file.c             \
+                base/lib/jsmn/jsmn.c    \
+                base/json.c             \
                 
 
 OBJ	=	$(SRC:%.c=%.o)

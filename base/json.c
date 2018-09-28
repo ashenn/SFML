@@ -1,3 +1,4 @@
+#include "../common.h"
 #include "json.h"
 #include "lib/jsmn/jsmn.h"
 
@@ -202,7 +203,7 @@ void jsonFill(Json* json, char* data) {
 Json* newJson() {
 	logger->inf(LOG_JSON, "==== Creating New Json ===");
 
-	Json* json = malloc(sizeof(Json));
+	Json* json = (Json*) malloc(sizeof(Json));
 	json->id = -1;
 	json->num = 0;
 	json->key = NULL;
@@ -216,13 +217,15 @@ Json* newJson() {
 	return json;
 }
 
-Json* loadJsonFile(char* p) {
-	char path[350];
-	memset(path, 0, 350);
-	memcpy(path, p, strlen(p));
-
+Json* loadJsonFile(const char* p) {
+	char path[strlen(p)];
+	memset(path, 0, strlen(p));
+	strcpy(path, p);
+	
+	logger = getLogger();
+	
 	validatePath(path);
-	logger->inf(LOG_JSON, "==== New Json From Path: %s ===", path);
+	logger->inf(LOG_JSON, "==== New Json From Path: %s ===", p);
 
 	logger->inf(LOG_JSON, "-- TEST-0");
 	char* content = fileGetContent(path);
@@ -237,6 +240,7 @@ Json* loadJsonFile(char* p) {
 	logger->inf(LOG_JSON, "-- CALL FILL JSON");
 	jsonFill(json, content);
 
+	free(content);
 	return json;
 }
 
@@ -290,7 +294,7 @@ Json* jsonSetValue(Json* json, char* key, void* value, JsonDataEnum type) {
 		}
 	}
 
-	child = newJson(NULL);
+	child = newJson();
 	child->id = childNode->id;
 	childNode->value = (void*) child;
 
@@ -335,12 +339,12 @@ Json* jsonSetValue(Json* json, char* key, void* value, JsonDataEnum type) {
 	return child;
 }
 
-short jsonClearChilds(int i, Node* n, short* delete, void* param, va_list* args) {
+short jsonClearChilds(int i, Node* n, short* deleteChild, void* param, va_list* args) {
 	logger->inf(LOG_JSON, "-- Child Delete: #%d => %s", i, n->name);
 
 	if (n->value == NULL) {
 		logger->war(LOG_JSON, "-- Deleting NULL Json Child");
-		*delete = true;
+		*deleteChild = true;
 		return true;
 	}
 
@@ -356,6 +360,12 @@ short jsonClearChilds(int i, Node* n, short* delete, void* param, va_list* args)
 
 void deleteJson(Json* json) {
 	logger->inf(LOG_JSON, "==== Deleting Json: #%d => %s ===", json->id, json->key);
+
+	if (json->key != NULL) {
+		logger->inf(LOG_JSON, "-- Free Json KEY");
+		free(json->key);
+		json->key = NULL;
+	}
 
 	if (json->string != NULL) {
 		logger->inf(LOG_JSON, "-- Free String Data Json");
@@ -378,7 +388,7 @@ void deleteJson(Json* json) {
 	free(json);
 }
 
-short jsonPrintData(int i, Node* n, short* delete, void* param, va_list* args) {
+short jsonPrintData(int i, Node* n, short* deleteJson, void* param, va_list* args) {
 	logger->inf(LOG_JSON, "=== TEST-0");
 	Json* json = (Json*) n->value;
 
@@ -603,7 +613,7 @@ void jsonPrint(Json* json, int tab) {
 
 
 
-short json2StrData(int i, Node* n, short* delete, void* param, va_list* args) {
+short json2StrData(int i, Node* n, short* deleteJson, void* param, va_list* args) {
 	Json* json = (Json*) n->value;
 	int tab = *((int*) param);
 	int curTab = tab+1;
@@ -717,7 +727,7 @@ short json2StrData(int i, Node* n, short* delete, void* param, va_list* args) {
 	//fprintf(stdout, "%s%s", key, value);
 
 
-	char* resultStr = "";
+	char* resultStr = NULL;
 
 	int childStrLen = 0;
 
@@ -825,8 +835,8 @@ char* json2Str(Json* json, bool breakLine, bool indent) {
 			break;
 	}
 
-	char* end = "";
-	char* resultStr = "";
+	char* end = NULL;
+	char* resultStr = NULL;
 
 	int childStrLen = 0;
 	int childCount = 0;
@@ -937,7 +947,7 @@ void* jsonGetValue(Json* json, char* key, void* val) {
 	return NULL;
 }
 
-short jsonIteraterator(int i, Node* n, short* delete, void* param, va_list* args) {
+short jsonIteraterator(int i, Node* n, short* deleteVal, void* param, va_list* args) {
 	JsonIterator* it = (JsonIterator*) param;
 
 	if (it->fnc == NULL) {
