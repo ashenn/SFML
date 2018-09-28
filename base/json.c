@@ -413,6 +413,7 @@ short jsonPrintData(int i, Node* n, short* deleteJson, void* param, va_list* arg
 	char format[250];
 	memset(format, 0, 250);
 //	snprintf(format, 250, "");
+	curTab = 0;
 
 	if (json->key != NULL && json->parent->type != JSON_ARRAY) {
 		short keyLen = strlen(json->key)+1;
@@ -428,7 +429,7 @@ short jsonPrintData(int i, Node* n, short* deleteJson, void* param, va_list* arg
 		logger->inf(LOG_JSON, "-- Set Key Format: %s", format);
 
 		logger->inf(LOG_JSON, "-- Tabs: %d", tab);
-		for (int i = 0; i <= curTab; ++i) {
+		for (int i = 0; i < curTab; ++i) {
 			strcpy(tmpFormat, format);
 			snprintf(format, 250, "%s%s", "  ", tmpFormat);
 		}
@@ -528,6 +529,7 @@ void jsonPrint(Json* json, int tab) {
 		return;
 	}
 
+	tab = 0;
 	char* key;
 	char tmpFormat[250];
 	memset(tmpFormat, 0, 250);
