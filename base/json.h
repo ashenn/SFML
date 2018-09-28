@@ -4,7 +4,7 @@
 #include "basic.h"
 #include "file.h"
 #include "logger.h"
-#include "liblist.h"
+#include "libList.h"
 
 #define LOG_JSON 1
 
@@ -53,7 +53,7 @@ typedef struct JsonIterator
 Json* newJson();
 void deleteJson(Json* json);
 
-Json* loadJsonFile(char* path);
+Json* loadJsonFile(const char* path);
 Json* jsonGetData(Json* json, char* key);
 void* jsonGetValue(Json* json, char* key, void* floatP);
 

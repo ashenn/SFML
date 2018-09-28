@@ -1,0 +1,75 @@
+ [2018-09-28 03:50:17] INFO:
+LOAD JSON
+
+
+ [2018-09-28 03:50:17] INFO:
+MAIN-2: TEST
+
+
+
+ [2018-09-28 03:50:58] INFO:
+LOAD JSON
+
+
+ [2018-09-28 03:50:58] INFO:
+MAIN-2: LOLILOL
+
+
+
+ [2018-09-28 03:51:16] INFO:
+LOAD JSON
+
+
+ [2018-09-28 03:51:16] INFO:
+MAIN-2: test.json
+
+
+
+ [2018-09-28 03:51:34] INFO:
+LOAD JSON
+
+
+ [2018-09-28 03:51:34] INFO:
+MAIN-2: test.json
+
+
+
+ [2018-09-28 03:52:14] INFO:
+LOAD JSON
+
+
+ [2018-09-28 03:52:14] INFO:
+MAIN-2: test.json
+
+
+
+ [2018-09-28 03:53:26] INFO:
+LOAD JSON
+
+
+ [2018-09-28 03:53:26] INFO:
+MAIN-2: test.json
+
+
+
+ [2018-09-28 03:55:45] INFO:
+LOAD JSON
+
+
+ [2018-09-28 03:55:45] INFO:
+MAIN-2: test.json
+
+
+
+ [2018-09-28 03:55:45] INFO:
+==== New Json From Path: test.json ===
+
+
+ [2018-09-28 03:55:45] INFO:
+-- TEST-0
+
+
+ [2018-09-28 03:55:45] INFO:
+-- TEST-1
+
+

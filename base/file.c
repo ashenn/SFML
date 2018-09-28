@@ -23,7 +23,7 @@ int filePutContent(char* path, const char* data, short append) {
 
 	//fprintf(stderr, "Printing To File\n");
 	//fprintf(stderr, "Data: %s\n", data);
-	int total = fprintf(f, data);
+	int total = fprintf(f, "%s", data);
 
 	fclose(f);
 	return total;
@@ -45,10 +45,10 @@ char* fileGetContent(char* path) {
 	}
 
 	fseek (f, 0, SEEK_END);
-	length = ftell(f);
+	length = ftell(f)+1;
 	//fprintf(stderr, "LENGTH: %ld\n", length);
 	fseek (f, 0, SEEK_SET);
-	buffer = malloc(length);
+	buffer = (char*) malloc(length);
 
 	if (buffer != NULL) {
 		int l = (int) fread(buffer, 1, length, f);

@@ -1,13 +1,16 @@
 #include "libList.h"
 #include <stdarg.h>
 
+#include <sys/types.h>
+#include <unistd.h>
+
 /**
  * Initialize A list
  * @return ListManager
  */
 ListManager* initListMgr(){
 	static int id = 0;
-	ListManager* lstMgr = malloc(sizeof(ListManager));
+	ListManager* lstMgr = (ListManager*) malloc(sizeof(ListManager));
 	if (lstMgr == NULL){
 		return NULL;
 	}
@@ -77,7 +80,7 @@ Node* addNode(ListManager* lstMgr, const char* params){
 	int id;
 	char* name = (char*) params;
 	//printf("New Node Name %s\n", name);
-	Node* newNode = malloc(sizeof(Node));
+	Node* newNode = (Node*) malloc(sizeof(Node));
 	if (newNode == NULL){
 		printf("\n### Fail to alloc Node###\n");
 		return NULL;
@@ -85,7 +88,7 @@ Node* addNode(ListManager* lstMgr, const char* params){
 
 	lockList(lstMgr);
 
-	newNode->name = malloc(strlen(name)+1);
+	newNode->name = (char*) malloc(strlen(name)+1);
 	strcpy(newNode->name, name);
 
 	id = ++lstMgr->lastId;
@@ -569,7 +572,7 @@ void listIterateFnc(ListManager* list, short (*fnc)(int , Node*, short*, void*, 
 	lockList(list);
 
 	int i = 0;
-	short delete = 0;
+	short deleteNode = 0;
 	short process = 1;
 
 	va_list args;
@@ -583,16 +586,16 @@ void listIterateFnc(ListManager* list, short (*fnc)(int , Node*, short*, void*, 
 		lockNode(n);
 
 		Node* tmp = n;
-		process = fnc(i++, n, &delete, param, &args);
+		process = fnc(i++, n, &deleteNode, param, &args);
 		n = n->next;
 
 		unlockNode(tmp);
 
-		if (delete) {
+		if (deleteNode) {
 			removeAndFreeNode(list, tmp);
 		}
 
-		delete = 0;
+		deleteNode = 0;
 		va_end(args);
 	}
 
@@ -605,7 +608,7 @@ void listRevIterateFnc(ListManager* list, short (*fnc)(int , Node*, short*, void
 	lockList(list);
 
 	int i = 0;
-	short delete = 0;
+	short deleteNode = 0;
 	short process = 1;
 
 	va_list args;
@@ -619,16 +622,16 @@ void listRevIterateFnc(ListManager* list, short (*fnc)(int , Node*, short*, void
 		lockNode(n);
 
 		Node* tmp = n;
-		process = fnc(i++, n, &delete, param, &args);
+		process = fnc(i++, n, &deleteNode, param, &args);
 		n = n->prev;
 
 		unlockNode(tmp);
 
-		if (delete) {
+		if (deleteNode) {
 			removeAndFreeNode(list, tmp);
 		}
 
-		delete = 0;
+		deleteNode = 0;
 	}
 
 	va_end(args);
