@@ -14,8 +14,11 @@ int main(int argc, char** argv) {
 
     Json* json  = loadJsonFile("test.json");
 
-    jsonPrint(json, 0);
+    char* t = json2Str(json, 0, 0);
 
+    logger->war(LOG_MAIN, "TEST: Json: \n \n%s", t);
+
+    free(t);
     deleteJson(json);
     closeLogger();
 

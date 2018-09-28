@@ -399,7 +399,9 @@ char* join(const char* glue, char** arr, unsigned int count, unsigned int size) 
             strcpy(sep, "");
 		}
 
-		snprintf(res, size, "%s%s%s", res, arr[i], sep);
+		char* tmp = Str(res);
+		snprintf(res, size, "%s%s%s", tmp, arr[i], sep);
+		free(tmp);
 	}
 
 	return res;

@@ -413,54 +413,60 @@ short jsonPrintData(int i, Node* n, short* deleteJson, void* param, va_list* arg
 
 	char format[250];
 	memset(format, 0, 250);
-//	snprintf(formatformat, 250, "");
-	curTab = 0;
 
 	if (json->key != NULL && json->parent->type != JSON_ARRAY) {
-		logger->inf(LOG_JSON, "=== TEST-2.0");
+		logger->dbg(LOG_JSON, "=== TEST-2.0");
 
 		short keyLen = strlen(json->key)+1;
-		logger->inf(LOG_JSON, "-- Key: %s", json->key);
-		logger->inf(LOG_JSON, "-- Len: %d", keyLen);
+		logger->dbg(LOG_JSON, "-- Key: %s", json->key);
+		logger->dbg(LOG_JSON, "-- Len: %d", keyLen);
 
-		logger->inf(LOG_JSON, "-- Init Key");
-		char keyName[keyLen];
-		memset(keyName, 0, keyLen);
-
-		// logger->inf(LOG_JSON, "-- Init Format");
-
-
-		// logger->inf(LOG_JSON, "-- Set Key Format: %s", format);
-
-		
-		//memset(format, 0, 250);
-		//memset(tmpFormat, 0, 250);
-		// logger->inf(LOG_JSON, "-- Tabs: %d", tab);
-		// for (int i = 0; i < curTab; ++i) {
-		// 	strcpy(tmpFormat, format);
-		// 	snprintf(format, 250, "%s%s", "  ", tmpFormat);
-		// }
-		//snprintf(format, 250, "%s\"%%s\": ", tmpFormat);
-
-		snprintf(keyName, 250, "%s", json->key);
-
-		key = Str(keyName);
-		//logger->err(LOG_JSON, "-- Key Result: %s", key);
-	}
-	else{
-		logger->inf(LOG_JSON, "=== TEST-2.1");
-		char keyName[curTab+1];
+		logger->dbg(LOG_JSON, "-- Init Format");
 		
 		memset(format, 0, 250);
 		memset(tmpFormat, 0, 250);
-		memset(keyName, 0, curTab+1);
+		logger->dbg(LOG_JSON, "-- Tabs: %d", tab);
 		
-		// for (int i = 0; i <= curTab; ++i) {
-		// 	strcpy(tmpFormat, format);
-		// 	snprintf(format, 250, "%s%s", "  ", tmpFormat);
-		// }
+		for (int i = 0; i <= curTab; ++i) {
+			strcpy(tmpFormat, format);
+			snprintf(format, 250, "%s%s", "  ", tmpFormat);
+		}
 
-		key = format;
+		snprintf(format, 250, "%s\"%%s\": ", tmpFormat);
+		logger->dbg(LOG_JSON, "-- Format: %s", format);
+
+		keyLen += strlen(format);
+
+		logger->dbg(LOG_JSON, "-- Init Key");
+		char keyName[keyLen];
+		memset(keyName, 0, keyLen);
+		snprintf(keyName, 250, format, json->key);
+
+		key = Str(keyName);
+		logger->dbg(LOG_JSON, "-- Key Result: %s", key);
+	}
+	else{
+		logger->inf(LOG_JSON, "=== TEST-2.1");
+		
+		memset(format, 0, 250);
+		memset(tmpFormat, 0, 250);
+		
+		for (int i = 0; i <= curTab; ++i) {
+			strcpy(tmpFormat, format);
+			snprintf(format, 250, "%s%s", "  ", tmpFormat);
+		}
+
+		logger->dbg(LOG_JSON, "-- Format: %s", format);
+		int keyLen = strlen(format);
+
+		logger->dbg(LOG_JSON, "-- Init Key");
+		
+		char keyName[keyLen];
+		memset(keyName, 0, keyLen);
+		snprintf(keyName, 250, format, json->key);
+
+		key = Str(keyName);
+		logger->dbg(LOG_JSON, "-- Key Result: %s", key);
 	}
 
 	logger->inf(LOG_JSON, "-- Key-0: %s", key);
@@ -543,7 +549,6 @@ void jsonPrint(Json* json, int tab) {
 		return;
 	}
 
-	tab = 0;
 	char* key;
 	char tmpFormat[250];
 	memset(tmpFormat, 0, 250);
@@ -568,10 +573,20 @@ void jsonPrint(Json* json, int tab) {
 		key = keyName;
 	}
 	else{
-		char keyName[1];
-		memset(keyName, 0, 1);
 
-		key = keyName;
+		char format[250];
+		memset(format, 0, 250);
+
+		for (int i = 0; i < tab; ++i) {
+			strcpy(tmpFormat, format);
+			snprintf(format, 250, "%s%s", "  ", tmpFormat);
+		}
+		
+		snprintf(format, 250, "%s ", tmpFormat);
+		logger->err(LOG_JSON, "FORMAT: %s", format);
+
+		key = Str(format);
+		logger->err(LOG_JSON, "Key Result: %s", format);
 	}
 
 	char value[5500];
@@ -612,6 +627,8 @@ void jsonPrint(Json* json, int tab) {
 	}
 
 	fprintf(stdout, "%s%s", key, value);
+	free(key);
+
 	if (json->type == JSON_ARRAY) {
 		listIterateFnc(json->childs, jsonPrintData, NULL, (void*) &tab);
 		fprintf(stdout, "\n%s]", tmpFormat);
@@ -668,7 +685,9 @@ short json2StrData(int i, Node* n, short* deleteJson, void* param, va_list* args
 		snprintf(format, 250, "%s\"%%s\": ", tmpFormat);
 		snprintf(keyName, 250, format, json->key);
 
-		key = keyName;
+		logger->dbg(LOG_JSON, "-- Format: %s", format);
+		key = Str(keyName);
+		logger->dbg(LOG_JSON, "-- Key Result: %s",key);
 	}
 	else{
 		char keyName[curTab+1];
@@ -680,57 +699,58 @@ short json2StrData(int i, Node* n, short* deleteJson, void* param, va_list* args
 				snprintf(format, 250, "%s%s", "  ", tmpFormat);
 			}
 		}
+		logger->dbg(LOG_JSON, "-- Format: %s", format);
 
-		key = format;
+		key = Str(format);
 	}
 
-	logger->inf(LOG_JSON, "-- Child: Key: %s", key);
-	logger->inf(LOG_JSON, "-- Child type: %s", GEN_JSON_TYPE_STRING[json->type]);
+	logger->dbg(LOG_JSON, "-- Child: Key: %s", key);
+	logger->dbg(LOG_JSON, "-- Child type: %s", GEN_JSON_TYPE_STRING[json->type]);
 
 	int write = 0;
 	char value[5500];
 	memset(value, 0, 5500);
 	switch (json->type) {
 		case JSON_NULL:
-			////logger->inf(LOG_JSON, "-- Key-2: %s", key);
+			//logger->dbg(LOG_JSON, "-- Key-2: %s", key);
 			write = snprintf(value, 5500, "null");
 			break;
 
 		case JSON_BOOL:
-			////logger->inf(LOG_JSON, "-- Key-3: %s", key);
+			//logger->dbg(LOG_JSON, "-- Key-3: %s", key);
 			if (json->boolean) {
 				write = snprintf(value, 5500, "true");
 			}
 			else{
 				write = snprintf(value, 5500, "false");
 			}
-			////logger->inf(LOG_JSON, "-- Key-4: %s", key);
+			//logger->dbg(LOG_JSON, "-- Key-4: %s", key);
 			break;
 
 		case JSON_INT:
-			////logger->inf(LOG_JSON, "-- Key-3: %s", key);
+			//logger->dbg(LOG_JSON, "-- Key-3: %s", key);
 			write = snprintf(value, 5500, "%d", json->integer);
-			////logger->inf(LOG_JSON, "-- Key-4: %s", key);
+			//logger->dbg(LOG_JSON, "-- Key-4: %s", key);
 			break;
 
 		case JSON_NUM:
-			////logger->inf(LOG_JSON, "-- Key-3: %s", key);
+			//logger->dbg(LOG_JSON, "-- Key-3: %s", key);
 			write = snprintf(value, 5500, "%f", json->num);
-			////logger->inf(LOG_JSON, "-- Key-4: %s", key);
+			//logger->dbg(LOG_JSON, "-- Key-4: %s", key);
 			break;
 
 		case JSON_STRING:
-			////logger->inf(LOG_JSON, "-- Key-4: %s", key);
+			//logger->dbg(LOG_JSON, "-- Key-4: %s", key);
 			write = snprintf(value, 5500, "\"%s\"", json->string);
 			break;
 
 		case JSON_ARRAY:
-			////logger->inf(LOG_JSON, "-- Key-5: %s", key);
+			//logger->dbg(LOG_JSON, "-- Key-5: %s", key);
 			write = snprintf(value, 5500, "[");
 			break;
 
 		case JSON_OBJECT:
-			////logger->inf(LOG_JSON, "-- Key-6: %s", key);
+			//logger->dbg(LOG_JSON, "-- Key-6: %s", key);
 			write = snprintf(value, 5500, "{");
 			break;
 	}
@@ -747,9 +767,10 @@ short json2StrData(int i, Node* n, short* deleteJson, void* param, va_list* args
 
 	int childStrLen = 0;
 
+	logger->dbg(LOG_JSON, "-- Test Type: %s", GEN_JSON_TYPE_STRING[json->type]);
+
 
 	logger->dbg(LOG_JSON, "-- Prepare End");
-
 	int end = 0;
 	if (json->type == JSON_ARRAY || json->type == JSON_OBJECT) {
 		end = 1;
@@ -763,14 +784,26 @@ short json2StrData(int i, Node* n, short* deleteJson, void* param, va_list* args
 		logger->dbg(LOG_JSON, "-- Join Childs");
 		resultStr = join(", ", childStr, json->childs->nodeCount, childStrLen);
 		logger->dbg(LOG_JSON, "-- Childs Results: %s", resultStr);
+
+		for (int i = 0; i < json->childs->nodeCount; ++i)
+		{
+			free(childStr[i]);
+		}
 	}
 
 	logger->dbg(LOG_JSON, "-- get Length");
 	logger->dbg(LOG_JSON, "-- Value Len: %d", strlen(value));
 	logger->dbg(LOG_JSON, "-- key Len: %d", strlen(key));
-	logger->dbg(LOG_JSON, "-- resultStr Len: %d", strlen(resultStr));
 
-	int len = strlen(value) + strlen(key) + strlen(resultStr) + end + 1;
+	if (resultStr != NULL) {
+		logger->dbg(LOG_JSON, "-- resultStr Len: %d", strlen(resultStr));
+	}
+
+	int len = strlen(value) + strlen(key) + end + 1;
+	if (resultStr != NULL) {
+		len += + strlen(resultStr);
+	}
+	
 	logger->dbg(LOG_JSON, "-- Total Length: %d", len);
 
 	*parentStrLen += len;
@@ -780,25 +813,43 @@ short json2StrData(int i, Node* n, short* deleteJson, void* param, va_list* args
 	logger->dbg(LOG_JSON, "-- Print 2 Result");
 	logger->dbg(LOG_JSON, "-- Value: %s", (value));
 	logger->dbg(LOG_JSON, "-- key: %s", (key));
-	logger->dbg(LOG_JSON, "-- resultStr: %s", (resultStr));
 
-	int total = snprintf(parentResultStr, len, "%s", key);
-	logger->dbg(LOG_JSON, "-- Set Key:\n %s", (parentResultStr));
+	if (resultStr != NULL) {
+		logger->dbg(LOG_JSON, "-- resultStr: %s", (resultStr));
+	}
 
-    total += snprintf(parentResultStr, len, "%s%s", parentResultStr, value);
-	logger->dbg(LOG_JSON, "-- Set Value:\n %s", (parentResultStr));
+	//int total = snprintf(parentResultStr, len, "%s", key);
+	//logger->dbg(LOG_JSON, "-- Set Key:\n %s", (parentResultStr));
 
-	total += snprintf(parentResultStr, len, "%s%s", parentResultStr, resultStr);
+    int total = snprintf(parentResultStr, len, "%s%s", key, value);
+	logger->dbg(LOG_JSON, "-- Set Key / Value:\n %s", (parentResultStr));
+
+	if (resultStr != NULL) {
+		char* tmp = Str(parentResultStr);
+
+		total += snprintf(parentResultStr, len, "%s%s", tmp, resultStr);
+		logger->dbg(LOG_JSON, "-- Set Childs:\n %s", (parentResultStr));
+		free(tmp);
+		free(resultStr);
+	}
+
 	logger->dbg(LOG_JSON, "-- Set Result:\n %s", (parentResultStr));
 
 
 	if (json->type == JSON_ARRAY) {
-		total += snprintf(parentResultStr, len, "%s]", parentResultStr);
+		char* tmp = Str(parentResultStr);
+		total += snprintf(parentResultStr, len, "%s]", tmp);
+
+		free(tmp);
 	}
 	else if(json->type == JSON_OBJECT) {
-		total += snprintf(parentResultStr, len, "%s}", parentResultStr);
+		char* tmp = Str(parentResultStr);
+		total += snprintf(parentResultStr, len, "%s}", tmp);
+
+		free(tmp);
 	}
 
+	free(key);
 	logger->dbg(LOG_JSON, "-- Set End:\n %s", (parentResultStr));
 	logger->dbg(LOG_JSON, "-- Print Result: %s", parentResultStr);
 
@@ -857,11 +908,11 @@ char* json2Str(Json* json, bool breakLine, bool indent) {
 	int childStrLen = 0;
 	int childCount = 0;
 	if (json->childs != NULL) {
-		childCount = json->childs->nodeCount+1;
+		childCount = json->childs->nodeCount;
 	}
 
-	char* childStr[childCount];
-	memset(childStr, 0, childCount);
+	char* childStr[childCount+1];
+	memset(childStr, 0, childCount+1);
 	int tab = 0;
 
 	if (json->type == JSON_ARRAY) {
@@ -873,14 +924,22 @@ char* json2Str(Json* json, bool breakLine, bool indent) {
 
 	if (strlen(end)) {
 		listIterateFnc(json->childs, json2StrData, NULL, (void*) &tab, (void*) &breakLine, (void*) &indent, (void*) &childStr, (void*) &childStrLen);
+		
+		logger->dbg(LOG_JSON, "+++++ Child Count: %d", childCount);
+		for (int i = 0; i < childCount; ++i)
+		{
+			logger->dbg(LOG_JSON, "+++++ Child #%d Results: %s", i, childStr[i]);
+		}
+
 		resultStr = join(", ", childStr, json->childs->nodeCount, childStrLen);
 	}
+
+	logger->dbg(LOG_JSON, "RESULT STR: %s", resultStr);
 
 	int totalLen = strlen(value) + strlen(resultStr) + strlen(end) + 2;
 	char* finalStr = StrE(totalLen);
 
 	snprintf(finalStr, totalLen, "%s%s%s", value, resultStr, end);
-	fprintf(stdout, "\n%s\n", finalStr);
 
 	if (strlen(end)) {
 		free(end);
@@ -890,7 +949,8 @@ char* json2Str(Json* json, bool breakLine, bool indent) {
 		free(resultStr);
 	}
 
-	for (int i = 0; i < childCount-1; ++i) {
+	for (int i = 0; i < childCount; ++i) {
+		logger->dbg(LOG_JSON, "--- Free Child %d", i);
 		free(childStr[i]);
 	}
 

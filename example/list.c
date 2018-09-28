@@ -31,7 +31,7 @@ int main() {
 
 	/* Add Node With Value */
 	int value2 = 20;
-	n = addNode(
+	n = addNodeV(
 		list,				// List
 		"Node-2",			// Node Name
 		(void*) testValue,	// Node Value
