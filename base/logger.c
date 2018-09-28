@@ -39,7 +39,6 @@ void logg(short lvl, unsigned int  tag, const char* msg, va_list* args){
 	Log* logger = getLogger();
 
 
-
 	if (!logger->enabled && lvl < WARNING) {
 		return;
 	}
@@ -47,6 +46,7 @@ void logg(short lvl, unsigned int  tag, const char* msg, va_list* args){
 	if (lvl < logger->lvl){
 		return;
 	}
+
 
 	char* tagName = NULL;
 	if (logger->tags != NULL && logger->tags->nodeCount > 0) {
@@ -69,6 +69,7 @@ void logg(short lvl, unsigned int  tag, const char* msg, va_list* args){
 
 	}
 
+
     //fprintf(stdout, "LOCK LOGGER\n");
 	pthread_mutex_lock(&logger->mutex);
 
@@ -77,6 +78,7 @@ void logg(short lvl, unsigned int  tag, const char* msg, va_list* args){
 	vsprintf(message, msg, *args);
 
     //fprintf(stdout, "MSG: %s\n", msg);
+
 
     #ifndef _WIN32
         fprintf(stdout, "%s", logger->lvlColors[lvl]);
@@ -159,23 +161,50 @@ void setLoggerFuncs(Log* logger){
 }
 
 void setLoggerLvls(Log* logger){
-	logger->lvls = (char**) calloc(5, sizeof(char) * 8);
+	logger->lvls = (char**) malloc((sizeof(char*) * 5));
+	memset(logger->lvls, 0, 5);
 
+
+	logger->lvls[0] = (char*) malloc(sizeof(char) * 8);
+	memset(logger->lvls[0], 0, 8);
 	strcpy(logger->lvls[0], "DEBUG");
+
+	
+	logger->lvls[1] = (char*) malloc(sizeof(char) * 8);
+	memset(logger->lvls[1], 0, 8);
 	strcpy(logger->lvls[1], "INFO");
+	
+	logger->lvls[2] = (char*) malloc(sizeof(char) * 8);
+	memset(logger->lvls[2], 0, 8);
 	strcpy(logger->lvls[2], "WARNING");
+	
+	logger->lvls[3] = (char*) malloc(sizeof(char) * 8);
+	memset(logger->lvls[3], 0, 8);
 	strcpy(logger->lvls[3], "ERROR");
+	
 
 	logger->lvls[4] = NULL;
 }
 
 void setLoggerLvlColors(Log* logger){
-	logger->lvlColors = (char**) calloc(5, sizeof(char) * 6);
+	logger->lvlColors = (char**) calloc(5, sizeof(char*));
 
+	logger->lvlColors[0] = (char*) malloc(sizeof(char) * 6);
+	memset(logger->lvlColors[0], 0, 6);
 	strcpy(logger->lvlColors[0], KBLU);
+
+	logger->lvlColors[1] = (char*) malloc(sizeof(char) * 6);
+	memset(logger->lvlColors[1], 0, 6);
 	strcpy(logger->lvlColors[1], KNRM);
+
+	logger->lvlColors[2] = (char*) malloc(sizeof(char) * 6);
+	memset(logger->lvlColors[2], 0, 6);
 	strcpy(logger->lvlColors[2], KYEL);
+
+	logger->lvlColors[3] = (char*) malloc(sizeof(char) * 6);
+	memset(logger->lvlColors[3], 0, 6);
 	strcpy(logger->lvlColors[3], KRED);
+
 
 	logger->lvlColors[4] = NULL;
 }
@@ -249,6 +278,7 @@ Log* initLogger(int argc, char** argv){
 	logger->lvl = -1;
 
 	setLoggerLvls(logger);
+
 	setLoggerLvlColors(logger);
 	setLoggerFuncs(logger);
 
@@ -285,11 +315,19 @@ void closeLogFile(){
 void clearLoglvls(){
 	Log*  logger = getLogger();
 
+	for (int i = 0; logger->lvls[i] != NULL; ++i) {
+		free(logger->lvls[i]);
+	}
+
 	free(logger->lvls);
 }
 
 void clearLoglvlColors(){
 	Log*  logger = getLogger();
+
+	for (int i = 0; logger->lvlColors[i] != NULL; ++i) {
+		free(logger->lvlColors[i]);
+	}
 
 	free(logger->lvlColors);
 }
@@ -302,6 +340,8 @@ void closeLogger(){
 
 	deleteList(logger->args);
 	deleteList(logger->tags);
+
+	free(logger->file);
 
 	free(logger);
 }

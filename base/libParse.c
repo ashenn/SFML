@@ -42,7 +42,7 @@ int callArg(ListManager* lstMgr, char* name, void* val){
 		if (arg->asInt)
 		{
 			if (arg->defParam != NULL){
-				int dVal = str2int(arg->defParam);
+				int dVal = str2int((char*) arg->defParam);
 				if (val == NULL){
 					arg->function(&dVal, NULL);
 				}
@@ -92,7 +92,7 @@ int parseArgs(ListManager* lstMgr, int argc, char* argv[]){
 		}
 
 		len = strlen(argv[i]);
-		arg = malloc(len+1);
+		arg = (char*) malloc(len+1);
 		substr(argv[i], 1, len, &arg);
 
 		//fprintf(stderr, "######  CMD: %s #####\n", arg);

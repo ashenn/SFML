@@ -178,7 +178,7 @@ char* int2str(int num){
 	int count = numBase(num);
 	short t = 1 + (num < 0);
 
-	char* str = malloc((sizeof(char) * count) + t);
+	char* str = (char*) malloc((sizeof(char) * count) + t);
 	if (num < 0){
 		str[0] = '-';
 	}
@@ -301,7 +301,7 @@ void explode(char c, const char* str, int offset, int limit, char* res[]){
 	if (!cnt){
         strcpy(res[0], str);
 		//res[0] = str;
-		res[1] = '\0';
+		res[1] = NULL;
 		return;
 	}
 
@@ -312,21 +312,21 @@ void explode(char c, const char* str, int offset, int limit, char* res[]){
 	if (str[0] == c){
 		i=1;
 		pos0=1;
-		res[0] = "";
+		res[0] = NULL;
 	}
 
 
 	for (i = i; i < cnt && (pos1 = strpos(c, str, pos0)) > -1; ++i){
-		res[i] = malloc(((pos1 - (pos0)) * sizeof(char)) +1);
+		res[i] = (char*) malloc(((pos1 - (pos0)) * sizeof(char)) +1);
 		substr(str, pos0, pos1 - pos0, &res[i]);
 		pos0 = pos1 +1;
 	}
 
 	pos1 = strlen(str) - pos0;
-	res[i] = malloc((pos1 +1) * sizeof(char) +1);
+	res[i] = (char*) malloc((pos1 +1) * sizeof(char) +1);
 
 	substr(str, pos0, 0, &res[i]);
-	res[i+1] = '\0';
+	res[i+1] = NULL;
 }
 
 float percent(const float x, const float y) {
@@ -366,7 +366,7 @@ char* Str(const char* str) {
 	}
 
     int len = strlen(str)+1;
-    char* res =  malloc(len);
+    char* res = (char*) malloc(len);
 
     memset(res, 0, len);
     strcpy(res, str);
@@ -375,7 +375,7 @@ char* Str(const char* str) {
 }
 
 char* StrE(const int len) {
-    char* res =  malloc(len);
+    char* res = (char*) malloc(len);
     memset(res, 0, len);
 
     return res;
