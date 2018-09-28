@@ -50,7 +50,7 @@ void logg(short lvl, unsigned int  tag, const char* msg, va_list* args){
 
 	char* tagName = NULL;
 	if (logger->tags != NULL && logger->tags->nodeCount > 0) {
-        Node* n = getNode(logger->tags, tag);
+            Node* n = getNode(logger->tags, tag);
         if (n == NULL && lvl < WARNING) {
             return;
         }
