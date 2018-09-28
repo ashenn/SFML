@@ -1,17 +1,23 @@
 CC	=	g++ --std=c++11 -g -Wall
 NAME	=	mario
-SRC	=	main.c                  \
-                base/basic.c            \
+
+BASE    =       base/basic.c            \
                 base/libList.c          \
                 base/libParse.c         \
                 base/logger.c           \
                 base/math.c             \
                 base/file.c             \
                 base/lib/jsmn/jsmn.c    \
-                base/json.c             \
-                
+                base/json.c
+
+SRC     =       main.c                  \
+                $(BASE)
+
+LIST	=	example/list.c            \
+                $(BASE)
 
 OBJ	=	$(SRC:%.c=%.o)
+
 RM	=	rm -f
 LIB	=	-lpthread               \
                 -fsanitize=address       \
@@ -28,4 +34,6 @@ clean:
 fclean:		clean
 		$(RM) $(NAME)
 
-re: fclean all
+re:             fclean all
+
+list:           $(CC) $(LIST) -L../libs $(LIB) -o list_example
