@@ -12,6 +12,8 @@ int main(int argc, char** argv) {
     Project* pro = Project::get();
     pro->init(argc, argv);
 
+
+
     pro->close();
     Log::closeLog();
 

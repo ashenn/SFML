@@ -1,31 +1,33 @@
 CC	=	g++ --std=c++11 -g -Wall
 NAME	=	mario
-SRC	=	main.c                  \
+SRC	=	main.cpp                  \
                 base/basic.c            \
                 base/libList.c          \
                 base/libParse.c         \
-                base/logger.c           \
+                base/logger.cpp         \
                 base/math.c             \
                 base/file.c             \
                 base/lib/jsmn/jsmn.c    \
                 base/json.c             \
-                core/abstractClass.c    \
-                core/project/project.c  \
+                core/abstractClass.cpp    \
+                core/project/project.cpp  \
                 
 
-OBJ	=	$(SRC:%.c=%.o)
+OBJ     =       $(SRC:%.c=%.o)
+OBJ2	=	$(OBJ:%.cpp=%.o)
+
 RM	=	rm -f
 LIB	=	-lpthread               \
                 -fsanitize=address       \
                 -D_REENTRANT
 
-$(NAME):	$(OBJ)
-		$(CC) $(OBJ) -L../libs $(LIB) -o $(NAME)
+$(NAME):	$(OBJ2)
+		$(CC) $(OBJ2) -L../libs $(LIB) -o $(NAME)
 
 all:		$(NAME)
 
 clean:
-		$(RM) $(OBJ)
+		$(RM) $(OBJ2)
 
 fclean:		clean
 		$(RM) $(NAME)
