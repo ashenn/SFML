@@ -9,3 +9,4 @@ bin/*
 *.o
 mario
 *.log
+*.dll
