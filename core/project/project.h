@@ -4,8 +4,6 @@
 #include "../abstractClass.h"
 #include "../../base/logger.h"
 
-#define LOG_PROJECT 1 << 1
-
 #define PROJECT_STATES(STATE) \
 	STATE(PRO_NULL) \
 	STATE(PRO_INIT) \
@@ -41,6 +39,7 @@ class Project : public AbstractStaticClass
 		void initFlags();
 		void setArgs(int argc, char* argv[]);
 
+		pthread_t renderThread;
 	
 	public:		
 		//Project(Project const&)    		= delete;

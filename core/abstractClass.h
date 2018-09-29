@@ -4,6 +4,9 @@
 #include "../common.h"
 #include "../base/basic.h"
 
+
+#include <stdio.h>
+#include <iostream>
 #include <pthread.h>
 
 class AbstractClass
@@ -36,13 +39,9 @@ class AbstractClass
 };
 
 
-#include <iostream>
-#include <stdio.h>
-
 
 class AbstractStaticClass : public AbstractClass {
 	protected:
-		void init();
 		bool isInit = false;
 
 	public:

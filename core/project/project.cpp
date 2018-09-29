@@ -56,10 +56,10 @@ void Project::initFlags() {
 
 	static unsigned int flags[20] = {
 	    LOG_NONE,
-		LOG_JSON,
 		LOG_MAIN,
-		LOG_PROJECT/*,
-		LOG_OBJ,
+		LOG_JSON,
+		LOG_PROJECT,
+		LOG_OBJ/*,
 		LOG_ASSET,
 		LOG_VIEW,
 		LOG_LAYER,
@@ -80,16 +80,19 @@ void Project::initFlags() {
 	addNodeV(flagList, "none", &flags[0], 0);
 	Log::addTag(flags[0], "none", 0);
 
-	addNodeV(flagList, "json", &flags[1], 0);
-	Log::addTag(flags[1], "json", 0);
+	addNodeV(flagList, "main", &flags[1], 0);
+	Log::addTag(flags[1], "main", 0);
 
-	addNodeV(flagList, "main", &flags[2], 0);
-	Log::addTag(flags[2], "main", 0);
+	addNodeV(flagList, "json", &flags[2], 0);
+	Log::addTag(flags[2], "json", 0);
+
+	addNodeV(flagList, "project", &flags[3], 0);
+	Log::addTag(flags[3], "project", 0);
+
+	addNodeV(flagList, "obj", &flags[4], 0);
+	Log::addTag(flags[4], "obj", 0);
 
 	/*
-		addNodeV(flagList, "obj", &flags[3], 0);
-		Log::addTag(flags[3], "obj", 0);
-
 		addNodeV(flagList, "asset", &flags[4], 0);
 		Log::addTag(flags[4], "asset", 0);
 
@@ -139,7 +142,7 @@ void Project::initFlags() {
 
 
 void addDebugFlag(void* f, void* p) {
-	char* flag = (char*) f; 
+	char* flag = (char*) f;
 	Project::get()->enableFlag(flag);
 }
 
