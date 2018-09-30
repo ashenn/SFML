@@ -74,8 +74,8 @@ bool AbstractClass::lock(const char* tag) {
 	double curTH = this->getThreadId();	
 
 	if (curTH == this->pid) {
-		Log::err(LOG_MAIN, "Trying To lock Thread From Same Thread: '%s' Locked  FROM '%s'", this->name, tag);
-		Log::err(LOG_MAIN, "Pid: %d", (int) this->pid);
+		//Log::err(LOG_MAIN, "Trying To lock Thread From Same Thread: '%s' Locked  FROM '%s'", this->name, tag);
+		//Log::err(LOG_MAIN, "Pid: %d", (int) this->pid);
 		return false;
 	}
 

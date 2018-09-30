@@ -14,9 +14,9 @@ class Object : public AbstractClass
 		unsigned short z = 0;
 
 		bool visible = true;
-		bool enabled = false;
+		bool enabled = true;
 
-		IntRect clip;
+		vector pos;
 		Node* node = NULL;
 		Object* parent = NULL;
 
@@ -24,13 +24,14 @@ class Object : public AbstractClass
 		Texture* texture = NULL;
 
 	protected:
+		IntRect clip;
 
 	public:
-		Object(const char* name, Texture* text, IntRect* clip, unsigned short z, bool visible);
+		Object(const char* name, vector* pos, Texture* text, IntRect* clip, unsigned short z, bool visible);
 		
-		Object(const char* name) : Object(name, NULL, NULL, 0, false){};
-		Object(const char* name, Texture* text, IntRect* clip) : Object(name, text, clip, 0, false){};
-		Object(const char* name, Texture* text, IntRect* clip, unsigned short z) : Object(name, text, clip, z, false){};
+		Object(const char* name) : Object(name, NULL, NULL, NULL, 0, true){};
+		Object(const char* name, vector* pos, Texture* text, IntRect* clip) : Object(name, pos, text, clip, 0, true){};
+		Object(const char* name, vector* pos, Texture* text, IntRect* clip, unsigned short z) : Object(name, pos, text, clip, z, true){};
 
 		~Object();
 
@@ -42,11 +43,12 @@ class Object : public AbstractClass
 		void removeFromView();
 
 		vector getPosition();
+		void setPosition(vector pos);
+
 		vector move(vector move);
 
-		/*
-		void setPos(vector pos);
-		*/
+
+		void draw(RenderWindow* window);
 };
 
 

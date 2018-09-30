@@ -541,7 +541,7 @@ short jsonPrintData(int i, Node* n, short* deleteJson, void* param, va_list* arg
 	return true;
 }
 
-void jsonPrint(Json* json, int tab) {
+void jsonPrint(const Json* json, int tab) {
 	if (json == NULL) {
 		Log::war(LOG_JSON, "Trying to Print NULL JSON");
 		return;
@@ -854,7 +854,7 @@ short json2StrData(int i, Node* n, short* deleteJson, void* param, va_list* args
 	return true;
 }
 
-char* json2Str(Json* json, bool breakLine, bool indent) {
+char* json2Str(const Json* json, bool breakLine, bool indent) {
 	Log::inf(LOG_JSON, "===== JSON 2 STRING ====");
 
 	if (json == NULL) {
@@ -959,7 +959,7 @@ char* json2Str(Json* json, bool breakLine, bool indent) {
 
 
 
-Json* jsonGetData(Json* json, char* key) {
+Json* jsonGetData(const Json* json, const char* key) {
 	Log::inf(LOG_JSON, "Getting JSON data: %s", key);
 
 	if (json == NULL) {
@@ -982,7 +982,7 @@ Json* jsonGetData(Json* json, char* key) {
 	return (Json*) n->value;
 }
 
-void* jsonGetValue(Json* json, char* key, void* val) {
+void* jsonGetValue(const Json* json, const char* key, void* val) {
 	Json* res = jsonGetData(json, key);
 	if (res == NULL) {
 		return NULL;
@@ -1032,7 +1032,7 @@ short jsonIteraterator(int i, Node* n, short* deleteVal, void* param, va_list* a
 	return (short) it->fnc((unsigned int) i, (Json*) n->value, (void*) va_arg(*args, ListManager*));
 }
 
-void jsonIterate(Json* json, bool (*fnc)(unsigned int, Json*, void*), void* param, ...) {
+void jsonIterate(const Json* json, bool (*fnc)(unsigned int, Json*, void*), void* param, ...) {
 	if (json == NULL) {
 		Log::war(LOG_JSON, "Trying To Iterate Through NULL JSON !!!");
 		return;

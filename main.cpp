@@ -1,9 +1,10 @@
 #include "common.h"
 
 #include "core/event/event.h"
-#include "core/project/project.h"
-#include "core/object/object.h"
 #include "core/render/render.h"
+#include "core/project/project.h"
+
+#include "core/object/sprite/spriteObject.h"
 
 #include "core/animation/animation.h"
 
@@ -44,10 +45,10 @@ int main(int argc, char** argv) {
     Log::inf(LOG_MAIN, "--- Init Object");
     IntRect* clip = new IntRect(0, 0, 50, 38);
     
-    Object* obj = new Object("Test", texture, clip);
+    vector pos = {0, 0};
+    Object* obj = new SpriteObj("Test", &pos, 0, "adventurer");
+
     obj->addToView();
-
-
 
     Log::inf(LOG_MAIN, "--- Launch Render Thread");
     pro->runRenderTh();
@@ -76,6 +77,7 @@ int main(int argc, char** argv) {
     delete clip;
     delete texture;
 
+    AssetMgr::get(true);
     Log::closeLog();
     return 0;
 }

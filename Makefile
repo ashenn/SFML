@@ -15,14 +15,17 @@ CSRC	=	base/basic.c              \
                 base/lib/jsmn/jsmn.c      \
                 base/json.c               \
 
-CPPSRC =        base/logger.cpp           \
-                core/abstractClass.cpp    \
-                core/event/event.cpp \
+CPPSRC =        base/logger.cpp                 \
+                core/exception/exception.cpp    \
+                core/abstractClass.cpp          \
+                core/asset/asset.cpp            \
+                core/event/event.cpp      \
                 core/project/project.cpp  \
-                core/time/timeMgr.cpp    \
-                core/render/render.cpp       \
-                core/object/object.cpp       \
-                core/animation/animation.cpp \
+                core/time/timeMgr.cpp     \
+                core/render/render.cpp                    \
+                core/object/object.cpp                    \
+                core/object/sprite/spriteObject.cpp       \
+                core/animation/animation.cpp              \
                 
 
 

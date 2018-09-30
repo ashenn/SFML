@@ -52,13 +52,13 @@ Json* newJson();
 void deleteJson(Json* json);
 
 Json* loadJsonFile(const char* path);
-Json* jsonGetData(Json* json, char* key);
-void* jsonGetValue(Json* json, char* key, void* floatP);
+Json* jsonGetData(const Json* json, const char* key);
+void* jsonGetValue(const Json* json, const char* key, void* floatP);
 
-void jsonPrint(Json* json, int tab);
-char* json2Str(Json* json, bool breakLine, bool indent);
+void jsonPrint(const Json* json, int tab);
+char* json2Str(const Json* json, bool breakLine, bool indent);
 Json* jsonSetValue(Json* json, char* key, void* value, JsonDataEnum type);
 
-void jsonIterate(Json* json, bool (*fnc)(unsigned int, Json*, void*), void* param, ...);
+void jsonIterate(const Json* json, bool (*fnc)(unsigned int, Json*, void*), void* param, ...);
 
 #endif

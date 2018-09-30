@@ -57,8 +57,9 @@ void Render::render() {
 	while((n = listIterate(this->objectList, n)) != NULL) {
 		Object* obj = (Object*) n->value;
 
-		Log::dbg(LOG_RENDER, "-- Rendering: %s", obj->getName());
-		this->window->draw(*obj->getSprite());
+		Log::inf(LOG_RENDER, "-- Rendering: %s", obj->getName());
+
+		obj->draw(this->window);
 	}
 	
 

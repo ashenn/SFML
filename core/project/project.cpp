@@ -76,8 +76,11 @@ void Project::initFlags() {
 		LOG_OBJ,
 		LOG_RENDER,
 		LOG_ANIM,
-		LOG_EVENT/*,
+		LOG_EVENT,
 		LOG_ASSET,
+		LOG_SPRITE,
+		LOG_SPRITE_OBJ/*,
+
 		LOG_VIEW,
 		LOG_LAYER,
 		LOG_COMMON,
@@ -116,10 +119,16 @@ void Project::initFlags() {
 	addNodeV(flagList, "event", &flags[7], 0);
 	Log::addTag(flags[7], "event", 0);
 
+	addNodeV(flagList, "asset", &flags[8], 0);
+	Log::addTag(flags[8], "asset", 0);
+
+	addNodeV(flagList, "sprite", &flags[9], 0);
+	Log::addTag(flags[9], "sprite", 0);
+
+	addNodeV(flagList, "spriteObj", &flags[10], 0);
+	Log::addTag(flags[10], "spriteObj", 0);
 
 	/*
-		addNodeV(flagList, "asset", &flags[4], 0);
-		Log::addTag(flags[4], "asset", 0);
 
 		addNodeV(flagList, "view", &flags[5], 0);
 		Log::addTag(flags[5], "view", 0);
