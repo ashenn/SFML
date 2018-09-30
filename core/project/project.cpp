@@ -1,4 +1,14 @@
 #include "project.h"
+#include "../render/render.h"
+#include "../time/timeManager.h"
+
+const char* STATE_NAMES[] = {
+    PROJECT_STATES(GEN_STATE_NAMES)
+};
+
+const char* Project::getStatusName(ProjectState status) {
+	return STATE_NAMES[status];
+}
 
 Project::~Project() {
 	deleteList(flagList);
@@ -9,6 +19,8 @@ void Project::init(int argc, char* argv[]) {
 		return;
 	}
 
+	TimeManager* time = TimeManager::get();
+	time->start();
 	Log::inf(LOG_JSON, "=== Init Project ===");
 
 	status = PRO_INIT;
@@ -47,7 +59,7 @@ unsigned int Project::getFlags() {
 	return flags;
 }
 
-unsigned int Project::getStatus() {
+ProjectState Project::getStatus() {
 	return status;
 }
 
@@ -59,13 +71,14 @@ void Project::initFlags() {
 		LOG_MAIN,
 		LOG_JSON,
 		LOG_PROJECT,
-		LOG_OBJ/*,
+		LOG_OBJ,
+		LOG_RENDER,
+		LOG_ANIM/*,
 		LOG_ASSET,
 		LOG_VIEW,
 		LOG_LAYER,
 		LOG_EVENT,
 		LOG_COMMON,
-		LOG_RENDER,
 		LOG_ANIM,
 		LOG_TIMER,
 		LOG_SPRITE,
@@ -91,6 +104,13 @@ void Project::initFlags() {
 
 	addNodeV(flagList, "obj", &flags[4], 0);
 	Log::addTag(flags[4], "obj", 0);
+
+	addNodeV(flagList, "render", &flags[5], 0);
+	Log::addTag(flags[5], "render", 0);
+
+	addNodeV(flagList, "anim", &flags[6], 0);
+	Log::addTag(flags[6], "anim", 0);
+
 
 	/*
 		addNodeV(flagList, "asset", &flags[4], 0);
@@ -170,5 +190,34 @@ void Project::setArgs(int argc, char* argv[]) {
 }
 
 void Project::close() {
+	Log::inf(LOG_PROJECT, "=== Closing Project ===");
+	
+	Log::dbg(LOG_PROJECT, "-- Waiting Render Thread");
+	pthread_join(this->renderTh, NULL);
+	Log::dbg(LOG_PROJECT, "-- Thread Joned");
+
+	Log::dbg(LOG_PROJECT, "-- Deleting Project");
 	Project::get(true);
+}
+
+
+void Project::changeStatus(ProjectState status) {
+	bool b = this->lock("Changing Project Status");	
+
+	Log::inf(LOG_PROJECT, "=== Changing Project Status: %s ===", STATE_NAMES[status]);
+	this->status = status;
+
+	this->unlock("Unlock Project Status", b);	
+}
+
+void Project::runRenderTh() {
+	Log::inf(LOG_PROJECT, "=== Call Render Thread ===");
+	
+	pthread_create(&this->renderTh, NULL, renderThread, NULL);
+
+	Log::dbg(LOG_PROJECT, "-- Waiting Render");
+	this->wait();
+
+	Log::dbg(LOG_PROJECT, "-- Render Thread Ready");
+	this->unlock("Render Thread", true);
 }

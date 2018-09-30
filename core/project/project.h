@@ -12,17 +12,12 @@
 	STATE(PRO_CLOSE) \
 
 #define GEN_STATE_ENUM(ENUM) ENUM,
-#define GEN_STATE_STRING(STRING) #STRING,
+#define GEN_STATE_NAMES(STRING) #STRING,
 
 
 typedef enum ProjectState {
 	PROJECT_STATES(GEN_STATE_ENUM)
 } ProjectState;
-
-
-static const char* GEN_STATE_STRING[] = {
-    PROJECT_STATES(GEN_STATE_STRING)
-};
 
 
 
@@ -32,29 +27,34 @@ class Project : public AbstractStaticClass
 	    Project(){}
 	    ~Project();
 		unsigned int flags = 0;
-		unsigned int status = PRO_NULL;
+		ProjectState status = PRO_NULL;
 
 		ListManager* flagList = NULL;
 
 		void initFlags();
 		void setArgs(int argc, char* argv[]);
 
-		pthread_t renderThread;
+		pthread_t renderTh;
 	
-	public:		
-		//Project(Project const&)    		= delete;
+	public:
+		static const char* getStatusName(ProjectState status);
+
 		void operator=(Project const&)  = delete;
 
 		void close();
-		void addFlag(unsigned int f);
 		void init(int argc, char* argv[]);
 
+		ProjectState getStatus();
+		void changeStatus(ProjectState state);
 
 		unsigned int getFlags();
-		unsigned int getStatus();
+		void addFlag(unsigned int f);
+
 		bool enableFlag(const char* f);
-		void changeStatus(ProjectState state);
 		bool flagActive(unsigned int f);
+
+		void runRenderTh();
+
 
 		static Project* get(bool deleteInst = false) {
 			static Project* instance = NULL;

@@ -25,6 +25,7 @@ int numBase(int num);
 char int2char(int a);
 char* int2str(int num);
 float str2float(const char* str);
+double str2double(const char* str);
 float percent(const float x, const float y);
 
 void validatePath(char* path);

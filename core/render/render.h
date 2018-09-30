@@ -1,10 +1,8 @@
 #ifndef RENDER_H
 #define RENDER_H
 
-#include "../../base/libList.h"
 #include "../object/object.h"
-
-
+#include "../project/project.h"
 
 class Render : public AbstractStaticClass
 {
@@ -12,9 +10,13 @@ class Render : public AbstractStaticClass
 		Render();
 		~Render();
 
+		RenderWindow* window = NULL;
 		ListManager* objectList = NULL;
 
 	public:
+		void init(RenderWindow* window);
+		RenderWindow* getWindow();
+
 		static Render* get(bool deleteInst = false) {
 			static Render* instance = NULL;
 
@@ -35,8 +37,13 @@ class Render : public AbstractStaticClass
 			return instance;
 		}
 
+		void render();
+		void close();
+
 		ListManager* getObjectList();
-		void addObject(Object* obj);
+		Node* addObject(Object* obj);
 };
+
+void* renderThread(void* param);
 
 #endif

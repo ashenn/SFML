@@ -1,37 +1,49 @@
-CC	=	g++ --std=c++11 -g -Wall
+CC      =       g++
+
+CFLAGS          =       --std=c++11 -g -Wall
+CPPFLAGS	=	--std=c++11 -g -Wall
+
 NAME	=	mario
-SRC	=	main.cpp                  \
-                base/basic.c              \
+
+MAIN    =       main.cpp
+
+CSRC	=	base/basic.c              \
                 base/libList.c            \
                 base/libParse.c           \
-                base/logger.cpp           \
                 base/math.c               \
                 base/file.c               \
                 base/lib/jsmn/jsmn.c      \
                 base/json.c               \
+
+CPPSRC =        base/logger.cpp           \
                 core/abstractClass.cpp    \
                 core/project/project.cpp  \
-                core/render/render.cpp        \
-                core/object/object.cpp    \
+                core/time/timeManager.cpp    \
+                core/render/render.cpp       \
+                core/object/object.cpp       \
+                core/animation/animation.cpp \
                 
 
-OBJ     =       $(SRC:%.c=%.o)
-OBJ2	=	$(OBJ:%.cpp=%.o)
+
+OBJ	=	$(MAIN:%.cpp=%.o)
+OBJ1    =       $(CSRC:%.c=%.o)
+OBJ2    =       $(CPPSRC:%.cpp=%.o)
 
 RM	=	rm -f
 LIB	=	-lsfml-graphics                   \
                 -lsfml-window -lsfml-system       \
-                -lpthread                         \
+                -lX11                             \
                 -fsanitize=address                \
                 -D_REENTRANT
 
-$(NAME):	$(OBJ2)
-		$(CC) $(OBJ2) -L../libs $(LIB) -o $(NAME)
+
+$(NAME):	$(OBJ) $(OBJ1) $(OBJ2)
+		$(CC) $(OBJ) $(OBJ1) $(OBJ2) -L../libs $(LIB) -o $(NAME)
 
 all:		$(NAME)
 
 clean:
-		$(RM) $(OBJ2)
+		$(RM) $(OBJ) $(OBJ1) $(OBJ2)
 
 fclean:		clean
 		$(RM) $(NAME)

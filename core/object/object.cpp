@@ -1,4 +1,5 @@
 #include "object.h"
+#include "../render/render.h"
 
 Object::Object(const char* name, Texture* text, IntRect* clip, unsigned short z, bool visible) {
 	if (name == NULL || !strlen(name)) {
@@ -32,13 +33,11 @@ Object::~Object() {
 	Log::inf(LOG_OBJ, "=== Deleting Object #%d: %s ===", this->id, this->name);
 
 	this->removeTexture();
-	if (this->sprite != NULL) {
-	}
 }
 
 void Object::removeTexture() {
 	if (this->sprite != NULL) {
-		Log::dbg(LOG_OBJ, "-- Deleting Old Texture");
+		Log::dbg(LOG_OBJ, "-- Deleting Sprite");
 		delete this->sprite;
 	}
 }
@@ -60,4 +59,25 @@ void Object::setTexture(Texture* text) {
 
 Sprite* Object::getSprite() {
 	return this->sprite;
+}
+
+void Object::addToView() {
+	Log::inf(LOG_OBJ, "Adding To View Object #%d %s", this->id, this->name);
+	
+	if (this->node != NULL) {
+		Log::war(LOG_OBJ, "Trying To add To View Twice Object #%d %s", this->id, this->name);
+		return;
+	}
+
+	this->node = Render::get()->addObject(this);
+}
+
+vector Object::getPosition() {
+	vector res;
+
+	const Vector2f  pos = this->sprite->getPosition();
+	res.x = (double) pos.x;
+	res.y = (double) pos.y;
+
+	return res;
 }

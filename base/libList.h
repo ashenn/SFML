@@ -55,6 +55,8 @@ void printNode(Node* node);
 void printNodes(ListManager* lstMgr);
 Node* getNode(ListManager* lstMgr, const int id);
 Node* getNodeByName(ListManager* lstMgr, const char* name);
+Node* getNodeByValue(ListManager* lst, const void* value);
+
 
 void removeNode(ListManager* lstMgr, Node* node);
 void* deleteNode(ListManager* lstMgr, int id);

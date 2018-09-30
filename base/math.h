@@ -3,6 +3,10 @@
 
 #include <math.h>
 #include <stdlib.h>
+#include "../common.h"
+#include <SFML/Graphics.hpp>
+
+using namespace sf;
 
 typedef struct vector vector;
 struct vector {
@@ -19,6 +23,6 @@ double vectorDistance(vector* vec);
 vector sumVector(vector* v1, vector* v2);
 vector diffVector(vector* v1, vector* v2);
 vector rotateVector(vector* v1, double angle);
-/*vector getVector(SDL_Rect rect1, SDL_Rect rect2);*/
+vector getVector(vector pos1, vector pos2);
 
 #endif

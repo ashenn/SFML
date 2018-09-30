@@ -9,13 +9,13 @@ double rad2deg(double rad) {
     return rad * (180 / M_PI );
 }
 
-/*vector getVector(SDL_Rect rect1, SDL_Rect rect2) {
+vector getVector(vector pos1, vector pos2) {
 	vector vec;
-	vec.x = (double) (rect2.x - rect1.x);
-	vec.y = (double) (rect2.y - rect1.y);
+	vec.x = (double) (pos2.x - pos1.x);
+	vec.y = (double) (pos2.y - pos1.y);
 
 	return vec;
-}*/
+}
 
 double getDistance(double x, double y) {
 	return y - x;

@@ -140,6 +140,48 @@ float str2float(const char* str) {
 	return result * ((float) multiplier);
 }
 
+double str2double(const char* str) {
+	double result = 0;
+	int multiplier = 1;
+	double tmp = 0;
+	short decimal = 0;
+
+	int i;
+	for (i = 0; str[i] != '\0'; ++i)
+	{
+		if (str[i] == '-')
+		{
+			multiplier = -1;
+			continue;
+		}
+		else if (str[i] == '.' || str[i] == ',') {
+			if (decimal) {
+				return 0;
+			}
+			else {
+				decimal = 1;
+			}
+			continue;
+		}
+
+		tmp = (double) char2int(str[i]);
+		if (tmp == -1)
+		{
+			return 0;
+		}
+
+		if (!decimal) {
+			result = (result * 10) + tmp;
+		}
+		else {
+			result = (result) + (tmp / ((double) (myPow(10 ,decimal))));
+			decimal++;
+		}
+	}
+
+	return result * ((double) multiplier);
+}
+
 int numAtIndex(int num, int index){
 	int base;
 	int result;

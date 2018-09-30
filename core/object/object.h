@@ -1,13 +1,13 @@
 #ifndef OBJECT_H
 #define OBJECT_H
 
-#include <SFML/Graphics.hpp>
 #include "../../base/math.h"
 #include "../abstractClass.h"
+#include "../../base/libList.h"
 
 using namespace sf;
 
-class Object : AbstractClass
+class Object : public AbstractClass
 {
 	private:
 		int lifetime = -1;
@@ -17,6 +17,7 @@ class Object : AbstractClass
 		bool enabled = false;
 
 		IntRect clip;
+		Node* node = NULL;
 		Object* parent = NULL;
 
 		Sprite* sprite = NULL;
@@ -37,10 +38,16 @@ class Object : AbstractClass
 		void removeTexture();
 		void setTexture(Texture* text);
 
+		void addToView();
+		void removeFromView();
+
+		vector getPosition();
+
 		/*
 		void move(vector move);
 		void setPos(vector pos);
 		*/
 };
+
 
 #endif

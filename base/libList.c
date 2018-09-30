@@ -839,3 +839,15 @@ Node* getNodeByKey(ListManager* lst, void* key) {
 
     return NULL;
 }
+
+Node* getNodeByValue(ListManager* lst, const void* value) {
+    Node* n = NULL;
+
+    while ((n = listIterate(lst, n)) != NULL) {
+        if (n->value != value) {
+            return n;
+        }
+    }
+
+    return NULL;
+}
