@@ -47,6 +47,31 @@ class AbstractClass
 };
 
 
+#define STATIC_CLASS_BODY(CLASS) 					\
+	static CLASS* get(bool deleteInst = false) {	\
+		static CLASS* instance = NULL;				\
+													\
+		if (deleteInst) {							\
+			if (instance != NULL) {					\
+				delete instance;					\
+			}										\
+													\
+			return NULL;							\
+		}											\
+													\
+		if (instance != NULL) {						\
+			return instance;						\
+		}											\
+													\
+		instance = new CLASS();						\
+													\
+		return instance;							\
+	}												\
+													\
+	void operator=(CLASS const&)  = delete; 		\
+
+
+#define STATIC_CLASS_CONSTRUCT(CLASS)	(this->name = Str(#CLASS));
 
 class AbstractStaticClass : public AbstractClass {
 	protected:

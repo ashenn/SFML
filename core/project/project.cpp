@@ -1,6 +1,6 @@
 #include "project.h"
 #include "../render/render.h"
-#include "../time/timeManager.h"
+#include "../time/timeMgr.h"
 
 const char* STATE_NAMES[] = {
     PROJECT_STATES(GEN_STATE_NAMES)
@@ -8,6 +8,15 @@ const char* STATE_NAMES[] = {
 
 const char* Project::getStatusName(ProjectState status) {
 	return STATE_NAMES[status];
+}
+
+Project::Project() {
+	STATIC_CLASS_CONSTRUCT(Project)
+
+	TimeMgr* time = TimeMgr::get();
+	time->start();
+	status = PRO_INIT;
+	initFlags();
 }
 
 Project::~Project() {
@@ -19,14 +28,7 @@ void Project::init(int argc, char* argv[]) {
 		return;
 	}
 
-	TimeManager* time = TimeManager::get();
-	time->start();
 	Log::inf(LOG_JSON, "=== Init Project ===");
-
-	status = PRO_INIT;
-	name = Str("Project");
-	initFlags();
-	
 	setArgs(argc, argv);
 }
 
@@ -73,11 +75,11 @@ void Project::initFlags() {
 		LOG_PROJECT,
 		LOG_OBJ,
 		LOG_RENDER,
-		LOG_ANIM/*,
+		LOG_ANIM,
+		LOG_EVENT/*,
 		LOG_ASSET,
 		LOG_VIEW,
 		LOG_LAYER,
-		LOG_EVENT,
 		LOG_COMMON,
 		LOG_ANIM,
 		LOG_TIMER,
@@ -110,6 +112,9 @@ void Project::initFlags() {
 
 	addNodeV(flagList, "anim", &flags[6], 0);
 	Log::addTag(flags[6], "anim", 0);
+
+	addNodeV(flagList, "event", &flags[7], 0);
+	Log::addTag(flags[7], "event", 0);
 
 
 	/*

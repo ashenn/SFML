@@ -15,7 +15,7 @@ class Animator;
 class Animation : public AbstractClass
 {
 	public:
-		Animation(Object* obj, float time, float delay, void (Animator::*fnc)(Animation*));
+		Animation(Object* obj, float time, float delay);
 		~Animation();
 
 		Object* obj = NULL;
@@ -30,16 +30,19 @@ class Animation : public AbstractClass
 		int frames = 0;
 		int initialFrames = 0;
 
-		void (Animator::*fnc)(Animation* param);
-		void (*stepFnc)(Animation* param);
-		void (*callback)(Animation* param);
+		virtual void fnc() = 0;
+		void setId(unsigned int id);
+
+		//void (Animator::*fnc)(Animation* anim);
+		void (*stepFnc)(Animation* anim);
+		void (*callback)(Animation* anim);
 };
 
 
 class MoveAnim : public Animation
 {
 	public:
-		MoveAnim(Object* obj, float time, float delay, void (Animator::*fnc)(Animation*));
+		MoveAnim(Object* obj, float time, float delay);
 		~MoveAnim();
 
 		float duration = 0;
@@ -47,6 +50,8 @@ class MoveAnim : public Animation
 
 		IntRect targetPos;
 		AnimDistance move[2];
+
+		void fnc();
 	
 };
 
@@ -60,33 +65,17 @@ class Animator : public AbstractStaticClass
 		ListManager* moves = NULL;
 		ListManager* sprites = NULL;
 
-		void addMoveObject(Object* obj, Animation* param);
+		void animateMove();
+		void addMoveObject(Object* obj, Animation* anim);
 
 
 	public:
-		void operator=(Animator const&)  = delete;
+		STATIC_CLASS_BODY(Animator)
+
+		void animMoveTo(Animation* anim);
 		Animation* moveTo(Object* obj, int x, int y, float time, float delay);
-		void animMoveTo(Animation* param);
 
-		static Animator* get(bool deleteInst = false) {
-			static Animator* instance = NULL;
-
-			if (deleteInst) {
-				if (instance != NULL) {
-					delete instance;
-				}
-
-				return NULL;
-			}
-
-			if (instance != NULL) {
-				return instance;
-			}
-
-			instance = new Animator();
-
-			return instance;
-		}
+		void animate();
 };
 
 #endif

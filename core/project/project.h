@@ -24,7 +24,7 @@ typedef enum ProjectState {
 class Project : public AbstractStaticClass
 {
 	private:
-	    Project(){}
+	    Project();
 	    ~Project();
 		unsigned int flags = 0;
 		ProjectState status = PRO_NULL;
@@ -37,9 +37,8 @@ class Project : public AbstractStaticClass
 		pthread_t renderTh;
 	
 	public:
-		static const char* getStatusName(ProjectState status);
+		STATIC_CLASS_BODY(Project)
 
-		void operator=(Project const&)  = delete;
 
 		void close();
 		void init(int argc, char* argv[]);
@@ -55,26 +54,7 @@ class Project : public AbstractStaticClass
 
 		void runRenderTh();
 
-
-		static Project* get(bool deleteInst = false) {
-			static Project* instance = NULL;
-
-			if (deleteInst) {
-				if (instance != NULL) {
-					delete instance;
-				}
-
-				return NULL;
-			}
-
-			if (instance != NULL) {
-				return instance;
-			}
-
-			instance = new Project();
-
-			return instance;
-		}
+		static const char* getStatusName(ProjectState status);
 };
 
 #endif

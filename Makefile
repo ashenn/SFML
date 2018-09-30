@@ -1,7 +1,7 @@
 CC      =       g++
 
-CFLAGS          =       --std=c++11 -g -Wall
-CPPFLAGS	=	--std=c++11 -g -Wall
+CFLAGS      = --std=c++11 -g -Wall
+CPPFLAGS    = --std=c++11 -g -Wall
 
 NAME	=	mario
 
@@ -17,8 +17,9 @@ CSRC	=	base/basic.c              \
 
 CPPSRC =        base/logger.cpp           \
                 core/abstractClass.cpp    \
+                core/event/event.cpp \
                 core/project/project.cpp  \
-                core/time/timeManager.cpp    \
+                core/time/timeMgr.cpp    \
                 core/render/render.cpp       \
                 core/object/object.cpp       \
                 core/animation/animation.cpp \

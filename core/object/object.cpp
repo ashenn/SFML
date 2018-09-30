@@ -81,3 +81,9 @@ vector Object::getPosition() {
 
 	return res;
 }
+
+vector Object::move(vector m) {
+	this->sprite->move(m.x, m.y);
+	
+	return this->getPosition();
+}

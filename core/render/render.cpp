@@ -1,5 +1,7 @@
 #include "render.h"
-#include "../time/timeManager.h"
+
+#include "../time/timeMgr.h"
+#include "../animation/animation.h"
 
 Render::Render() {
 	this->name = Str("Render");
@@ -72,8 +74,9 @@ void* renderThread(void* param) {
 	
 	Render* rend = Render::get();
 	Project* pro = Project::get();
+	Animator* anim = Animator::get();
 
-	TimeManager* time = TimeManager::get();
+	TimeMgr* time = TimeMgr::get();
 	unsigned int eleapsed = 0;
 
 	Log::inf(LOG_RENDER, "=== Start Render Loop ===");
@@ -85,14 +88,14 @@ void* renderThread(void* param) {
 
 		time->update();
 
+		anim->animate();
 		rend->render();
 		
-		eleapsed = time->getElapsedTime();
 
+		eleapsed = time->getElapsedTime();
 		double wait = FRAME - eleapsed;
 
-		if (wait > 0)
-		{
+		if (wait > 0) {
 			usleep(wait);
 		}
 
@@ -100,7 +103,7 @@ void* renderThread(void* param) {
 	}
 
 	rend->unlock("Render End", true);
-	Log::war(LOG_RENDER, "=== Render Thread Done ===");
+	Log::inf(LOG_RENDER, "=== Render Thread Done ===");
 
 	return NULL;
 }

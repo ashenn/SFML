@@ -42,9 +42,9 @@ class Object : public AbstractClass
 		void removeFromView();
 
 		vector getPosition();
+		vector move(vector move);
 
 		/*
-		void move(vector move);
 		void setPos(vector pos);
 		*/
 };

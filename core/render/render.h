@@ -14,28 +14,10 @@ class Render : public AbstractStaticClass
 		ListManager* objectList = NULL;
 
 	public:
+		STATIC_CLASS_BODY(Render)
+
 		void init(RenderWindow* window);
 		RenderWindow* getWindow();
-
-		static Render* get(bool deleteInst = false) {
-			static Render* instance = NULL;
-
-			if (deleteInst) {
-				if (instance != NULL) {
-					delete instance;
-				}
-
-				return NULL;
-			}
-
-			if (instance != NULL) {
-				return instance;
-			}
-
-			instance = new Render();
-
-			return instance;
-		}
 
 		void render();
 		void close();
