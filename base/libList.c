@@ -353,6 +353,10 @@ void freeNodeValue(Node* n) {
 }
 
 void freeNode(Node* node) {
+	if (node == NULL) {
+		return;
+	}
+	
 	if (node->del != NULL) {
 		node->del(node);
 	}
@@ -365,6 +369,10 @@ void freeNode(Node* node) {
 }
 
 void removeNode(ListManager* lstMgr, Node* node) {
+	if (node == NULL) {
+		return;
+	}
+
 	Node* prev = node->prev;
 	Node* next = node->next;
 
@@ -395,6 +403,10 @@ void removeNode(ListManager* lstMgr, Node* node) {
 }
 
 void removeAndFreeNode(ListManager* lstMgr, Node* node) {
+	if (node == NULL) {
+		return;
+	}
+
 	removeNode(lstMgr, node);
 	freeNode(node);
 }
@@ -850,4 +862,16 @@ Node* getNodeByValue(ListManager* lst, const void* value) {
     }
 
     return NULL;
+}
+
+void deleteNodeByValue(ListManager* lst, const void* value) {
+    Node* n = NULL;
+
+    while ((n = listIterate(lst, n)) != NULL) {
+        if (n->value != value) {
+            break;
+        }
+    }
+
+    removeAndFreeNode(lst, n);
 }

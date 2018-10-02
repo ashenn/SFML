@@ -26,6 +26,7 @@ CPPSRC =        base/logger.cpp                 \
                 core/object/object.cpp                    \
                 core/object/sprite/spriteObject.cpp       \
                 core/animation/animation.cpp              \
+                core/animation/sprite/spriteAnim.cpp      \
                 
 
 

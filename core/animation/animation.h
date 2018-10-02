@@ -15,6 +15,7 @@ class Animator;
 class Animation : public AbstractClass
 {
 	public:
+		Animation(Object* obj);
 		Animation(Object* obj, float time, float delay);
 		~Animation();
 
@@ -66,6 +67,7 @@ class Animator : public AbstractStaticClass
 		ListManager* sprites = NULL;
 
 		void animateMove();
+		void animateSprite();
 		void addMoveObject(Object* obj, Animation* anim);
 
 
@@ -76,6 +78,8 @@ class Animator : public AbstractStaticClass
 		Animation* moveTo(Object* obj, int x, int y, float time, float delay);
 
 		void animate();
+		void addSprite(Animation* animParam);
+		void spriteRemoveObject(Object* obj);
 };
 
 #endif

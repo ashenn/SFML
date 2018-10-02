@@ -72,6 +72,8 @@ Animation::Animation(Object* obj, float time, float delay) {
 	this->initialFrames = this->frames = time * FPS;
 }
 
+Animation::Animation(Object* obj) : Animation(obj, 0.0f, 0.0f) {}
+
 Animation::~Animation() {}
 
 void Animation::setId(unsigned int id) {
@@ -232,8 +234,13 @@ void Animator::animateMove() {
 
 void Animator::animate() {
 	if (this->moves->nodeCount) {
-		Log::inf(LOG_ANIM, "Objects To Animate: #%d", this->moves->nodeCount);
+		Log::inf(LOG_ANIM, "Objects Moves To Animate: #%d", this->moves->nodeCount);
 		this->animateMove();
+	}
+
+	if (this->sprites->nodeCount) {
+		Log::inf(LOG_ANIM, "Objects Sprites To Animate: #%d", this->sprites->nodeCount);
+		this->animateSprite();
 	}
 }
 
@@ -327,4 +334,40 @@ void MoveAnim::fnc() {
 	}
 
 	Log::inf(LOG_ANIM, "==== ANIM Move DONE ====");
+}
+
+void Animator::spriteRemoveObject(Object* obj) {
+	if (obj == NULL) {
+		return;
+	}
+
+	deleteNodeByValue(this->sprites, obj);
+}
+
+
+void Animator::addSprite(Animation* animParam){
+	Node* n = addNodeV(this->sprites, animParam->obj->getName(), animParam, 0);
+	n->del = deleteAnim;
+}
+
+void Animator::animateSprite() {
+	Node* n = NULL;
+	while ((n = listIterate(this->sprites, n)) != NULL) {
+		Animation* anim = (Animation*) n->value;
+		Object* obj = (Object*) anim->obj;
+
+		bool b = obj->lock("ANIMMATE-SPRITE-0");
+
+		anim->fnc();
+
+		if (anim->breakAnim || (!anim->loop && anim->done)) {
+			if (anim->deleteOnDone) {
+				Node* tmp = n->prev;
+				removeAndFreeNode(this->sprites, n);
+				n = tmp;
+			}
+		}
+
+		obj->unlock("ANIMMATE-SPRITE-1", b);
+	}
 }

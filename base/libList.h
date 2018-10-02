@@ -58,15 +58,18 @@ Node* getNodeByName(ListManager* lstMgr, const char* name);
 Node* getNodeByValue(ListManager* lst, const void* value);
 
 
-void removeNode(ListManager* lstMgr, Node* node);
 void* deleteNode(ListManager* lstMgr, int id);
 Node* deleteNodeNoFree(ListManager* lstMgr, int id);
+
 Node* deleteNodeByNameNoFree(ListManager* lstMgr, char* name);
 void deleteNodeByName(ListManager* lstMgr, const char* name);
+void deleteNodeByValue(ListManager* lst, const void* value);
 
 void freeNode(Node* n);
 void freeNodeKey(Node* n);
 void freeNodeValue(Node* n);
+
+void removeNode(ListManager* lstMgr, Node* node);
 void removeAndFreeNode(ListManager* lstMgr, Node* node);
 
 int setValue(Node* node, void* value, short asAlloc);

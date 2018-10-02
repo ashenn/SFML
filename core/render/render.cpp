@@ -23,7 +23,7 @@ Node* Render::addObject(Object* obj) {
 	}
 	
 
-	Node* n = addNodeV(this->objectList, obj->getName(), obj, true);
+	Node* n = addNodeV(this->objectList, obj->getName(), obj, false);
 	if (n == NULL) {
 		Log::err(LOG_RENDER, "Fail To add Object To View !!");
 		return NULL;

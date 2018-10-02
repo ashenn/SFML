@@ -3,6 +3,8 @@
 Exception::Exception(unsigned short code, const char* msg) throw() {
 	this->code = code;
 	this->msg = Str(msg);
+
+	Log::err(0, msg);
 }
 
 Exception::~Exception() {

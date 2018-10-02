@@ -1,6 +1,8 @@
 #include "object.h"
 #include "../render/render.h"
 
+ListManager* Object::objectList = initListMgr();
+
 Object::Object(const char* name, vector* pos, Texture* text, IntRect* clip, unsigned short z, bool visible) {
 	if (name == NULL || !strlen(name)) {
 		Log::war(LOG_OBJ, "Creating Object With Empty Name");
@@ -28,26 +30,19 @@ Object::Object(const char* name, vector* pos, Texture* text, IntRect* clip, unsi
 	Log::dbg(LOG_OBJ, "++++ Y: %d", this->pos.y);
 
 
-	if (clip != NULL) {
-		this->clip = *clip;
-	}
-	else {
-		this->clip.top = 0;
-		this->clip.left = 0;
-		this->clip.width = 50;
-		this->clip.height = 50;
-	}
+	this->setClip(clip, true);
 	
 	Log::dbg(LOG_OBJ, "-- Clip:");
-	Log::dbg(LOG_OBJ, "++++ X: %d", this->clip.left);
-	Log::dbg(LOG_OBJ, "++++ Y: %d", this->clip.top);
-	Log::dbg(LOG_OBJ, "++++ W: %d", this->clip.width);
-	Log::dbg(LOG_OBJ, "++++ H: %d", this->clip.height);
+	Log::dbg(LOG_OBJ, "++++ X: %d", this->clip->left);
+	Log::dbg(LOG_OBJ, "++++ Y: %d", this->clip->top);
+	Log::dbg(LOG_OBJ, "++++ W: %d", this->clip->width);
+	Log::dbg(LOG_OBJ, "++++ H: %d", this->clip->height);
 
 	if (text != NULL) {
 		this->setTexture(text);
 	}
 	
+	Object::addObject(this);
 	Log::dbg(LOG_OBJ, "=== Ready Object #%d: %s ===", this->id, this->name);
 }
 
@@ -55,6 +50,12 @@ Object::~Object() {
 	Log::inf(LOG_OBJ, "=== Deleting Object #%d: %s ===", this->id, this->name);
 
 	this->removeTexture();
+
+	if (this->clip != NULL) {
+		delete this->clip;
+	}
+	
+	removeObject(this);
 }
 
 void Object::removeTexture() {
@@ -79,7 +80,7 @@ void Object::setTexture(Texture* text) {
 
 	if (this->texture != NULL) {
 		Log::war(LOG_OBJ, "-- Applying New Texture");
-		this->sprite = new Sprite(*this->texture, this->clip);
+		this->sprite = new Sprite(*this->texture, *this->clip);
 		this->setPosition(this->pos);
 	}
 
@@ -145,4 +146,59 @@ void Object::draw(RenderWindow* window) {
 	window->draw(*this->sprite);
 
 	this->unlock("Draw", b);
+}
+
+void Object::updateClip() {
+	if (this->sprite != NULL) {
+		this->sprite->setTextureRect(*this->clip);
+	}
+
+	Log::err(LOG_SPRITE, "-- New Clip: X: %d | Y: %d | W: %d | H: %d", this->clip->left, this->clip->top, this->clip->width, this->clip->height);
+}
+
+void Object::setClip(IntRect* clip, bool clean=true) {
+	if (this->clip != NULL && clean) {
+		delete this->clip;
+		this->clip = NULL;
+	}
+
+	if (clip != NULL) {
+		this->clip = clip;
+	}
+	else {
+		this->clip = new IntRect(0, 0, 50, 50);
+	}
+
+	this->updateClip();
+}
+
+void deleteObject(Node* n) {
+	Object* obj = (Object*) n->value;
+
+	Log::war(LOG_OBJ, "deleting Object: %s", obj->getName());
+	delete obj;
+}
+
+void Object::addObject(Object* obj) {
+	Log::war(LOG_OBJ, "Adding Object: %s", obj->getName());
+	Node* n = addNodeV(objectList, obj->getName(), obj, false);
+	n->del = deleteObject;
+}
+
+void Object::removeObject(Object* obj) {
+	Log::war(LOG_OBJ, "Removing Object: %s", obj->getName());
+	
+	Node* n = getNodeByValue(objectList, obj);
+	if (n == NULL) {
+		return;
+	}
+	
+	n->del = NULL;
+	Log::war(LOG_OBJ, "Free Node: %s", n->name);
+	removeAndFreeNode(objectList, n);
+}
+
+void Object::clearObjects() {
+	Log::war(LOG_OBJ, "Clearing Objects List");
+	deleteList(objectList);
 }

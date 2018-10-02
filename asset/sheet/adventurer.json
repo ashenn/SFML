@@ -9,7 +9,7 @@
 	"anims": {
 		"Idle": {
 			"name": "Idle",
-			"fps": 10,
+			"fps": 5,
 			"count": 4,
 			"index": 0,
 			"loop": true,

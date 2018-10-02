@@ -1,5 +1,7 @@
 #include "project.h"
+#include "../asset/asset.h"
 #include "../render/render.h"
+#include "../animation/sprite/spriteAnim.h"
 #include "../time/timeMgr.h"
 
 const char* STATE_NAMES[] = {
@@ -79,7 +81,8 @@ void Project::initFlags() {
 		LOG_EVENT,
 		LOG_ASSET,
 		LOG_SPRITE,
-		LOG_SPRITE_OBJ/*,
+		LOG_SPRITE_OBJ,
+		LOG_SPRITE_ANIM/*,
 
 		LOG_VIEW,
 		LOG_LAYER,
@@ -127,6 +130,9 @@ void Project::initFlags() {
 
 	addNodeV(flagList, "spriteObj", &flags[10], 0);
 	Log::addTag(flags[10], "spriteObj", 0);
+
+	addNodeV(flagList, "spriteAnim", &flags[11], 0);
+	Log::addTag(flags[11], "spriteAnim", 0);
 
 	/*
 
@@ -210,7 +216,25 @@ void Project::close() {
 	pthread_join(this->renderTh, NULL);
 	Log::dbg(LOG_PROJECT, "-- Thread Joned");
 
-	Log::dbg(LOG_PROJECT, "-- Deleting Project");
+	Log::err(LOG_PROJECT, "-- Clearing Animator");
+	Animator::get(true);
+	
+	Log::err(LOG_PROJECT, "-- Clearing Anim Links");
+	SpriteAnim::clearAnimLinkFnc();
+
+	Log::err(LOG_PROJECT, "-- Clearing Render");
+	Render::get(true);
+
+	Log::err(LOG_PROJECT, "-- Clearing Objects");
+	Object::clearObjects();
+
+	Log::err(LOG_PROJECT, "-- Clearing Asset");
+	AssetMgr::get(true);
+
+	Log::err(LOG_PROJECT, "-- Clearing TimeMgr");
+	TimeMgr::get(true);
+
+	Log::err(LOG_PROJECT, "-- Deleting Project");
 	Project::get(true);
 }
 

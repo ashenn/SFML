@@ -20,11 +20,16 @@ class Object : public AbstractClass
 		Node* node = NULL;
 		Object* parent = NULL;
 
+		IntRect* clip = NULL;
 		Sprite* sprite = NULL;
 		Texture* texture = NULL;
 
+		static ListManager* objectList;
+		static void addObject(Object* obj);
+		static void removeObject(Object* obj);
+
 	protected:
-		IntRect clip;
+		void updateClip();
 
 	public:
 		Object(const char* name, vector* pos, Texture* text, IntRect* clip, unsigned short z, bool visible);
@@ -46,9 +51,11 @@ class Object : public AbstractClass
 		void setPosition(vector pos);
 
 		vector move(vector move);
-
-
 		void draw(RenderWindow* window);
+
+		void setClip(IntRect* clip, bool clean);
+
+		static void clearObjects();
 };
 
 

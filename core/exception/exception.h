@@ -2,6 +2,7 @@
 #define EXCEPTION_H
 
 #include "../../base/basic.h"
+#include "../../base/logger.h"
 #include <exception>
 
 class Exception : public std::exception
