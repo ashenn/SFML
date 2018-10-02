@@ -4,6 +4,7 @@ SpriteObj::SpriteObj(const char* name, vector* pos, unsigned short z, const char
 	Log::inf(LOG_SPRITE_OBJ, "=== Create Sprite Obj: %s ===", name);
 
 	this->animList = initListMgr();
+	this->animLinkFncs = initListMgr();
 	this->loadConfig(path);
 }
 
@@ -12,6 +13,17 @@ SpriteObj::~SpriteObj() {
 		deleteList(this->animList);
 		this->animList = NULL;
 	}
+
+	if (this->animLinkFncs != NULL) {
+		clearAnimLinks(this);
+		deleteList(this->animLinkFncs);
+		this->animLinkFncs = NULL;
+	}
+}
+
+void SpriteObj::initAnimLinkFnc() {
+	this->addAnimLinkFnc("Idl2Run", &SpriteObj::test);
+	this->addAnimLinkFnc("Run2Idle", &SpriteObj::test);
 }
 
 void SpriteObj::loadConfig(const char* path) {	
@@ -30,6 +42,7 @@ void SpriteObj::loadConfig(const char* path) {
 
 	this->loadSheet(json);
 	this->loadAnims(json);
+	this->initAnimLinkFnc();
 }
 
 void SpriteObj::loadSheet(const Json* json) {
@@ -47,9 +60,11 @@ void SpriteObj::loadSheet(const Json* json) {
 		memset(exp, 0, 300);
 		snprintf(exp, 300, "Fail To Get Texture: %s", sheetPath);
 
+		free(sheetPath);
 		throw(Exception(0, exp));
 	}
 
+	free(sheetPath);
 
 	int values[5];
 	jsonGetValue(sheet, "rows", &values[0]);
@@ -77,9 +92,9 @@ void SpriteObj::loadSheet(const Json* json) {
 void spriteAnimDataDelete(Node* n) {
 	SpriteAnimData* animData = (SpriteAnimData*) n->value;
 
-	SpriteObj* obj = (SpriteObj*) animData->obj;
-	vector size = obj->getCellSize();
-	obj->setClip(new IntRect(0, 0, size.x, size.y), false);
+	//SpriteObj* obj = (SpriteObj*) animData->obj;
+	//vector size = obj->getCellSize();
+	//obj->setClip(new IntRect(0, 0, size.x, size.y), false);
 	
 	delete animData;
 }
@@ -219,6 +234,7 @@ void SpriteObj::loadAnims(const Json* json) {
 		return;
 	}
 
+	this->removeClip(true);
 	SpriteAnimData* curAnim = (SpriteAnimData*) this->animList->first->value;
 	SpriteAnim::animate(this, curAnim->getName(), 0);
 }
@@ -234,4 +250,10 @@ vector SpriteObj::getCellSize() {
 	size.y = this->cell_y;
 
 	return size;
+}
+
+
+bool SpriteObj::test() {
+	Log::war(LOG_OBJ, "TEST: !!!");
+	return true;
 }

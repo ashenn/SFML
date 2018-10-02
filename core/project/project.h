@@ -35,6 +35,7 @@ class Project : public AbstractStaticClass
 		void setArgs(int argc, char* argv[]);
 
 		pthread_t renderTh;
+		bool rendering = false;
 	
 	public:
 		STATIC_CLASS_BODY(Project)

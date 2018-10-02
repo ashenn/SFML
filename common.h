@@ -23,15 +23,5 @@
 #include "base/logger.h"
 #include "core/exception/exception.h"
 
-/*
-template<typename T>
-void test(const T cl, const (T::*fnc)(void* param)) {
-	Log::war(LOG_MAIN, "TESTING CLASS METHOD POINTER !!!");
-
-	AbstactClass* c = (AbstactClass*) cl;
-	Log::war(LOG_MAIN, "TESTING: %s", cl->getName());
-}
-*/
-
 
 #endif

@@ -6,8 +6,7 @@
 
 #include "core/object/sprite/spriteObject.h"
 
-#include "core/animation/animation.h"
-
+#include "core/animation/sprite/spriteAnim.h"
 
 int main(int argc, char** argv) {
     XInitThreads();
@@ -17,8 +16,6 @@ int main(int argc, char** argv) {
     pro->init(argc, argv);
 
     Log::inf(LOG_MAIN, "=== Init Main ===");
-
-
     Log::inf(LOG_MAIN, "--- Init Window");
     RenderWindow window(sf::VideoMode(800, 600), "OpenGL");
 
@@ -36,10 +33,19 @@ int main(int argc, char** argv) {
     Log::inf(LOG_MAIN, "--- Init Object");
     
     vector pos = {0, 0};
-    Object* obj = new SpriteObj("Test", &pos, 0, "adventurer");
+    SpriteObj* obj = new SpriteObj("Test", &pos, 0, "adventurer");
+
+    //AnimLinkFnc<SpriteObj>* lnk = obj->getAnimLinkFnc("test", obj);
+    
+    //bool (SpriteObj::*fnc)() = lnk->fnc;
+    // Log::war(LOG_MAIN, "TEST LINK: %p !!!", lnk);
+    // (obj->*(lnk->fnc))();
+    //SpriteAnim::getAnimLinkFnc("test");
+
+    // pro->close();
+    // return 0;
+
     obj->addToView();
-
-
     Log::inf(LOG_MAIN, "--- Launch Render Thread");
     pro->runRenderTh();
 

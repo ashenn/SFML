@@ -212,29 +212,31 @@ void Project::setArgs(int argc, char* argv[]) {
 void Project::close() {
 	Log::inf(LOG_PROJECT, "=== Closing Project ===");
 	
-	Log::dbg(LOG_PROJECT, "-- Waiting Render Thread");
-	pthread_join(this->renderTh, NULL);
-	Log::dbg(LOG_PROJECT, "-- Thread Joned");
+	if (this->rendering) {
+		Log::dbg(LOG_PROJECT, "-- Waiting Render Thread");
+		pthread_join(this->renderTh, NULL);
+		Log::dbg(LOG_PROJECT, "-- Thread Joned");
+	}
 
-	Log::err(LOG_PROJECT, "-- Clearing Animator");
+	Log::dbg(LOG_PROJECT, "-- Clearing Animator");
 	Animator::get(true);
 	
-	Log::err(LOG_PROJECT, "-- Clearing Anim Links");
-	SpriteAnim::clearAnimLinkFnc();
+	// Log::dbg(LOG_PROJECT, "-- Clearing Anim Links");
+	// SpriteAnim::clearAnimLinkFnc();
 
-	Log::err(LOG_PROJECT, "-- Clearing Render");
+	Log::dbg(LOG_PROJECT, "-- Clearing Render");
 	Render::get(true);
 
-	Log::err(LOG_PROJECT, "-- Clearing Objects");
+	Log::dbg(LOG_PROJECT, "-- Clearing Objects");
 	Object::clearObjects();
 
-	Log::err(LOG_PROJECT, "-- Clearing Asset");
+	Log::dbg(LOG_PROJECT, "-- Clearing Asset");
 	AssetMgr::get(true);
 
-	Log::err(LOG_PROJECT, "-- Clearing TimeMgr");
+	Log::dbg(LOG_PROJECT, "-- Clearing TimeMgr");
 	TimeMgr::get(true);
 
-	Log::err(LOG_PROJECT, "-- Deleting Project");
+	Log::dbg(LOG_PROJECT, "-- Deleting Project");
 	Project::get(true);
 }
 
@@ -251,6 +253,7 @@ void Project::changeStatus(ProjectState status) {
 void Project::runRenderTh() {
 	Log::inf(LOG_PROJECT, "=== Call Render Thread ===");
 	
+	this->rendering = true;
 	pthread_create(&this->renderTh, NULL, renderThread, NULL);
 
 	Log::dbg(LOG_PROJECT, "-- Waiting Render");

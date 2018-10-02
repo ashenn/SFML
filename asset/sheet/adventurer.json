@@ -9,14 +9,14 @@
 	"anims": {
 		"Idle": {
 			"name": "Idle",
-			"fps": 5,
+			"fps": 8,
 			"count": 4,
 			"index": 0,
 			"loop": true,
 			"row": 0,
 			"links": {
 				"Run": {
-					"waitEnd": false,
+					"waitEnd": true,
 					"target": "Run",
 					"fnc": "Idl2Run"
 				},
@@ -39,14 +39,14 @@
 		},
 		"Run": {
 			"name": "Run",
-			"fps": 15,
+			"fps": 8,
 			"count": 6,
 			"index": 1,
 			"loop": true,
 			"row": 1,
 			"links": {
 				"Idle": {
-					"waitEnd": false,
+					"waitEnd": true,
 					"target": "Idle",
 					"fnc": "Run2Idle"
 				},

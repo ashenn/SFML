@@ -9,9 +9,9 @@ SpriteAnimData::~SpriteAnimData() {
 	Log::inf(LOG_SPRITE_ANIM, "=== Deleting Sprite Anim: %s ===", this->name);
 
 	if (this->clipPos != NULL) {
-		Log::inf(LOG_SPRITE_ANIM, "-- deleting Clip Pos");
+		Log::dbg(LOG_SPRITE_ANIM, "-- deleting Clip Pos");
 		
-		this->obj->setClip(NULL, false);
+		this->obj->removeClip(false);
 		for(int i=0; this->clipPos[i] != NULL; i++) {
 			delete this->clipPos[i];
 		}
@@ -21,36 +21,35 @@ SpriteAnimData::~SpriteAnimData() {
 	}
 
 	if (this->animLinks != NULL) {
-		Log::inf(LOG_SPRITE_ANIM, "-- deleting Anim Links");
+		Log::dbg(LOG_SPRITE_ANIM, "-- deleting Anim Links");
 		deleteList(this->animLinks);
-		Log::inf(LOG_SPRITE_ANIM, "-- Anim Links DELETED");
+		Log::dbg(LOG_SPRITE_ANIM, "-- Anim Links DELETED");
 		this->animLinks = NULL;
 	}
 }
 
 
-ListManager* SpriteAnim::animLinkFncs = initListMgr();
 
-void SpriteAnim::addAnimLinkFnc(const char* name, bool (*fnc)(SpriteAnim*)) {
-	AnimLinkFnc* animFnc = (AnimLinkFnc*) malloc(sizeof(AnimLinkFnc));
-	animFnc->fnc = fnc;
+// void SpriteAnim::addAnimLinkFnc(const char* name, bool (*fnc)(SpriteAnim*)) {
+// 	AnimLinkFnc* animFnc = (AnimLinkFnc*) malloc(sizeof(AnimLinkFnc));
+// 	animFnc->fnc = fnc;
 
-	addNodeV(animLinkFncs, name, animFnc, true);
-}
+// 	addNodeV(animLinkFncs, name, animFnc, true);
+// }
 
-AnimLinkFnc* SpriteAnim::getAnimLinkFnc(const char* name) {
-	Node* n = getNodeByName(animLinkFncs, name);
+// AnimLinkFnc* SpriteAnim::getAnimLinkFnc(const char* name) {
+// 	Node* n = getNodeByName(animLinkFncs, name);
 
-	if (n == NULL) {
-		return NULL;
-	}
+// 	if (n == NULL) {
+// 		return NULL;
+// 	}
 
-	return (AnimLinkFnc*) n->value;
-}
+// 	return (AnimLinkFnc*) n->value;
+// }
 
-void SpriteAnim::clearAnimLinkFnc() {
-	deleteList(animLinkFncs);
-}
+// void SpriteAnim::clearAnimLinkFnc() {
+// 	deleteList(animLinkFncs);
+// }
 
 
 SpriteAnim* SpriteAnim::animate(SpriteObj* obj, const char* name, unsigned int clipIndex) {
@@ -87,8 +86,8 @@ SpriteAnim* SpriteAnim::callAnim(SpriteObj* obj, SpriteAnimData* anim, unsigned 
 
 	unsigned int animID = anim->animID;
 	if (clipIndex >= anim->clipCnt) {
-		Log::war(LOG_SPRITE_ANIM, "Undefinded Clip Index #%d / %d for Object %s Animation: #%d !!!", clipIndex, anim->clipCnt, obj->getName(), animID);
-		Log::war(LOG_SPRITE_ANIM, "-- Clip Index has been set to 0", clipIndex, anim->clipCnt, obj->getName(), animID);
+		Log::dbg(LOG_SPRITE_ANIM, "Undefinded Clip Index #%d / %d for Object %s Animation: #%d !!!", clipIndex, anim->clipCnt, obj->getName(), animID);
+		Log::dbg(LOG_SPRITE_ANIM, "-- Clip Index has been set to 0", clipIndex, anim->clipCnt, obj->getName(), animID);
 		clipIndex = 0;
 	}
 
@@ -115,7 +114,13 @@ SpriteAnim* SpriteAnim::callAnim(SpriteObj* obj, SpriteAnimData* anim, unsigned 
 	return animParam;
 }
 
-SpriteAnim::~SpriteAnim() {}
+SpriteAnim::SpriteAnim(Object* obj) : Animation(obj) {
+	//this->animLinkFncs = initListMgr();
+}
+
+SpriteAnim::~SpriteAnim() {
+//	deleteList(this->animLinkFncs);
+}
 
 void SpriteAnim::fnc() {
 	if (this->clipIndex != this->clipMax) {
@@ -124,19 +129,48 @@ void SpriteAnim::fnc() {
 
 	this->wait--;
 	if (this->wait > 0) {
-		Log::inf(LOG_SPRITE_ANIM, "TEST WAITING: %d", this->wait);
 		return;
 	}
 
 	this->wait = this->anim->wait;
-	Log::inf(LOG_SPRITE_ANIM, "NEW WAITING: %d", this->anim->wait);
 	if (++this->clipIndex >= this->clipMax) {
-		Log::inf(LOG_SPRITE_ANIM, "-- Max Clip Reached: %s => %d", this->anim->getName(), this->clipMax);
+		Log::dbg(LOG_SPRITE_ANIM, "-- Max Clip Reached: %s => %d", this->anim->getName(), this->clipMax);
 		this->done = true;
 		this->clipIndex = 0;
 	}
 
-	Log::war(LOG_SPRITE_ANIM, "-- Clip Index: %d", this->clipIndex, this->clipMax);
+	Log::dbg(LOG_SPRITE_ANIM, "-- Clip Index: %d", this->clipIndex, this->clipMax);
 	this->obj->setClip(this->anim->clipPos[this->clipIndex], false);
-	// this->obj->clip = &();
+	
+	this->updateSprite();
+}
+
+void SpriteAnim::updateSprite() {
+	if (this->anim->animLinks == NULL || !this->anim->animLinks->nodeCount) {
+
+		if (this->done) {
+			Log::war(LOG_SPRITE_ANIM, "Animation: '%s' Has No Links To An Other Animation.", this->anim->getName());
+		}
+
+		return;
+	}
+
+	Node* n = NULL;
+	while ((n = listIterate(this->anim->animLinks, n)) != NULL) {
+		AnimLink* link = (AnimLink*) n->value;
+
+		if (link->waitEnd && !this->done) {
+			continue;
+		}
+		
+		if(link->name == NULL) {
+			SpriteAnim::animate((SpriteObj*) this->anim->obj, link->name, 0);
+			break;
+		}
+		else if(this->callAnimLinkFnc((SpriteObj*) this->anim->obj, link)){
+			Log::err(LOG_SPRITE_ANIM, "Calling Anim: %s", link->target);
+			SpriteAnim::animate((SpriteObj*) this->anim->obj, link->target, 0);
+			break;
+		}
+	}
 }

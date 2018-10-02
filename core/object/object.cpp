@@ -152,14 +152,19 @@ void Object::updateClip() {
 	if (this->sprite != NULL) {
 		this->sprite->setTextureRect(*this->clip);
 	}
+}
 
-	Log::err(LOG_SPRITE, "-- New Clip: X: %d | Y: %d | W: %d | H: %d", this->clip->left, this->clip->top, this->clip->width, this->clip->height);
+void Object::removeClip(bool clean=true) {
+	if (this->clip != NULL && clean) {
+		delete this->clip;
+	}
+	
+	this->clip = NULL;
 }
 
 void Object::setClip(IntRect* clip, bool clean=true) {
-	if (this->clip != NULL && clean) {
-		delete this->clip;
-		this->clip = NULL;
+	if (clean) {
+		this->removeClip(clean);
 	}
 
 	if (clip != NULL) {

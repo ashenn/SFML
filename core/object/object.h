@@ -53,10 +53,12 @@ class Object : public AbstractClass
 		vector move(vector move);
 		void draw(RenderWindow* window);
 
+		void removeClip(bool clean);
 		void setClip(IntRect* clip, bool clean);
 
 		static void clearObjects();
 };
+
 
 
 #endif

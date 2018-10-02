@@ -37,6 +37,14 @@ Node* AssetMgr::cache(const char* name, ListManager* cont, void* data) {
 	return n;
 }
 
+void delJson(Node* n) {
+	if (n->value == NULL) {
+		return;
+	}
+
+	deleteJson((Json*) n->value);
+}
+
 Json* AssetMgr::getJson(const char* path) {
 	Json* json = (Json*) this->isCached(path, this->jsons);
 
@@ -54,7 +62,8 @@ Json* AssetMgr::getJson(const char* path) {
 			return NULL;
 		}
 
-		this->cache(path, this->jsons, json);
+		Node* n = this->cache(path, this->jsons, json);
+		n->del = delJson;
 	}
 	else{
 		Log::dbg(LOG_ASSET, "-- isCached");

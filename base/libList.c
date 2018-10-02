@@ -541,6 +541,10 @@ void clearList(ListManager* lstMgr){
  * @param lstMgr List
  */
 void deleteList(ListManager* lstMgr){
+	if (lstMgr == NULL) {
+		return;
+	}
+
 	clearList(lstMgr);
 	free(lstMgr);
 }

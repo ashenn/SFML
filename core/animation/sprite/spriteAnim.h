@@ -3,7 +3,12 @@
 
 #include "../animation.h"
 
-typedef struct AnimLinkFnc AnimLinkFnc;
+
+template <typename T> 
+struct AnimLinkFnc { 
+	//T* obj;
+	bool (T::*fnc)();
+}; 
 
 typedef struct AnimLink
 {
@@ -39,8 +44,6 @@ class SpriteObj;
 class SpriteAnim : public Animation
 {
 	private:
-		static ListManager* animLinkFncs;
-
 		IntRect clip;
 		unsigned int wait;
 		unsigned int animID;
@@ -49,23 +52,27 @@ class SpriteAnim : public Animation
 
 		SpriteAnimData* anim = NULL;
 
+		void updateSprite();
+		
+		template<typename T>
+		bool callAnimLinkFnc(T* obj, AnimLink* link);
+
 		static SpriteAnim* callAnim(SpriteObj* obj, SpriteAnimData* anim, unsigned int clipIndex);
 
 	public:
-		SpriteAnim(Object* obj) : Animation(obj) {}
 		~SpriteAnim();
-		void fnc();
+		SpriteAnim(Object* obj);
 
-		static void addAnimLinkFnc(const char* name, bool (*fnc)(SpriteAnim*));
-		static AnimLinkFnc* getAnimLinkFnc(const char* name);
-		static void clearAnimLinkFnc();
+		void fnc();
+		//static void clearAnimLinkFnc();
 	
 		static SpriteAnim* animate(SpriteObj* obj, const char* name, unsigned int clipIndex);
 };
 
-struct AnimLinkFnc {
-	bool (*fnc)(SpriteAnim*);
-};
+void deleteAnimLinkFnc(Node* n);
 
 #include "../../object/sprite/spriteObject.h"
+
+#include "spriteAnim.tpp"
+
 #endif
