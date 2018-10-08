@@ -12,6 +12,12 @@
 #define LOG_SPRITE		1 << 8
 #define LOG_SPRITE_OBJ	1 << 9
 #define LOG_SPRITE_ANIM	1 << 10
+#define LOG_EVENT_KEY	1 << 11
+#define LOG_CHAR		1 << 12
+#define LOG_CTRL		1 << 13
+#define LOG_CTRL_PLAYER	1 << 14
+#define LOG_MOVE		1 << 15
+#define LOG_VIEW		1 << 16
 
 #define FPS 60
 #define FRAME (1.0 / FPS) * 1000000

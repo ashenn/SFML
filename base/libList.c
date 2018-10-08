@@ -860,7 +860,7 @@ Node* getNodeByValue(ListManager* lst, const void* value) {
     Node* n = NULL;
 
     while ((n = listIterate(lst, n)) != NULL) {
-        if (n->value != value) {
+        if (n->value == value) {
             return n;
         }
     }
@@ -869,13 +869,9 @@ Node* getNodeByValue(ListManager* lst, const void* value) {
 }
 
 void deleteNodeByValue(ListManager* lst, const void* value) {
-    Node* n = NULL;
+    Node* n = getNodeByValue(lst, value);
 
-    while ((n = listIterate(lst, n)) != NULL) {
-        if (n->value != value) {
-            break;
-        }
+    if (n != NULL) {
+    	removeAndFreeNode(lst, n);
     }
-
-    removeAndFreeNode(lst, n);
 }

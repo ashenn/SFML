@@ -23,8 +23,8 @@ class TimeMgr
         void start();
         void update();
 
-        double getStartedTime() const;
-        double getElapsedTime() const;
+        double getStartedTime() const;  // Time Eleapsed Since Project Init
+        double getElapsedTime() const;  // Time Eleapsed Since Last Update
 };
 
 #endif // TIME_MANAGER_H

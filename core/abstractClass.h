@@ -19,14 +19,14 @@ class AbstractClass
 		/** THREAD MANAGEMENT **/
 
 		double pid = -1;			// Thread ID Who has lock the class
-		char* lockTag = NULL;	// Lock Tag Use For Debbugging
-		char* unlockTag = NULL;	// UnLock Tag Use For Debbugging
+		char* lockTag = NULL;		// Lock Tag Use For Debbugging
+		char* unlockTag = NULL;		// UnLock Tag Use For Debbugging
 
 		pthread_cond_t cond = (pthread_cond_t) PTHREAD_COND_INITIALIZER;
 		pthread_mutex_t mutex = (pthread_mutex_t) PTHREAD_MUTEX_INITIALIZER;
 		
-		void setLockTag(const char* tag);
-		void setUnlockTag(const char* tag);
+		void setLockTag(const char* tag);		// Used For Thread Lock Warning
+		void setUnlockTag(const char* tag);		// Used For Thread Lock Warning
 
 	public:
 		unsigned int id = 0;
@@ -47,6 +47,8 @@ class AbstractClass
 };
 
 
+/*** MACRO TO CREATE SINGLETON CLASS ***/
+	// To Add in Public Section
 #define STATIC_CLASS_BODY(CLASS) 					\
 	static CLASS* get(bool deleteInst = false) {	\
 		static CLASS* instance = NULL;				\
@@ -71,6 +73,8 @@ class AbstractClass
 	void operator=(CLASS const&)  = delete; 		\
 
 
+/*** MACRO TO CREATE SINGLETON CONSTRUCTOR ***/
+	// To Add in constructor definition
 #define STATIC_CLASS_CONSTRUCT(CLASS)	(this->name = Str(#CLASS));
 
 class AbstractStaticClass : public AbstractClass {

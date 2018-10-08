@@ -16,7 +16,7 @@
 			"row": 0,
 			"links": {
 				"Run": {
-					"waitEnd": true,
+					"waitEnd": false,
 					"target": "Run",
 					"fnc": "Idl2Run"
 				},
@@ -46,7 +46,7 @@
 			"row": 1,
 			"links": {
 				"Idle": {
-					"waitEnd": true,
+					"waitEnd": false,
 					"target": "Idle",
 					"fnc": "Run2Idle"
 				},

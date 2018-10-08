@@ -27,9 +27,6 @@ SpriteAnimData::~SpriteAnimData() {
 		this->animLinks = NULL;
 	}
 }
-
-
-
 // void SpriteAnim::addAnimLinkFnc(const char* name, bool (*fnc)(SpriteAnim*)) {
 // 	AnimLinkFnc* animFnc = (AnimLinkFnc*) malloc(sizeof(AnimLinkFnc));
 // 	animFnc->fnc = fnc;
@@ -61,7 +58,7 @@ SpriteAnim* SpriteAnim::animate(SpriteObj* obj, const char* name, unsigned int c
 		return NULL;
 	}
 
-	Log::dbg(LOG_SPRITE_ANIM, "-- Node Found: %s", n->name);
+	Log::inf(LOG_SPRITE_ANIM, "-- Node Found: %s", n->name);
 
 	if (n->value == NULL) {
 		Log::war(LOG_SPRITE_ANIM, "Animation with ID: %s is Not Initialized for Object %s !!!", name, obj->getName());
@@ -70,7 +67,7 @@ SpriteAnim* SpriteAnim::animate(SpriteObj* obj, const char* name, unsigned int c
 
 	SpriteAnimData* anim = (SpriteAnimData*) n->value;
 
-	Log::dbg(LOG_SPRITE_ANIM, "-- Casted To Anim: #%d => %s", anim->animID, anim->getName());
+	Log::inf(LOG_SPRITE_ANIM, "-- Casted To Anim: #%d => %s", anim->animID, anim->getName());
 
 	return callAnim(obj, anim, clipIndex);
 }
@@ -80,7 +77,7 @@ SpriteAnim* SpriteAnim::callAnim(SpriteObj* obj, SpriteAnimData* anim, unsigned 
 	Log::inf(LOG_SPRITE_ANIM, "-- Removing Old Sprite Anim");
 
 	Animator* animator = Animator::get();
-	animator->spriteRemoveObject((Object*) obj);
+	animator->removeSprite((Object*) obj);
 	
 	Log::inf(LOG_SPRITE_ANIM, "-- Calling Sprite Animation: %s #%d => %s", obj->getName(), anim->animID, anim->getName());
 
@@ -129,19 +126,24 @@ void SpriteAnim::fnc() {
 
 	this->wait--;
 	if (this->wait > 0) {
+		Log::dbg(LOG_SPRITE_ANIM, "-- Sprite Wait: %d | %s", wait, this->getName());
 		return;
 	}
 
+	Log::inf(LOG_SPRITE_ANIM, "-- Sprite Launch: %s", this->getName());
 	this->wait = this->anim->wait;
+
 	if (++this->clipIndex >= this->clipMax) {
 		Log::dbg(LOG_SPRITE_ANIM, "-- Max Clip Reached: %s => %d", this->anim->getName(), this->clipMax);
 		this->done = true;
 		this->clipIndex = 0;
 	}
 
-	Log::dbg(LOG_SPRITE_ANIM, "-- Clip Index: %d", this->clipIndex, this->clipMax);
+	Log::dbg(LOG_SPRITE_ANIM, "-- Clip Index: %d / %d", this->clipIndex, this->clipMax);
 	this->obj->setClip(this->anim->clipPos[this->clipIndex], false);
 	
+	IntRect* c = this->anim->clipPos[this->clipIndex];
+	Log::dbg(LOG_SPRITE_ANIM, "-- Clip: X: %d | Y: %d | W: %d | H: %d", c->left, c->top, c->width, c->height);
 	this->updateSprite();
 }
 
@@ -168,7 +170,10 @@ void SpriteAnim::updateSprite() {
 			break;
 		}
 		else if(this->callAnimLinkFnc((SpriteObj*) this->anim->obj, link)){
-			Log::err(LOG_SPRITE_ANIM, "Calling Anim: %s", link->target);
+			// Log::war(LOG_SPRITE_ANIM, "Calling Anim: %s", link->target);
+			// Log::war(LOG_SPRITE_ANIM, "From Link: %s", link->name);
+
+			this->triggerCallBack(this->obj);
 			SpriteAnim::animate((SpriteObj*) this->anim->obj, link->target, 0);
 			break;
 		}

@@ -10,6 +10,7 @@ Render::Render() {
 
 Render::~Render() {
 	deleteList(this->objectList);
+	this->window->close();
 }
 
 ListManager* Render::getObjectList() {
@@ -48,10 +49,7 @@ void Render::render() {
 
 	bool b = this->lock("Render Lock");
 	Log::inf(LOG_RENDER, "=== Rendering ===");
-
-	Log::dbg(LOG_RENDER, "-- cleaning window: %p", window);
 	this->window->clear();
-
 
 	Log::dbg(LOG_RENDER, "-- Start Loop");
 	while((n = listIterate(this->objectList, n)) != NULL) {
@@ -109,11 +107,19 @@ void* renderThread(void* param) {
 	return NULL;
 }
 
-void Render::close() {
-	deleteList(this->objectList);
-	this->window->close();
-}
-
 RenderWindow* Render::getWindow() {
 	return this->window;
+}
+
+void Render::setView(sf::View* view) {
+	if (this->window == NULL) {
+		Log::war(LOG_RENDER, "Trying to Set View On NULL Window !!!");
+		return;
+	}
+
+	this->window->setView(*view);
+}
+
+const sf::View& Render::getView() {
+	return this->window->getView();
 }

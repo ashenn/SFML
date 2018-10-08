@@ -31,7 +31,7 @@ AnimDistance animDistanceByFrame(int dist, float time) {
 	animDist.curDispatch = 0;
 	if (rest) {
 		Log::dbg(LOG_ANIM, "-- Calc Dispatch: %d / %d", frames, rest);
-		animDist.dispatch = frames / rest;
+		animDist.dispatch = abs(frames / rest);
 	}
 	else {
 		animDist.dispatch = 0;
@@ -57,10 +57,17 @@ Animator::~Animator() {
 
 
 Animation::Animation(Object* obj, float time, float delay) {
+	static int i = 0;
 	this->obj = obj;
 
-	this->stepFnc = NULL;
-	this->callback = NULL;
+	int len = strlen(obj->getName()) + 15;
+
+	char name[len];
+	memset(name, 0, len);
+	snprintf(name, len, "%s_SpriteAnim-%d", obj->getName(), i++);
+	this->name = Str(name);
+	// this->stepFnc = NULL;
+	// this->callback = NULL;
 
 	this->done = false;
 	this->loop = false;
@@ -74,7 +81,10 @@ Animation::Animation(Object* obj, float time, float delay) {
 
 Animation::Animation(Object* obj) : Animation(obj, 0.0f, 0.0f) {}
 
-Animation::~Animation() {}
+Animation::~Animation() {
+
+	this->removeCallBack();
+}
 
 void Animation::setId(unsigned int id) {
 	this->id = id;
@@ -82,6 +92,11 @@ void Animation::setId(unsigned int id) {
 	char name[150];
 	memset(name, 0, 150);
 	snprintf(name, 150, "Move Anim #%d => %s", this->id, obj->getName());
+
+	if (this->name != NULL) {
+		free(this->name);
+		this->name = NULL;
+	}
 
 	this->name = Str(name);
 }
@@ -91,7 +106,7 @@ MoveAnim::MoveAnim(Object* obj, float time, float delay) : Animation(obj, time, 
 
 MoveAnim::~MoveAnim() {}
 
-Animation* Animator::moveTo(Object* obj, int x, int y, float time, float delay) {
+MoveAnim* Animator::moveTo(Object* obj, int x, int y, float time, float delay) {
 	bool b = obj->lock("MoveTo-0");
 	Log::inf(LOG_ANIM, "==== Animation: Moving: %s to %d | %d (%fs) ====", obj->getName(), x, y, time);
 
@@ -122,18 +137,14 @@ Animation* Animator::moveTo(Object* obj, int x, int y, float time, float delay) 
     Log::inf(LOG_ANIM, "==== Animation Added ====");
 
 	obj->unlock("MoveTo-1", b);
-    return (Animation*) anim;
-}
-
-
-void Animator::animMoveTo(Animation* anim) {
-	Log::inf(LOG_ANIM, "CALL ANIM MOVE TO");
+    return anim;
 }
 
 void deleteAnim(Node* n) {
 	if (n->value == NULL) {
 		return;
 	}
+
 
 	Animation* anim = (Animation*) n->value;
 
@@ -146,7 +157,8 @@ void Animator::addMoveObject(Object* obj, Animation* anim) {
 
 	Log::dbg(LOG_ANIM, "FINDING NODE");
 
-	deleteNodeByName(this->moves, obj->getName());
+	this->removeMove(obj);
+	//getNodeByName(this->moves, obj->getName());
 	
 	Node* paramNode = addNodeV(this->moves, obj->getName(), anim, false);
 	
@@ -176,12 +188,21 @@ void Animator::animateMove() {
 			continue;
 		}
 
+		if (anim->breakAnim) {
+			Node* tmp = n->prev;
+			Log::inf(LOG_ANIM, "-- Removing Anim");
+			removeAndFreeNode(this->moves, n);
+			Log::inf(LOG_ANIM, "-- Anim Removed");
+
+			n = tmp;
+			continue;
+		}
 
 		Log::inf(LOG_ANIM, "ANIMATING: %s", anim->obj->getName());
 		if (anim->delay > 0) {
 			Log::dbg(LOG_ANIM, "-- delayed: %d", anim->delay);
 			anim->delay--;
-			break;
+			continue;
 		}
 
 
@@ -199,27 +220,21 @@ void Animator::animateMove() {
 		Log::dbg(LOG_ANIM, "-- Frames Left: %d", anim->frames);
 
 		if (anim->frames > 0 && !anim->breakAnim) {
-			break;
+			continue;
 		}
+
 
 
 		Log::dbg(LOG_ANIM, "-- Animation Ended");
-
-		if (anim->callback != NULL) {
-			Log::inf(LOG_ANIM, "-- Calling CallBack: %p", anim);
-
-			bool b = obj->lock("ANIMMATE-4");
-
-			anim->callback(anim);
-
-			obj->unlock("ANIMMATE-5", b);
-		}
+		bool b1 = obj->lock("ANIMMATE-4");
+		anim->triggerCallBack(obj);
+		obj->unlock("ANIMMATE-5", b1);
 
 
 		if (anim->loop) {
 			Log::inf(LOG_ANIM, "-- Looping Animation");
 			anim->frames = anim->initialFrames;
-			break;
+			continue;
 		}
 		else{
 			Node* tmp = n->prev;
@@ -261,10 +276,10 @@ void MoveAnim::fnc() {
 
 	if (xDispatch && xCurDispatch < xDispatch) {
 		this->move[0].curDispatch++;
-		Log::dbg(LOG_ANIM, "-- Dispatching X: %d / %d", this->move[0].curDispatch, this->move[0].dispatch);
+		Log::inf(LOG_ANIM, "-- Dispatching X: %d / %d", this->move[0].curDispatch, this->move[0].dispatch);
 	}
 	else{
-		Log::dbg(LOG_ANIM, "-- Apply X Move");
+		Log::inf(LOG_ANIM, "-- Apply X Move");
 		this->move[0].curDispatch = 0;
 		if (xRest != 0) {
 			if (xRest > 0) {
@@ -311,10 +326,10 @@ void MoveAnim::fnc() {
 	Log::dbg(LOG_ANIM, "Moving Object: X: %d | Y: %d", xMove, yMove);
 
 	vector pos = obj->getPosition();
-	Log::dbg(LOG_ANIM, "Current Position: X: %d | Y: %d", pos.x, pos.y);
+	Log::dbg(LOG_ANIM, "Current Position: X: %lf | Y: %lf", pos.x, pos.y);
 	
 	pos = obj->move(m);
-	Log::dbg(LOG_ANIM, "Nox Position: X: %d | Y: %d", pos.x, pos.y);
+	Log::dbg(LOG_ANIM, "New Position: X: %lf | Y: %lf", pos.x, pos.y);
 
 
 	if (this->breakOnReach) {
@@ -323,9 +338,9 @@ void MoveAnim::fnc() {
 		bool yDone = !this->move[1].rest && !this->move[1].perFrame;
 
 		if (xDone && yDone) {
-			Log::inf(LOG_ANIM, "ANIMATION DONE");
+			Log::dbg(LOG_ANIM, "ANIMATION DONE");
 			this->breakAnim = true;
-			Log::inf(LOG_ANIM, "Frames Left: %d", this->frames);
+			Log::dbg(LOG_ANIM, "Frames Left: %d", this->frames);
 		}
 	}
 
@@ -336,12 +351,44 @@ void MoveAnim::fnc() {
 	Log::inf(LOG_ANIM, "==== ANIM Move DONE ====");
 }
 
-void Animator::spriteRemoveObject(Object* obj) {
+void Animator::removeMove(Object* obj) {
 	if (obj == NULL) {
 		return;
 	}
 
-	deleteNodeByValue(this->sprites, obj);
+	Log::inf(LOG_ANIM, "Removing Anim For Obj: %s", obj->getName());
+
+	Node* n = NULL;
+	while ((n = listIterate(this->moves, n)) != NULL) {
+		Animation* anim = (Animation*) n->value;
+
+		if (anim->obj == obj) {
+			Log::inf(LOG_ANIM, "Remove Move Anim: %s | %p", anim->getName(), anim);
+			Animation* anim = (Animation*) n->value;
+			if (anim != NULL) {
+				anim->breakAnim = true;
+			}
+		}
+	}
+
+//	deleteNodeByValue(this->sprites, obj);
+}
+
+void Animator::removeSprite(Object* obj) {
+	if (obj == NULL) {
+		return;
+	}
+
+	Node* n = NULL;
+	while ((n = listIterate(this->sprites, n)) != NULL) {
+		Animation* anim = (Animation*) n->value;
+
+		if (anim->obj == obj) {
+			removeAndFreeNode(this->sprites, n);
+		}
+	}
+
+//	deleteNodeByValue(this->sprites, obj);
 }
 
 
@@ -352,13 +399,16 @@ void Animator::addSprite(Animation* animParam){
 
 void Animator::animateSprite() {
 	Node* n = NULL;
+	//Log::war(LOG_ANIM, "Launch Sprite");
 	while ((n = listIterate(this->sprites, n)) != NULL) {
 		Animation* anim = (Animation*) n->value;
 		Object* obj = (Object*) anim->obj;
 
 		bool b = obj->lock("ANIMMATE-SPRITE-0");
 
+		//Log::war(LOG_ANIM, "Call Sprite Fnc");
 		anim->fnc();
+		//Log::err(LOG_ANIM, "END Sprite Fnc");
 
 		if (anim->breakAnim || (!anim->loop && anim->done)) {
 			if (anim->deleteOnDone) {
@@ -370,4 +420,5 @@ void Animator::animateSprite() {
 
 		obj->unlock("ANIMMATE-SPRITE-1", b);
 	}
+	//Log::err(LOG_ANIM, "END Launch Sprite");
 }

@@ -10,20 +10,24 @@ class Render : public AbstractStaticClass
 		Render();
 		~Render();
 
-		RenderWindow* window = NULL;
-		ListManager* objectList = NULL;
+		ListManager* objectList = NULL;		// Objects To Render
 
 	public:
+		// Singleton Initialization
 		STATIC_CLASS_BODY(Render)
+		RenderWindow* window = NULL;
 
 		void init(RenderWindow* window);
 		RenderWindow* getWindow();
 
-		void render();
+		void render();		// Print Object To Window
 		void close();
 
+		void setView(sf::View* v);
+		const sf::View& getView();
+
 		ListManager* getObjectList();
-		Node* addObject(Object* obj);
+		Node* addObject(Object* obj);	// Add Object To Render List
 };
 
 void* renderThread(void* param);

@@ -13,9 +13,9 @@ class AssetMgr : public AbstractStaticClass
 		~AssetMgr();
 		//ListManager* imgs;
 		//ListManager* fonts;
-		ListManager* jsons;
-		ListManager* confs;
-		ListManager* textures;
+		ListManager* jsons;		// Cache List Of Loaded Jsons
+		ListManager* confs;		// Cache List Of Loaded Confs
+		ListManager* textures;	// Cache List Of Loaded Textures
 
 	public:
 		STATIC_CLASS_BODY(AssetMgr)
@@ -25,7 +25,10 @@ class AssetMgr : public AbstractStaticClass
 		Json* getConf(const char* path);
 		Texture* getTexture(const char* path);
 
+		// Search In Cache For Entry;
 		void* isCached(const char* name, ListManager* cont);
+		
+		// Add Entry To Cache;
 		Node* cache(const char* name, ListManager* cont, void* data);
 };
 

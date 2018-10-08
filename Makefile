@@ -20,13 +20,21 @@ CPPSRC =        base/logger.cpp                 \
                 core/abstractClass.cpp          \
                 core/asset/asset.cpp            \
                 core/event/event.cpp      \
+                core/event/key/keyEvent.cpp      \
+                core/event/eventMgr.cpp      \
                 core/project/project.cpp  \
                 core/time/timeMgr.cpp     \
                 core/render/render.cpp                    \
                 core/object/object.cpp                    \
-                core/object/sprite/spriteObject.cpp       \
-                core/animation/animation.cpp              \
+                core/movement/movement.cpp                    \
+                core/object/sprite/spriteObject.cpp               \
+                core/object/sprite/character/charObject.cpp       \
+                core/character/character.cpp                      \
+                core/controller/controller.cpp                    \
+                core/controller/player/playerCtrl.cpp             \
+                core/animation/animation.cpp                      \
                 core/animation/sprite/spriteAnim.cpp      \
+                core/view/view.cpp      \
                 
 
 

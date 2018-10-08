@@ -15,15 +15,15 @@ SpriteObj::~SpriteObj() {
 	}
 
 	if (this->animLinkFncs != NULL) {
-		clearAnimLinks(this);
+		clearAnimLinks();
 		deleteList(this->animLinkFncs);
 		this->animLinkFncs = NULL;
 	}
 }
 
 void SpriteObj::initAnimLinkFnc() {
-	this->addAnimLinkFnc("Idl2Run", &SpriteObj::test);
-	this->addAnimLinkFnc("Run2Idle", &SpriteObj::test);
+	// this->addAnimLinkFnc("Idl2Run", &SpriteObj::isMoving);
+	// this->addAnimLinkFnc("Run2Idle", &SpriteObj::isStopped);
 }
 
 void SpriteObj::loadConfig(const char* path) {	
@@ -31,14 +31,23 @@ void SpriteObj::loadConfig(const char* path) {
 
 	AssetMgr* ast = AssetMgr::get();
 
-	int len = strlen(path)+7;
+	int len = strlen(path)+11;
 
 	char jsonPath[len];
 	memset(jsonPath, 0, len);
-	snprintf(jsonPath, len, "sheet/%s", path);
+	snprintf(jsonPath, len, "animation/%s", path);
 
 	Log::dbg(LOG_SPRITE_OBJ, "-- Fetching Anim Json: %p", jsonPath);
 	Json* json = ast->getJson(jsonPath);
+
+	if (json == NULL) {
+		char exp[300];
+		memset(exp, 0, 300);
+		snprintf(exp, 300, "Fail To Get Animation Config: %s", jsonPath);
+
+		free(jsonPath);
+		throw(Exception(0, exp));
+	}
 
 	this->loadSheet(json);
 	this->loadAnims(json);
@@ -252,8 +261,30 @@ vector SpriteObj::getCellSize() {
 	return size;
 }
 
+bool SpriteObj::isMoving() {
+	return this->moving;
+}
 
-bool SpriteObj::test() {
-	Log::war(LOG_OBJ, "TEST: !!!");
-	return true;
+bool SpriteObj::isStopped() {
+	return !this->moving;
+}
+
+void SpriteObj::startMove(KeyEvt<SpriteObj>* evt) {
+	this->moving = true;
+}
+
+void SpriteObj::stopMove(KeyEvt<SpriteObj>* evt) {
+	this->moving = false;
+}
+
+void SpriteObj::clearAnimLinks() {
+	Node* n = NULL;
+	while ((n = listIterate(this->animLinkFncs, n)) != NULL) {
+		if (n->value != NULL) {
+			delete (AnimLinkFncAbstract*) n->value;
+		}
+
+		removeAndFreeNode(this->animLinkFncs, n);
+		n = NULL;
+	}
 }

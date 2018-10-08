@@ -1,9 +1,11 @@
 #include "project.h"
 #include "../asset/asset.h"
 #include "../render/render.h"
+#include "../event/eventMgr.h"
 #include "../animation/sprite/spriteAnim.h"
 #include "../time/timeMgr.h"
 
+// Project State Enum Name
 const char* STATE_NAMES[] = {
     PROJECT_STATES(GEN_STATE_NAMES)
 };
@@ -34,17 +36,12 @@ void Project::init(int argc, char* argv[]) {
 	setArgs(argc, argv);
 }
 
-void Project::addFlag(unsigned int f) {
-	flags = flags | f;
-}
-
 bool Project::flagActive(unsigned int f) {
 	return flags & f;
 }
 
 bool Project::enableFlag(const char* f) {
 	Log::inf(LOG_PROJECT, "==== setting Flag: %s ====", f);
-
 	Node* n = getNodeByName(flagList, f);
 
 	if(n == NULL) {
@@ -70,6 +67,7 @@ ProjectState Project::getStatus() {
 void Project::initFlags() {
 	flagList = initListMgr();
 
+	// Logger Flags
 	static unsigned int flags[20] = {
 	    LOG_NONE,
 		LOG_MAIN,
@@ -82,7 +80,13 @@ void Project::initFlags() {
 		LOG_ASSET,
 		LOG_SPRITE,
 		LOG_SPRITE_OBJ,
-		LOG_SPRITE_ANIM/*,
+		LOG_SPRITE_ANIM,
+		LOG_EVENT_KEY,
+		LOG_CHAR,
+		LOG_CTRL,
+		LOG_CTRL_PLAYER,
+		LOG_MOVE,
+		LOG_VIEW/*,
 
 		LOG_VIEW,
 		LOG_LAYER,
@@ -98,6 +102,35 @@ void Project::initFlags() {
 	};
 
 
+	// Add Flags To Logger
+	const char* flagsNames[19] = {
+		"none",
+		"main",
+		"json",
+		"project",
+		"obj",
+		"render",
+		"anim",
+		"event",
+		"asset",
+		"sprite",
+		"spriteObj",
+		"spriteAnim",
+		"eventKey",
+		"char",
+		"ctrl",
+		"ctrlPlayer",
+		"move",
+		"view",
+		NULL
+	};
+
+	for (int i = 0; flagsNames[i] != NULL; ++i) {
+		addNodeV(flagList, flagsNames[i], &flags[i], 0);
+		Log::addTag(flags[i], flagsNames[i], 0);
+	}
+
+	/*
 	addNodeV(flagList, "none", &flags[0], 0);
 	Log::addTag(flags[0], "none", 0);
 
@@ -134,7 +167,6 @@ void Project::initFlags() {
 	addNodeV(flagList, "spriteAnim", &flags[11], 0);
 	Log::addTag(flags[11], "spriteAnim", 0);
 
-	/*
 
 		addNodeV(flagList, "view", &flags[5], 0);
 		Log::addTag(flags[5], "view", 0);
@@ -210,19 +242,23 @@ void Project::setArgs(int argc, char* argv[]) {
 }
 
 void Project::close() {
+	this->status = PRO_CLOSE;
 	Log::inf(LOG_PROJECT, "=== Closing Project ===");
 	
-	if (this->rendering) {
-		Log::dbg(LOG_PROJECT, "-- Waiting Render Thread");
-		pthread_join(this->renderTh, NULL);
-		Log::dbg(LOG_PROJECT, "-- Thread Joned");
-	}
+	// if (this->rendering) {
+	// 	Log::dbg(LOG_PROJECT, "-- Waiting Render Thread");
+	// 	pthread_join(this->renderTh, NULL);
+	// 	Log::dbg(LOG_PROJECT, "-- Thread Joned");
+	// }
 
 	Log::dbg(LOG_PROJECT, "-- Clearing Animator");
 	Animator::get(true);
 	
 	// Log::dbg(LOG_PROJECT, "-- Clearing Anim Links");
 	// SpriteAnim::clearAnimLinkFnc();
+
+	Log::dbg(LOG_PROJECT, "-- Clearing Events");
+	EventMgr::get(true);
 
 	Log::dbg(LOG_PROJECT, "-- Clearing Render");
 	Render::get(true);
@@ -250,15 +286,16 @@ void Project::changeStatus(ProjectState status) {
 	this->unlock("Unlock Project Status", b);	
 }
 
-void Project::runRenderTh() {
-	Log::inf(LOG_PROJECT, "=== Call Render Thread ===");
+
+// void Project::runRenderTh() {
+// 	Log::inf(LOG_PROJECT, "=== Call Render Thread ===");
 	
-	this->rendering = true;
-	pthread_create(&this->renderTh, NULL, renderThread, NULL);
+// 	this->rendering = true;
+// 	pthread_create(&this->renderTh, NULL, renderThread, NULL);
 
-	Log::dbg(LOG_PROJECT, "-- Waiting Render");
-	this->wait();
+// 	Log::dbg(LOG_PROJECT, "-- Waiting Render");
+// 	this->wait();
 
-	Log::dbg(LOG_PROJECT, "-- Render Thread Ready");
-	this->unlock("Render Thread", true);
-}
+// 	Log::dbg(LOG_PROJECT, "-- Render Thread Ready");
+// 	this->unlock("Render Thread", true);
+// }

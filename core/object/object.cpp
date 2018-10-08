@@ -9,13 +9,17 @@ Object::Object(const char* name, vector* pos, Texture* text, IntRect* clip, unsi
 	}
 
 	Log::inf(LOG_OBJ, "=== Creating Object: %s ===", name);
-	this->name = Str(name);
 
+	int len = strlen(name) + 5;
+	this->name = StrE(len);
+	snprintf(this->name, len, "%s_Obj", name);
 
 
 	this->z = z;
 	this->texture = text;
 	this->visible = visible;
+
+	this->movement = new Movement(this);
 
 	if (pos != NULL) {
 		this->pos = *pos;
@@ -55,6 +59,7 @@ Object::~Object() {
 		delete this->clip;
 	}
 	
+	delete this->movement;
 	removeObject(this);
 }
 
@@ -72,15 +77,17 @@ void Object::removeTexture() {
 void Object::setTexture(Texture* text) {
 	bool b = this->lock("Set texture");
 
-	Log::war(LOG_OBJ, "-- Setting Texture: %p", text);
+	Log::inf(LOG_OBJ, "-- Setting Texture: %p", text);
 	
 	this->removeTexture();
 	this->texture = text;
 
 
 	if (this->texture != NULL) {
-		Log::war(LOG_OBJ, "-- Applying New Texture");
+		Log::inf(LOG_OBJ, "-- Applying New Texture");
 		this->sprite = new Sprite(*this->texture, *this->clip);
+		this->sprite->setOrigin({ this->sprite->getLocalBounds().width / 2, 0 });
+		
 		this->setPosition(this->pos);
 	}
 
@@ -179,31 +186,44 @@ void Object::setClip(IntRect* clip, bool clean=true) {
 
 void deleteObject(Node* n) {
 	Object* obj = (Object*) n->value;
+	if (obj == NULL) {
+		return;
+	}
 
-	Log::war(LOG_OBJ, "deleting Object: %s", obj->getName());
+	//Log::war(LOG_OBJ, "deleting Object: %s", obj->getName());
+
 	delete obj;
 }
 
 void Object::addObject(Object* obj) {
-	Log::war(LOG_OBJ, "Adding Object: %s", obj->getName());
+	Log::inf(LOG_OBJ, "Adding Object: %s", obj->getName());
 	Node* n = addNodeV(objectList, obj->getName(), obj, false);
 	n->del = deleteObject;
 }
 
-void Object::removeObject(Object* obj) {
-	Log::war(LOG_OBJ, "Removing Object: %s", obj->getName());
-	
+void Object::removeObject(Object* obj) {	
 	Node* n = getNodeByValue(objectList, obj);
 	if (n == NULL) {
+		Log::war(LOG_OBJ, "Not Found Object: %s", obj->getName());
 		return;
 	}
 	
 	n->del = NULL;
-	Log::war(LOG_OBJ, "Free Node: %s", n->name);
 	removeAndFreeNode(objectList, n);
 }
 
 void Object::clearObjects() {
-	Log::war(LOG_OBJ, "Clearing Objects List");
 	deleteList(objectList);
+}
+
+Movement* Object::getMovement() {
+	return this->movement;
+}
+
+vector Object::getVelocity() {
+	return this->movement->getVelocity();
+}
+
+void Object::flipH() {
+	this->sprite->scale(-1,1);
 }

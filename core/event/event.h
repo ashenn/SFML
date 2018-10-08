@@ -1,21 +1,19 @@
-#ifndef EVENT_MGR_H
-#define EVENT_MGR_H
+#ifndef EVENT_H
+#define EVENT_H
 
 #include "../render/render.h"
 #include "../project/project.h"
 
-class EventMgr : public AbstractStaticClass
-{
-	private:
-		EventMgr();
-		~EventMgr();
-		RenderWindow* window = NULL;
-	
-	public:
-		STATIC_CLASS_BODY(EventMgr)
+#include <SFML/Graphics.hpp>
 
-		void handle();
-		void init(RenderWindow* window);
+class Evt : public AbstractClass
+{
+	public:
+	    void* arg;
+		bool enabled;
+	    bool (*fnc)(Event* evt);
+	    void (*remove)(Event* evt);
 };
+
 
 #endif

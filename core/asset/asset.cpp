@@ -87,8 +87,12 @@ Texture* AssetMgr::getTexture(const char* path) {
 		return text;
 	}
 
-	char imgPath[100];
-	snprintf(imgPath, 100, "asset/%s.png", path);
+	int len = strlen(path) + 19;
+
+	char imgPath[len];
+	memset(imgPath, 0, len);
+
+	snprintf(imgPath, len, "asset/sheet/%s.png", path);
 	validatePath(imgPath);
 
 	Log::dbg(LOG_ASSET, "-- Loading File: %s", imgPath);

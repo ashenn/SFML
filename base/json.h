@@ -22,10 +22,6 @@ typedef enum JsonDataEnum {
 	JSON_TYPES(GEN_JSON_TYPE_ENUM)
 } JsonDataEnum;
 
-static const char* GEN_JSON_TYPE_STRING[] = {
-    JSON_TYPES(GEN_JSON_TYPE_STRING)
-};
-
 typedef struct Json Json;
 
 struct Json {

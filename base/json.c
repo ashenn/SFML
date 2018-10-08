@@ -5,6 +5,14 @@
 #include <assert.h>
 #include <stdarg.h>
 
+const char* getJsonTypeName(JsonDataEnum val) {
+	static const char* GEN_JSON_TYPE_STRING[] = {
+	    JSON_TYPES(GEN_JSON_TYPE_STRING)
+	};
+
+	return GEN_JSON_TYPE_STRING[val];
+}
+
 void jsonFill(Json* json, char* data) {
 	Log::inf(LOG_JSON, "==== FILLING JSON ====");
 
@@ -74,7 +82,7 @@ void jsonFill(Json* json, char* data) {
 		return;
 	}
 
-	Log::dbg(LOG_JSON, "-- JSON Type: %s", GEN_JSON_TYPE_STRING[json->type]);
+	Log::dbg(LOG_JSON, "-- JSON Type: %s", getJsonTypeName(json->type));
 	Log::dbg(LOG_JSON, "-- LOOP JSON");
 	for (int i = 1; i < res; ++i) {
 
@@ -244,7 +252,7 @@ Json* loadJsonFile(const char* p) {
 }
 
 Json* jsonSetValue(Json* json, char* key, void* value, JsonDataEnum type) {
-	Log::inf(LOG_JSON, "=== Setting Json %s Key: %s | type: %s", json->key, key, GEN_JSON_TYPE_STRING[type]);
+	Log::inf(LOG_JSON, "=== Setting Json %s Key: %s | type: %s", json->key, key, getJsonTypeName(type));
 
 	if (json == NULL) {
 		Log::err(LOG_JSON, "Trying to Set Json Value But Json Is Null !!!");
@@ -703,7 +711,7 @@ short json2StrData(int i, Node* n, short* deleteJson, void* param, va_list* args
 	}
 
 	Log::dbg(LOG_JSON, "-- Child: Key: %s", key);
-	Log::dbg(LOG_JSON, "-- Child type: %s", GEN_JSON_TYPE_STRING[json->type]);
+	Log::dbg(LOG_JSON, "-- Child type: %s", getJsonTypeName(json->type));
 
 	int write = 0;
 	char value[5500];
@@ -765,7 +773,7 @@ short json2StrData(int i, Node* n, short* deleteJson, void* param, va_list* args
 
 	int childStrLen = 0;
 
-	Log::dbg(LOG_JSON, "-- Test Type: %s", GEN_JSON_TYPE_STRING[json->type]);
+	Log::dbg(LOG_JSON, "-- Test Type: %s", getJsonTypeName(json->type));
 
 
 	Log::dbg(LOG_JSON, "-- Prepare End");
