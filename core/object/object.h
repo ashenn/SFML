@@ -5,6 +5,7 @@
 #include "../abstractClass.h"
 #include "../../base/libList.h"
 #include "../movement/movement.h"
+#include "../collision/collision.h"
 
 using namespace sf;
 
@@ -27,6 +28,8 @@ class Object : public AbstractClass
 		IntRect* clip = NULL;		// Texture Clip
 		Sprite* sprite = NULL;
 		Texture* texture = NULL;
+
+		ListManager* collisions = NULL;
 
 		static ListManager* objectList;				// All Objects Instanciated
 		static void addObject(Object* obj);			// Add Object To List
@@ -65,6 +68,8 @@ class Object : public AbstractClass
 		void setClip(IntRect* clip, bool clean);
 
 		static void clearObjects();			// Delete All Objects
+
+		Collision* addCollision(const char* name, IntRect pos);
 };
 
 

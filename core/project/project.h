@@ -60,6 +60,10 @@ class Project : public AbstractStaticClass
 		//void runRenderTh();					// Launch Render Thread (/!\ Un-used: SFML window create massive memory leaks in other thread than main /!\)
 
 		static const char* getStatusName(ProjectState status);	// Get Project State Enum Name
+
+		bool operator&(const ProjectState& state);
 };
+
+bool operator&(Project* pro, const ProjectState& state);
 
 #endif

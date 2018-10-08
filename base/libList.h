@@ -94,4 +94,6 @@ void unlockList(ListManager* lst);
 void lockNode(Node* n);
 void unlockNode(Node* n);
 
+Node* addNodeUniq(ListManager* lst, const char* name, void* value, short valIsAlloc);
+
 #endif

@@ -875,3 +875,12 @@ void deleteNodeByValue(ListManager* lst, const void* value) {
     	removeAndFreeNode(lst, n);
     }
 }
+
+Node* addNodeUniq(ListManager* lst, const char* name, void* value, short valIsAlloc) {
+	Node* n = getNodeByName(lst, name);
+	if (n != NULL) {
+		return NULL;
+	}
+
+	return addNodeV(lst, name, value, valIsAlloc);
+}

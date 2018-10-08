@@ -299,3 +299,12 @@ void Project::changeStatus(ProjectState status) {
 // 	Log::dbg(LOG_PROJECT, "-- Render Thread Ready");
 // 	this->unlock("Render Thread", true);
 // }
+
+bool Project::operator&(const ProjectState& state) {
+	return this->status & state;
+}
+
+
+bool operator&(Project* pro, const ProjectState& state) {
+	return pro->getStatus() & state;
+}

@@ -50,6 +50,16 @@ int main(int argc, char** argv) {
     SpriteObj* obj2 = new SpriteObj("Base", &pos, 1, "adventurer");
     obj2->addToView();
 
+
+    IntRect p(0,0,200,200);
+    Collision* col = obj->addCollision(obj->getName(), p);
+
+    p.left = 600;
+    p.top = 600;
+    Collision* col2 = obj2->addCollision(obj2->getName(), p);
+    Log::war(LOG_MAIN, "TEST: %d", *col && col2);
+
+
     KeyEvt<PlayerCtrl>* e = evtMgr->bindKeyEvent("Test Left", sf::Keyboard::Key::Left, pl);
     e->setOnPress(pl, &PlayerCtrl::moveEvt);
     e->setOnRelease(pl, &PlayerCtrl::stopEvt);

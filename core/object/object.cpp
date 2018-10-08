@@ -20,6 +20,7 @@ Object::Object(const char* name, vector* pos, Texture* text, IntRect* clip, unsi
 	this->visible = visible;
 
 	this->movement = new Movement(this);
+	this->collisions = initListMgr();
 
 	if (pos != NULL) {
 		this->pos = *pos;
@@ -60,6 +61,7 @@ Object::~Object() {
 	}
 	
 	delete this->movement;
+	deleteList(this->collisions);
 	removeObject(this);
 }
 
@@ -226,4 +228,27 @@ vector Object::getVelocity() {
 
 void Object::flipH() {
 	this->sprite->scale(-1,1);
+}
+
+void delCollision(Node* n) {
+	if (n->value == NULL) {
+		return;
+	}
+
+	Collision* col = (Collision*) n->value;
+	delete col;
+}
+
+Collision* Object::addCollision(const char* name, IntRect pos) {
+	Node* n = addNodeUniq(this->collisions, name, NULL, 0);
+	if (n == NULL) {
+		Log::war(LOG_OBJ, "Trying To Add Douplicate Collision: '%s'", name);
+		return NULL;
+	}
+
+	Collision* col = new Collision(this, pos);
+	n->value = col;
+	n->del = delCollision;
+
+	return  col;
 }

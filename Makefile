@@ -35,6 +35,7 @@ CPPSRC =        base/logger.cpp                 \
                 core/animation/animation.cpp                      \
                 core/animation/sprite/spriteAnim.cpp      \
                 core/view/view.cpp      \
+                core/collision/collision.cpp      \
                 
 
 
