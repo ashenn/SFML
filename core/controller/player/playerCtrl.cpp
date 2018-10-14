@@ -23,7 +23,7 @@ Controller(CTRL_PLAYER, name) {
 		snprintf(msg, len, "Trying To Spawn Player: #%d Twice !!!", id);
 
 		Log::war(LOG_CTRL_PLAYER, "%s", msg);
-		throw(new Exception(0, msg));
+		throw(new Exception(LOG_CTRL_PLAYER, msg));
 	}
 	else if(n != NULL) {
 		removeAndFreeNode(playerList, n);
@@ -43,6 +43,27 @@ Controller(CTRL_PLAYER, name) {
 	n = addNodeV(playerList, name, this, false);
 	n->id = id;
 	n->del = delPlayer;
+
+
+	this->callables = initListMgr();
+	CallableFncEvt<PlayerCtrl>* ctrl = new CallableFncEvt<PlayerCtrl>(&PlayerCtrl::moveEvt);
+
+	n = addNodeV(this->callables, "move", ctrl, false);
+	n->del = deleteCallable;
+	
+	ctrl = new CallableFncEvt<PlayerCtrl>(&PlayerCtrl::stopEvt);
+	n = addNodeV(this->callables, "stop", ctrl, false);
+	n->del = deleteCallable;
+
+	ctrl = new CallableFncEvt<PlayerCtrl>(&PlayerCtrl::downEvt);
+	n = addNodeV(this->callables, "down", ctrl, false);
+	n->del = deleteCallable;
+
+	ctrl = new CallableFncEvt<PlayerCtrl>(&PlayerCtrl::jumpEvt);
+	n = addNodeV(this->callables, "jump", ctrl, false);
+	n->del = deleteCallable;
+
+	this->loadControls();
 }
 
 PlayerCtrl::~PlayerCtrl() {
@@ -54,7 +75,7 @@ void PlayerCtrl::setCharacter(Character* ch, bool deleteOld) {
 		delete this->ch;
 	}
 
-	Log::err(LOG_CTRL_PLAYER, "CREATE PLAYER");
+	Log::inf(LOG_CTRL_PLAYER, "CREATE PLAYER");
 	this->ch = ch;
 	new ViewMgr(this->ch, VIEW_CAMERA, sf::FloatRect(-150,0,800,600));
 
@@ -78,4 +99,64 @@ void PlayerCtrl::stopEvt(KeyEvt<PlayerCtrl>* evt) {
 
 unsigned short PlayerCtrl::getId() {
 	return this->id;
+}
+
+void PlayerCtrl::loadControls() {
+	Log::inf(LOG_CTRL_PLAYER, "=== LOADING CONTROLS ===");
+	
+	Json* ctrls = AssetMgr::get()->getConf("control/control");
+	if (ctrls == NULL) {
+		Log::err(LOG_CTRL_PLAYER, "Fail To Find Controls Conf: '%s'", ctrls);
+		return;
+	}
+	
+	Json* ctrlMode = jsonGetData(ctrls, "SideScroll");
+	if (ctrlMode == NULL) {
+		Log::err(LOG_CTRL_PLAYER, "Fail To Find Controls Mode: '%s'", "SideScroll");
+		return;
+	}
+
+	int len = 10;
+	char playerName[len];
+	memset(playerName, 0, len);
+	snprintf(playerName, len, "player-%d", this->id);
+
+	ListManager* playerCtrl = (ListManager*) jsonGetValue(ctrlMode, playerName, NULL);
+	if (playerCtrl == NULL) {
+		Log::err(LOG_CTRL_PLAYER, "Fail To Find Controls For Player: '%s'", playerName);
+		return;
+	}
+
+	Node* n = NULL;
+	while ((n = listIterate(playerCtrl, n)) != NULL) {
+		this->loadControl((Json*) n->value, playerName);
+	}
+}
+
+void PlayerCtrl::loadControl(Json* ctrl, const char* playerName) {
+	ControlMgr* mgr = ControlMgr::get();
+
+	Log::inf(LOG_CTRL_PLAYER, "-- Load Key: '%s'", ctrl->key);
+	sf::Keyboard::Key key = mgr->getKey(ctrl->key);
+
+	if (key == -1) {
+		Log::err(LOG_CTRL_PLAYER, "Fail To Find Key: '%s'", ctrl->key);
+		return;
+	}
+
+	int len = strlen(playerName) + strlen(ctrl->key) + 6;
+	char evtN[len];
+	memset(evtN, 0, len);
+	snprintf(evtN, len, "%s_Evt_%s", playerName, ctrl->key);
+
+	EventMgr::get()->bindKeyEvent(evtN, key, this, ctrl);
+}
+
+void PlayerCtrl::downEvt(KeyEvt<PlayerCtrl>* evt) {
+	this->ch->Crouch();
+}
+
+void PlayerCtrl::jumpEvt(KeyEvt<PlayerCtrl>* evt) {
+	vector time = evt->getOnHoldTime();
+	this->ch->Jump(time.x >= time.y);
 }

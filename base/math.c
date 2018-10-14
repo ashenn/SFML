@@ -62,3 +62,11 @@ vector rotateVector(vector* v, double angle) {
 
     return res;
 }
+
+bool operator==(vector v, vector v2) {
+    return (v.x == v2.x) && (v.y == v2.y);
+}
+
+bool operator!=(vector v, vector v2) {
+    return !(v == v2);
+}

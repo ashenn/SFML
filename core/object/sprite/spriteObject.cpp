@@ -63,14 +63,14 @@ void SpriteObj::loadSheet(const Json* json) {
 
 	AssetMgr* ast = AssetMgr::get();
 
-	Texture* text = ast->getTexture(sheetPath);
+	Texture* text = ast->getSheet(sheetPath);
 	if (text == NULL) {
 		char exp[300];
 		memset(exp, 0, 300);
 		snprintf(exp, 300, "Fail To Get Texture: %s", sheetPath);
 
 		free(sheetPath);
-		throw(Exception(0, exp));
+		throw(new Exception(LOG_SPRITE, exp));
 	}
 
 	free(sheetPath);
@@ -96,6 +96,8 @@ void SpriteObj::loadSheet(const Json* json) {
 
 	this->setTexture(text);
 	this->setClip(this->curClip, true);
+
+	this->sprite->setOrigin({ this->sprite->getLocalBounds().width / 2, 0 });
 }
 
 void spriteAnimDataDelete(Node* n) {
@@ -173,6 +175,7 @@ void SpriteObj::loadAnimLinks(const char* name, const Json* linkJson, SpriteAnim
 	Node* n = NULL;
 	while ((n = listIterate(linkJson->childs, n)) != NULL) {
 		Json* linkJson = (Json*) n->value;
+		Log::dbg(LOG_SPRITE_OBJ, "+++++++++++++++++++++++++++++++++++++");
 		Log::dbg(LOG_SPRITE_OBJ, "-- link: %s", linkJson->key);
 
 		AnimLink* link = (AnimLink*) malloc(sizeof(AnimLink));

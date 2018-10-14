@@ -13,7 +13,7 @@ class CharObj : public SpriteObj
 		CharObj(const char* name, vector* pos, unsigned short z, const char* path, Character* ch);
 		~CharObj();
 
-		virtual void draw(RenderWindow* window);	
+		virtual void draw(RenderWindow* window, bool grav);
 };
 
 #endif

@@ -115,7 +115,7 @@ MoveAnim* Animator::moveTo(Object* obj, int x, int y, float time, float delay) {
 	targetPos.y = y;
 
 	Log::dbg(LOG_ANIM, "-- Move To: %d | %d", x, y);
-	vector vec = getVector(obj->getPosition(), targetPos);
+	vector vec = getVector(obj->getRelativePosition(), targetPos);
 	Log::dbg(LOG_ANIM, "-- Move Vector: %lf | %lf", vec.x, vec.y);
 
 	MoveAnim* anim = new MoveAnim(obj, time, delay);
@@ -250,7 +250,7 @@ void Animator::animateMove() {
 void Animator::animate() {
 	if (this->moves->nodeCount) {
 		Log::inf(LOG_ANIM, "Objects Moves To Animate: #%d", this->moves->nodeCount);
-		this->animateMove();
+		// this->animateMove();
 	}
 
 	if (this->sprites->nodeCount) {
@@ -325,7 +325,7 @@ void MoveAnim::fnc() {
 	Object* obj = this->obj;
 	Log::dbg(LOG_ANIM, "Moving Object: X: %d | Y: %d", xMove, yMove);
 
-	vector pos = obj->getPosition();
+	vector pos = obj->getRelativePosition();
 	Log::dbg(LOG_ANIM, "Current Position: X: %lf | Y: %lf", pos.x, pos.y);
 	
 	pos = obj->move(m);

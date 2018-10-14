@@ -234,9 +234,7 @@ Json* loadJsonFile(const char* p) {
 	validatePath(path);
 	Log::inf(LOG_JSON, "==== New Json From Path: %s ===", p);
 
-	Log::inf(LOG_JSON, "-- TEST-0");
 	char* content = fileGetContent(path);
-	Log::inf(LOG_JSON, "-- TEST-1");
 	if (content == NULL) {
 		Log::err(LOG_JSON, "Fail to Load Json File: %s", path);
 		return NULL;
@@ -576,7 +574,7 @@ void jsonPrint(const Json* json, int tab) {
 		snprintf(format, 250, "%s\"%%s\": ", tmpFormat);
 		snprintf(keyName, 250, "%s", json->key);
 
-		key = keyName;
+		key = Str(keyName);
 	}
 	else{
 
@@ -589,10 +587,7 @@ void jsonPrint(const Json* json, int tab) {
 		}
 		
 		snprintf(format, 250, "%s ", tmpFormat);
-		Log::err(LOG_JSON, "FORMAT: %s", format);
-
 		key = Str(format);
-		Log::err(LOG_JSON, "Key Result: %s", format);
 	}
 
 	char value[5500];
@@ -632,7 +627,7 @@ void jsonPrint(const Json* json, int tab) {
 			break;
 	}
 
-	fprintf(stdout, "%s%s", key, value);
+	fprintf(stdout, "%s: %s", key, value);
 	free(key);
 
 	if (json->type == JSON_ARRAY) {
@@ -983,7 +978,7 @@ Json* jsonGetData(const Json* json, const char* key) {
 
 	Node* n = getNodeByName(json->childs, key);
 	if (n == NULL) {
-		Log::inf(LOG_JSON, "Fail To Find JSON Data: %s", key);
+		Log::war(LOG_JSON, "Fail To Find JSON Data: %s", key);
 		return NULL;
 	}
 

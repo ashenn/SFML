@@ -63,7 +63,7 @@ Node* deleteNodeNoFree(ListManager* lstMgr, int id);
 
 Node* deleteNodeByNameNoFree(ListManager* lstMgr, char* name);
 void deleteNodeByName(ListManager* lstMgr, const char* name);
-void deleteNodeByValue(ListManager* lst, const void* value);
+bool deleteNodeByValue(ListManager* lst, const void* value);
 
 void freeNode(Node* n);
 void freeNodeKey(Node* n);
@@ -95,5 +95,6 @@ void lockNode(Node* n);
 void unlockNode(Node* n);
 
 Node* addNodeUniq(ListManager* lst, const char* name, void* value, short valIsAlloc);
+Node* addNodeUniqValue(ListManager* lst, const char* name, void* value, short valIsAlloc);
 
 #endif

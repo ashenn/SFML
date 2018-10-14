@@ -2,6 +2,7 @@
 #define PLAYER_CTRL_H
 
 #include "../controller.h"
+#include "../../control/control.h"
 
 class PlayerCtrl : public Controller
 {
@@ -9,6 +10,9 @@ class PlayerCtrl : public Controller
 		unsigned short id = 0;
 
 		static ListManager* playerList;
+
+		void loadControls();
+		void loadControl(Json* ctrl, const char* playerName);
 
 	public:
 		~PlayerCtrl();
@@ -19,6 +23,8 @@ class PlayerCtrl : public Controller
 
 		void moveEvt(KeyEvt<PlayerCtrl>* evt);
 		void stopEvt(KeyEvt<PlayerCtrl>* evt);
+		void downEvt(KeyEvt<PlayerCtrl>* evt);
+		void jumpEvt(KeyEvt<PlayerCtrl>* evt);
 };
 
 #endif

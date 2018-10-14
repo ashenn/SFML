@@ -25,4 +25,7 @@ vector diffVector(vector* v1, vector* v2);
 vector rotateVector(vector* v1, double angle);
 vector getVector(vector pos1, vector pos2);
 
+bool operator!=(vector v, vector v2);
+bool operator==(vector v, vector v2);
+
 #endif

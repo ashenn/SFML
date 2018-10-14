@@ -1,0 +1,95 @@
+{
+	"ground": {
+		"sheet": "land/sprite",
+		"size": [
+			172,
+			111
+		],
+
+		"sprites": {
+			"left": {
+				"clip": {
+					"top": 177,
+					"left": 36,
+					"width": 92,
+					"height": 111
+				},
+
+				"pos": {
+					"top": 0,
+					"left": 0,
+					"width": 92,
+					"height": 111
+				},
+
+				"scale": [
+					false,
+					false
+				]
+			},
+			
+			"top": {
+				"clip": {
+					"top": 186,
+					"left": 192,
+					"width": 48,
+					"height": 38
+				},
+
+				"pos": {
+					"top": 0,
+					"left": 92,
+					"width": 48,
+					"height": 38
+				},
+
+				"scale": [
+					true,
+					false
+				]
+			},
+			
+			"center": {
+				"clip": {
+					"top": 183,
+					"left": 144,
+					"width": 32,
+					"height": 41
+				},
+
+				"pos": {
+					"top": 0,
+					"left": 230,
+					"width": 32,
+					"height": 41
+				},
+
+				"scale": [
+					true,
+					false
+				]
+			},
+
+			"bottom": {
+				"clip": {
+					"top": 240,
+					"left": 192,
+					"width": 32,
+					"height": 64
+				},
+
+				"pos": {
+					"top": 38,
+					"left": 200,
+					"width": 48,
+					"height": 64
+				},
+
+				"scale": [
+					false,
+					true
+				]
+			}
+		}
+	}
+}

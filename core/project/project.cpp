@@ -68,7 +68,7 @@ void Project::initFlags() {
 	flagList = initListMgr();
 
 	// Logger Flags
-	static unsigned int flags[20] = {
+	static unsigned int flags[] = {
 	    LOG_NONE,
 		LOG_MAIN,
 		LOG_JSON,
@@ -86,24 +86,16 @@ void Project::initFlags() {
 		LOG_CTRL,
 		LOG_CTRL_PLAYER,
 		LOG_MOVE,
-		LOG_VIEW/*,
-
 		LOG_VIEW,
-		LOG_LAYER,
-		LOG_COMMON,
-		LOG_ANIM,
-		LOG_TIMER,
-		LOG_SPRITE,
-		LOG_CHAR,
-		LOG_CONTROL,
-		LOG_CONTROLLER,
-		LOG_MOVE,
-		LOG_COLLISION*/
+		LOG_COL,
+		LOG_COL_LOOP,
+		LOG_MUL_TEXT,
+		LOG_ENV_OBJ
 	};
 
 
 	// Add Flags To Logger
-	const char* flagsNames[19] = {
+	const char* flagsNames[] = {
 		"none",
 		"main",
 		"json",
@@ -122,6 +114,10 @@ void Project::initFlags() {
 		"ctrlPlayer",
 		"move",
 		"view",
+		"collision",
+		"col_loop",
+		"texture",
+		"envirement",
 		NULL
 	};
 
@@ -129,87 +125,6 @@ void Project::initFlags() {
 		addNodeV(flagList, flagsNames[i], &flags[i], 0);
 		Log::addTag(flags[i], flagsNames[i], 0);
 	}
-
-	/*
-	addNodeV(flagList, "none", &flags[0], 0);
-	Log::addTag(flags[0], "none", 0);
-
-	addNodeV(flagList, "main", &flags[1], 0);
-	Log::addTag(flags[1], "main", 0);
-
-	addNodeV(flagList, "json", &flags[2], 0);
-	Log::addTag(flags[2], "json", 0);
-
-	addNodeV(flagList, "project", &flags[3], 0);
-	Log::addTag(flags[3], "project", 0);
-
-	addNodeV(flagList, "obj", &flags[4], 0);
-	Log::addTag(flags[4], "obj", 0);
-
-	addNodeV(flagList, "render", &flags[5], 0);
-	Log::addTag(flags[5], "render", 0);
-
-	addNodeV(flagList, "anim", &flags[6], 0);
-	Log::addTag(flags[6], "anim", 0);
-
-	addNodeV(flagList, "event", &flags[7], 0);
-	Log::addTag(flags[7], "event", 0);
-
-	addNodeV(flagList, "asset", &flags[8], 0);
-	Log::addTag(flags[8], "asset", 0);
-
-	addNodeV(flagList, "sprite", &flags[9], 0);
-	Log::addTag(flags[9], "sprite", 0);
-
-	addNodeV(flagList, "spriteObj", &flags[10], 0);
-	Log::addTag(flags[10], "spriteObj", 0);
-
-	addNodeV(flagList, "spriteAnim", &flags[11], 0);
-	Log::addTag(flags[11], "spriteAnim", 0);
-
-
-		addNodeV(flagList, "view", &flags[5], 0);
-		Log::addTag(flags[5], "view", 0);
-
-		addNodeV(flagList, "layer", &flags[6], 0);
-		Log::addTag(flags[6], "layer", 0);
-
-		addNodeV(flagList, "event", &flags[7], 0);
-		Log::addTag(flags[7], "event", 0);
-
-		addNodeV(flagList, "common", &flags[8], 0);
-		Log::addTag(flags[8], "common", 0);
-
-		addNodeV(flagList, "project", &flags[9], 0);
-		Log::addTag(flags[9], "project", 0);
-
-		addNodeV(flagList, "render", &flags[10], 0);
-		Log::addTag(flags[10], "render", 0);
-
-		addNodeV(flagList, "anim", &flags[11], 0);
-		Log::addTag(flags[11], "anim", 0);
-
-		addNodeV(flagList, "timer", &flags[12], 0);
-		Log::addTag(flags[12], "timer", 0);
-
-		addNodeV(flagList, "sprite", &flags[13], 0);
-		Log::addTag(flags[13], "sprite", 0);
-
-		addNodeV(flagList, "char", &flags[14], 0);
-		Log::addTag(flags[14], "char", 0);
-
-		addNodeV(flagList, "control", &flags[15], 0);
-		Log::addTag(flags[15], "control", 0);
-
-		addNodeV(flagList, "controller", &flags[16], 0);
-		Log::addTag(flags[16], "controller", 0);
-
-		addNodeV(flagList, "move", &flags[17], 0);
-		Log::addTag(flags[17], "move", 0);
-
-		addNodeV(flagList, "collision", &flags[18], 0);
-		Log::addTag(flags[18], "collision", 0);
-	*/
 }
 
 

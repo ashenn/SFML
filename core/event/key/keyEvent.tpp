@@ -32,6 +32,7 @@ void Hold<T>::call() {
 	double time = (TimeMgr::get()->getTime() - this->started) / 1000000;
 
 	if (time >= this->min) {
+		this->time = (float) time;
 		T* obj = (T*) this->evt->target;
 		(obj->*(this->fnc))(evt);
 	}
@@ -88,6 +89,68 @@ KeyEvt<T>::KeyEvt(const char* name, sf::Keyboard::Key key, T* obj) {
 	this->name = Str(name);
 	this->target = obj;
 }
+
+
+template <class T>
+KeyEvt<T>::KeyEvt(const char* name, sf::Keyboard::Key key, T* obj, Json* conf) : KeyEvt<T>(name, key, obj) {
+	Log::inf(LOG_EVENT_KEY, "=== Loading Key Conf: '%s' ===", conf->key);
+
+	char* press = (char*) jsonGetValue(conf, "pressed", NULL);
+	Log::inf(LOG_EVENT_KEY, "-- Press: '%s' ===", press);
+
+	if (press != NULL) {
+		CallableFncEvt<T>* fncA = (CallableFncEvt<T>*) obj->getFnc(press);
+
+		if (fncA == NULL) {
+			Log::err(LOG_EVENT_KEY, "Fail To Find Function: '%s' For Object: %s", press, obj->getName());
+		}
+		else {
+			Log::inf(LOG_EVENT_KEY, "Setting On Press: '%s'", press);
+			this->setOnPress(obj, fncA->fnc);
+		}
+	}
+
+	char* release = (char*) jsonGetValue(conf, "release", NULL);
+	Log::inf(LOG_EVENT_KEY, "-- Release: '%s' ===", release);
+
+	if (release != NULL) {
+		CallableFncEvt<T>* fncA = (CallableFncEvt<T>*) obj->getFnc(release);
+
+		if (fncA == NULL) {
+			Log::err(LOG_EVENT_KEY, "Fail To Find Function: '%s' For Object: %s", release, obj->getName());
+		}
+		else {
+			Log::inf(LOG_EVENT_KEY, "Setting On Release: '%s'", release);
+			this->setOnRelease(obj, fncA->fnc);
+		}
+	}
+
+
+	Json* hold = jsonGetData(conf, "hold");
+	if (hold->type != JSON_NULL) {
+		char* fncN = (char*) jsonGetValue(hold, "fnc", NULL);
+		CallableFncEvt<T>* fncA = (CallableFncEvt<T>*) obj->getFnc(fncN);
+
+		if (fncA == NULL) {
+			Log::inf(LOG_EVENT_KEY, "Fail To Find Function: '%s' For Object: %s", release, obj->getName());
+		}
+		else {
+			float min;
+			float max;
+
+			jsonGetValue(hold, "minTime", &min);
+			jsonGetValue(hold, "maxTime", &max);
+			this->setOnHold(obj, fncA->fnc, min, max);
+		}
+
+		free(fncN);
+	}
+
+
+	free(press);
+	free(release);
+}
+
 
 template <class T>
 KeyEvt<T>::~KeyEvt() {
@@ -160,10 +223,17 @@ template <class T>
 void KeyEvt<T>::callPressed(sf::Event evt) {
 	this->evt = evt;
 
+	if (!this->allowRepeat && !this->released){
+		return;
+	}
+
+	this->released = false;
+
 	if (this->onHold != NULL) {
 		this->onHold->start();
 	}
-	else if (this->onPress != NULL) {
+
+	if (this->onPress != NULL) {
 		T* obj = (T*) this->target;
 		Pressed<T>* p = this->onPress;
 
@@ -185,4 +255,15 @@ void KeyEvt<T>::callReleased(sf::Event evt) {
 
 		(obj->*(p->fnc))(this);
 	}
+
+	this->released = true;
+}
+
+template <class T>
+vector KeyEvt<T>::getOnHoldTime() {
+	vector res;
+	res.x = (double) this->onHold->time;
+	res.y = (double) this->onHold->max;
+
+	return res;
 }

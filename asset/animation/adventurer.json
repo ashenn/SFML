@@ -18,12 +18,12 @@
 				"Run": {
 					"waitEnd": false,
 					"target": "Run",
-					"fnc": "Idl2Run"
+					"fnc": "Idle2Run"
 				},
 				"Jump": {
-					"waitEnd": true,
-					"target": "Jump",
-					"fnc": "Idl2Jump"
+					"waitEnd": false,
+					"target": "JumpStart",
+					"fnc": "Idle2Jump"
 				},
 				"Fall": {
 					"waitEnd": false,
@@ -52,8 +52,13 @@
 				},
 				"Jump": {
 					"waitEnd": false,
-					"target": "Jump",
+					"target": "JumpStart",
 					"fnc": "Run2Jump"
+				},
+				"Fall": {
+					"waitEnd": false,
+					"target": "Fall",
+					"fnc": "Idle2Fall"
 				}
 			}
 		},
@@ -67,8 +72,8 @@
 			"links": {
 				"Jump": {
 					"waitEnd": false,
-					"target": "Jump",
-					"fnc": "Down2Jump"
+					"target": "JumpStart",
+					"fnc": "Idle2Jump"
 				},
 				"Idle": {
 					"waitEnd": false,
@@ -77,11 +82,31 @@
 				}
 			}
 		},
+		"JumpStart": {
+			"name": "JumpStart",
+			"fps": 15,
+			"count": 3,
+			"index": 0,
+			"loop": false,
+			"row": 2,
+			"links": {
+				"Jump": {
+					"waitEnd": true,
+					"target": "Jump",
+					"fnc": null
+				},
+				"DoubleJump": {
+					"waitEnd": false,
+					"target": "DoubleJump",
+					"fnc": "Jump2DoubleJump"
+				}
+			}
+		},
 		"Jump": {
 			"name": "Jump",
 			"fps": 15,
-			"count": 4,
-			"index": 0,
+			"count": 1,
+			"index": 3,
 			"loop": false,
 			"row": 2,
 			"links": {
@@ -106,9 +131,14 @@
 			"row": 3,
 			"links": {
 				"Land": {
-					"waitEnd": true,
+					"waitEnd": false,
 					"target": "Land",
 					"fnc": "Fall2Land"
+				},
+				"jump": {
+					"waitEnd": false,
+					"target": "Jump",
+					"fnc": "Idle2Jump"
 				},
 				"DoubleJump": {
 					"waitEnd": false,

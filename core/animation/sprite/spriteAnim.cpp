@@ -160,18 +160,21 @@ void SpriteAnim::updateSprite() {
 	Node* n = NULL;
 	while ((n = listIterate(this->anim->animLinks, n)) != NULL) {
 		AnimLink* link = (AnimLink*) n->value;
+		// Log::war(LOG_SPRITE_ANIM, "Test Link Anim: %s", link->name);
 
 		if (link->waitEnd && !this->done) {
+			// Log::war(LOG_SPRITE_ANIM, "Skip: %s", link->name);
 			continue;
 		}
 		
 		if(link->name == NULL) {
-			SpriteAnim::animate((SpriteObj*) this->anim->obj, link->name, 0);
+			Log::inf(LOG_SPRITE_ANIM, "Force Calling Anim: %s", link->target);
+			SpriteAnim::animate((SpriteObj*) this->anim->obj, link->target, 0);
 			break;
 		}
 		else if(this->callAnimLinkFnc((SpriteObj*) this->anim->obj, link)){
-			// Log::war(LOG_SPRITE_ANIM, "Calling Anim: %s", link->target);
-			// Log::war(LOG_SPRITE_ANIM, "From Link: %s", link->name);
+			Log::inf(LOG_SPRITE_ANIM, "Calling Anim: %s", link->target);
+			Log::inf(LOG_SPRITE_ANIM, "From Link: %s", link->name);
 
 			this->triggerCallBack(this->obj);
 			SpriteAnim::animate((SpriteObj*) this->anim->obj, link->target, 0);

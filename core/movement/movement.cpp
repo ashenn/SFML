@@ -19,11 +19,16 @@ void Movement::_setVelocityX(double x) {
 
 	oVel->x = x;
 	if (oVel->x < 0) {
-
 		this->dir.x = DIR_LEFT;
+		if (oVel->x < -this->maxVelocity.x) {
+			oVel->x = -this->maxVelocity.x;
+		}
 	}
 	else if (oVel->x > 0) {
 		this->dir.x = DIR_RIGHT;
+		if (oVel->x > this->maxVelocity.x) {
+			oVel->x = this->maxVelocity.x;
+		}
 	}
 
 	Log::inf(LOG_MOVE, "-- Done X: %d ====", (int) x);
@@ -36,9 +41,15 @@ void Movement::_setVelocityY(double y) {
 	oVel->y = y;
 	if (oVel->y < 0) {
 		this->dir.y = DIR_UP;
+		if (oVel->x < -this->maxVelocity.x) {
+			oVel->x = -this->maxVelocity.x;
+		}
 	}
 	else if (oVel->y > 0) {
 		this->dir.y = DIR_DOWN;
+		if (oVel->y > this->maxVelocity.y) {
+			oVel->y = this->maxVelocity.y;
+		}
 	}
 
 	Log::inf(LOG_MOVE, "-- Done Y: %d ====", (int) y);
@@ -113,10 +124,8 @@ void Movement::applyVelocity() {
 		return;
 	}
 
-	Log::inf(LOG_MOVE, "Velocity: X:%lf | Y: %lf", vel->x, vel->y);
-
 	Object* obj = this->obj;
-	vector pos = obj->getPosition();
+	vector pos = obj->getRelativePosition();
 
 	Log::inf(LOG_MOVE, "Move To: X: %d + %d | Y: %d  + %d", (int) pos.x, (int) vel->x, (int) pos.y, (int) vel->y);
 	Log::inf(LOG_MOVE, "Move To: X: %d | Y: %d", (int) (pos.x + vel->x), (int) (pos.y + vel->y));

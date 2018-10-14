@@ -21,7 +21,11 @@ struct CharStats
 	bool crouch;
 	bool moving;
 
+	bool inAir;
 	bool doubleJump;
+	unsigned int jump;
+	unsigned int jumpMax;
+
 	bool hasDoubleJump;
 	bool canDoubleJump;
 
@@ -29,7 +33,8 @@ struct CharStats
 	unsigned int lifeMax;
 
 	unsigned int moveSpeed;
-	unsigned int maxMoveSpeed;
+	unsigned int maxMoveSpeedX;
+	unsigned int maxMoveSpeedY;
 };
 
 class Character : public AbstractClass
@@ -42,8 +47,12 @@ class Character : public AbstractClass
 		ViewMgr* view = NULL;
 		Json* loadConfig(const char* jsonKey);
 
+		void initCallableFncs();
+		void initCollision(Json* js);
+
 	protected:
 		void initAnimFncs();
+		virtual void initStats();
 
 	public:
 		void removeView();
@@ -58,10 +67,22 @@ class Character : public AbstractClass
 		void loadObject(Json* data, const char* name, vector* pos, int z);
 		void stopMove();
 
+		bool isOnLand();
 		bool isRunning();
 		bool isStopped();
+		bool isJumping();
+		bool isFalling();
+		bool isCrouching();
 
 		void update();
+
+		void Crouch();
+		void Jump(bool full);
+
+		void landed();
+
+
+		bool hit(Collision* col, Collision* col2);
 };
 
 #include "../object/sprite/character/charObject.h"

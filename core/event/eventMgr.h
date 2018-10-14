@@ -24,6 +24,9 @@ class EventMgr : public AbstractStaticClass
 
 		template <class T>
 		KeyEvt<T>* bindKeyEvent(const char* name, sf::Keyboard::Key key, T* obj);
+
+		template <class T>
+		KeyEvt<T>* bindKeyEvent(const char* name, sf::Keyboard::Key key, T* obj, Json* conf);
 		
 		template <class T>
 		KeyEvt<T>* bindKeyEvent(const char* name, sf::Keyboard::Key key, T* obj, void (T::*fnc)(KeyEvt<T>*));

@@ -18,15 +18,17 @@ CSRC	=	base/basic.c              \
 CPPSRC =        base/logger.cpp                 \
                 core/exception/exception.cpp    \
                 core/abstractClass.cpp          \
-                core/asset/asset.cpp            \
-                core/event/event.cpp      \
+                core/asset/asset.cpp                                \
+                core/asset/multiTexture/multiTexture.cpp            \
+                core/event/event.cpp                                \
                 core/event/key/keyEvent.cpp      \
-                core/event/eventMgr.cpp      \
-                core/project/project.cpp  \
-                core/time/timeMgr.cpp     \
-                core/render/render.cpp                    \
-                core/object/object.cpp                    \
-                core/movement/movement.cpp                    \
+                core/event/eventMgr.cpp          \
+                core/project/project.cpp         \
+                core/time/timeMgr.cpp            \
+                core/render/render.cpp                            \
+                core/object/object.cpp                            \
+                core/movement/movement.cpp                        \
+                core/object/envirement/envirement.cpp             \
                 core/object/sprite/spriteObject.cpp               \
                 core/object/sprite/character/charObject.cpp       \
                 core/character/character.cpp                      \
@@ -34,8 +36,10 @@ CPPSRC =        base/logger.cpp                 \
                 core/controller/player/playerCtrl.cpp             \
                 core/animation/animation.cpp                      \
                 core/animation/sprite/spriteAnim.cpp      \
-                core/view/view.cpp      \
-                core/collision/collision.cpp      \
+                core/view/view.cpp                        \
+                core/collision/collision.cpp              \
+                core/collision/collisionMgr.cpp           \
+                core/control/control.cpp                  \
                 
 
 

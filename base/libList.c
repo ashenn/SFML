@@ -868,16 +868,28 @@ Node* getNodeByValue(ListManager* lst, const void* value) {
     return NULL;
 }
 
-void deleteNodeByValue(ListManager* lst, const void* value) {
+bool deleteNodeByValue(ListManager* lst, const void* value) {
     Node* n = getNodeByValue(lst, value);
 
     if (n != NULL) {
     	removeAndFreeNode(lst, n);
+    	return true;
     }
+
+    return false;
 }
 
 Node* addNodeUniq(ListManager* lst, const char* name, void* value, short valIsAlloc) {
 	Node* n = getNodeByName(lst, name);
+	if (n != NULL) {
+		return NULL;
+	}
+
+	return addNodeV(lst, name, value, valIsAlloc);
+}
+
+Node* addNodeUniqValue(ListManager* lst, const char* name, void* value, short valIsAlloc) {
+	Node* n = getNodeByValue(lst, value);
 	if (n != NULL) {
 		return NULL;
 	}

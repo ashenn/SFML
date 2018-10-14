@@ -3,17 +3,29 @@
 #include <string>
 #include <sstream>
 
+void deleteCallable(Node* n) {
+	CallableFncAbstract* fnc = (CallableFncAbstract*) n->value;
+
+	if (fnc != NULL) {
+		delete fnc;
+	}
+}
+
 AbstractClass::~AbstractClass() {
 	if (this->name != NULL) {
-		free(name);
+		free(this->name);
+	}
+
+	if (this->callables != NULL) {
+		deleteList(this->callables);
 	}
 
 	if (this->lockTag != NULL) {
-		free(lockTag);
+		free(this->lockTag);
 	}
 
 	if (this->unlockTag != NULL) {
-		free(unlockTag);
+		free(this->unlockTag);
 	}
 }
 
@@ -121,4 +133,19 @@ double AbstractClass::getThreadId() {
 	ss << std::this_thread::get_id();
 	
 	return str2double(ss.str().c_str());
+}
+
+CallableFncAbstract* AbstractClass::getFnc(const char* name) {
+	if (this->callables == NULL) {
+		Log::war(LOG_MAIN, "!!!! CALLABLES IS NULL !!!!!");
+		return NULL;
+	}
+
+	Node* fncN = getNodeByName(this->callables, name);
+
+	if (fncN == NULL) {
+		return NULL;
+	}
+
+	return (CallableFncAbstract*) fncN->value;
 }

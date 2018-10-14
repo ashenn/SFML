@@ -2,7 +2,17 @@
 	"adventurer": {
 		"life": 5,
 		"sheet": "adventurer",
-		"onPossess": null,
-		"onUnPossess": null
+		"collisions": {
+			"hitbox": {
+				"callback": "hit",
+				"type": "COL_PLAYER",
+				"pos": {
+					"top": 4, 
+					"left": 12, 
+					"width": 22, 
+					"height": 34
+				}
+			}
+		}
 	}
 }

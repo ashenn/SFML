@@ -18,6 +18,10 @@
 #define LOG_CTRL_PLAYER	1 << 14
 #define LOG_MOVE		1 << 15
 #define LOG_VIEW		1 << 16
+#define LOG_COL			1 << 17
+#define LOG_COL_LOOP	1 << 18
+#define LOG_MUL_TEXT	1 << 19
+#define LOG_ENV_OBJ		1 << 20
 
 #define FPS 60
 #define FRAME (1.0 / FPS) * 1000000

@@ -45,6 +45,7 @@ class Movement
 		Movement(Object* obj);
 		~Movement();
 
+		vector maxVelocity;
 		vector getVelocity();
 		Direction getDirection();
 		void setVelocityY(double y);

@@ -56,25 +56,26 @@ void holdThread(HoldAbstract* hold);
 
 // On Key Hold
 template <class T>
-class Hold : HoldAbstract { 
+class Hold : public HoldAbstract { 
 	public:
-	Hold(T* obj, KeyEvt<T>* evt, void (T::*fnc)(KeyEvt<T>*), float min, float max);
-	virtual ~Hold();
+		virtual ~Hold();
+		Hold(T* obj, KeyEvt<T>* evt, void (T::*fnc)(KeyEvt<T>*), float min, float max);
 
 
-	virtual void call();
-	virtual void kill();
-	virtual void start();
-	virtual void signal();
+		virtual void call();
+		virtual void kill();
+		virtual void start();
+		virtual void signal();
 
-	KeyEvt<T>* evt;
-	void (T::*fnc)(KeyEvt<T>*); // Pointer To Object Function
+		KeyEvt<T>* evt;
+		void (T::*fnc)(KeyEvt<T>*); // Pointer To Object Function
 };
 
 
 class KeyEvtAbstract : public Evt {
 	protected:
 		Keyboard::Key key;
+		bool released = true;
 
 
 	public:
@@ -82,7 +83,7 @@ class KeyEvtAbstract : public Evt {
 		Keyboard::Key getKey();
 	
 		bool breakEvt;
-		bool allowRepeat;	// Is Repeated On Key Hold (/!\ Automatically Disable On Hold Function /!\)
+		bool allowRepeat = false;	// Is Repeated On Key Hold (/!\ Automatically Disable On Hold Function /!\)
 
 		sf::Event getEvent();
 
@@ -101,6 +102,7 @@ class KeyEvt : public KeyEvtAbstract
 	public:
 		T* target;
 		KeyEvt(const char* name, sf::Keyboard::Key key, T* obj);
+		KeyEvt(const char* name, sf::Keyboard::Key key, T* obj, Json* conf);
 		~KeyEvt();
 
 		bool callHoldOnMax;	// Call Function Automatically Function If Hold Time Reaches Max
@@ -116,6 +118,7 @@ class KeyEvt : public KeyEvtAbstract
 
 		void killOnHold();
 		void callOnHold();
+		vector getOnHoldTime();
 
 		void callPressed(sf::Event evt);
 		void callReleased(sf::Event evt);

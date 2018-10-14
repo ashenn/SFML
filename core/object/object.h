@@ -18,6 +18,8 @@ class Object : public AbstractClass
 
 		bool visible = true;
 		bool enabled = true;		// Enable for Animation / Render / Collision
+		
+		//IntRect defaultClip;		// Texture Clip
 
 		vector pos;					// position {x, y}
 		Movement* movement = NULL;
@@ -25,10 +27,11 @@ class Object : public AbstractClass
 		Node* node = NULL;			// Node Pointer In All Objects List 
 		Object* parent = NULL;		// Parent Object
 
+
 		IntRect* clip = NULL;		// Texture Clip
-		Sprite* sprite = NULL;
 		Texture* texture = NULL;
 
+		ListManager* childs = NULL;
 		ListManager* collisions = NULL;
 
 		static ListManager* objectList;				// All Objects Instanciated
@@ -36,18 +39,31 @@ class Object : public AbstractClass
 		static void removeObject(Object* obj);		// Remove Object To List
 
 	protected:
+		Sprite* sprite = NULL;
 		void updateClip();	// Update Sprite Clip
-
+		bool addChildToList(Object* child);
+		
 	public:
 		Object(const char* name, vector* pos, Texture* text, IntRect* clip, unsigned short z, bool visible);
 		
 		Object(const char* name) : Object(name, NULL, NULL, NULL, 0, true){};
+		Object(const char* name, vector* pos) : Object(name, pos, NULL, NULL, 0, true){};
 		Object(const char* name, vector* pos, Texture* text, IntRect* clip) : Object(name, pos, text, clip, 0, true){};
 		Object(const char* name, vector* pos, Texture* text, IntRect* clip, unsigned short z) : Object(name, pos, text, clip, z, true){};
 
+		bool gravity = false;
+		sf::Vector2f getOrigin();
+
 		~Object();
 
+		void setMaxSpeed(unsigned int x, unsigned int y);
 		void flipH();
+
+		bool isEnabled();
+		void toggle(bool b);
+
+		void setScale(vector s);
+		void scale(vector s);
 
 		Sprite* getSprite();
 		void removeTexture();				// Delete Texture And Sprite
@@ -57,19 +73,39 @@ class Object : public AbstractClass
 		void removeFromView();				// Remove Object To Render Loop
 
 		vector getPosition();
+		vector getRelativePosition();
 		void setPosition(vector pos);
 
 		vector getVelocity();				// Move Object Vector 
-		vector move(vector move);			// Move Object Vector 
-		Movement* getMovement();			// Move Object Vector 
-		virtual void draw(RenderWindow* window);
 
+		void stopMove();			// Move Object Vector 
+		vector canMove(vector m);
+		vector move(vector move);			// Move Object Vector 
+
+		Movement* getMovement();			// Move Object Vector 
+		virtual void draw(RenderWindow* window, bool grav);
+
+		// IntRect getClip();
 		void removeClip(bool clean);		// Set Clip Pointer To Null And Delete Object if Clean = true
 		void setClip(IntRect* clip, bool clean);
 
 		static void clearObjects();			// Delete All Objects
 
-		Collision* addCollision(const char* name, IntRect pos);
+		Collision* addCollision(const char* name, IntRect pos, ColChanel chan);
+
+		Object* getParent();
+		void removeParent();
+		void setParent(Object* parent);
+
+
+		Object* getChild(const char* name);
+		bool addChild(Object* child, bool keepWorldPosition);
+		bool addChild(Object* child, vector pos, bool worldPosition);
+
+		bool removeChild(Object* child, bool delChild);
+		bool removeChild(bool delChild);
+
+		ListManager* getCollisions();
 };
 
 

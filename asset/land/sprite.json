@@ -1,0 +1,113 @@
+{
+	"ground": {
+		"repeat": true,
+		"sheet": "land/sprite",
+
+		"color": [
+			17,
+			32,
+			36,
+			255
+		],
+
+		"size": [
+			172,
+			111
+		],
+
+		"spriteSize": [
+			172,
+			111
+		],
+
+		"sprites": {
+			"left": {
+				"pos": [
+					0,
+					0
+				],
+
+				"clip": {
+					"top": 177,
+					"left": 36,
+					"width": 92,
+					"height": 111
+				}
+			},
+
+			"top": {
+				"pos": [
+					92,
+					0
+				],
+				"clip": {
+					"top": 176,
+					"left": 192,
+					"width": 48,
+					"height": 48
+				}
+			},
+			
+			"center": {
+				"pos": [
+					140,
+					0
+				],
+
+				"clip": {
+					"top": 176,
+					"left": 144,
+					"width": 32,
+					"height": 48
+				},
+
+
+				"scale": [
+					true,
+					false
+				]
+			},
+
+			"bottom": {
+				"pos": [
+					120,
+					38
+				],
+
+				"clip": {
+					"top": 240,
+					"left": 192,
+					"width": 32,
+					"height": 64
+				},
+
+				"scale": [
+					false,
+					true
+				]
+			}
+		},
+
+		"collisions": {
+			"top": {
+				"channel": "COL_WALL",
+				"pos": {
+					"top": 13,
+					"left": 10,
+					"width": 162,
+					"height": 12
+				}
+			},
+
+			"left": {
+				"channel": "COL_WALL",
+				"pos": {
+					"top": 16,
+					"left": 10,
+					"width": 50,
+					"height": 95
+				}
+			}
+		}
+	}
+}

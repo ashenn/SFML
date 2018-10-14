@@ -1,27 +1,27 @@
 {
 	"SideScroll": {
 		"player-1": {
-			"SDLK_SPACE": {
+			"SPACE": {
 				"pressed": "down",
 				"release": null,
 				"hold": {
 					"fnc": "jump",
 					"minTime": 0.000000,
-					"maxTime": 1.000000,
+					"maxTime": 0.500000,
 					"callOnMax": true
 				}
 			},
-			"SDLK_RIGHT": {
-				"pressed": "run",
+			"RIGHT": {
+				"pressed": "move",
 				"release": "stop",
 				"hold": null
 			},
-			"SDLK_LEFT": {
-				"pressed": "run",
+			"LEFT": {
+				"pressed": "move",
 				"release": "stop",
 				"hold": null
 			},
-			"SDLK_DOWN": {
+			"DOWN": {
 				"pressed": "down",
 				"release": "stop",
 				"hold": null

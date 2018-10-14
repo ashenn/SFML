@@ -45,11 +45,13 @@ void Render::init(RenderWindow* window) {
 }
 
 void Render::render() {
+	static int i = 0;
 	Node* n = NULL;
 
 	bool b = this->lock("Render Lock");
 	Log::inf(LOG_RENDER, "=== Rendering ===");
 	this->window->clear();
+
 
 	Log::dbg(LOG_RENDER, "-- Start Loop");
 	while((n = listIterate(this->objectList, n)) != NULL) {
@@ -57,15 +59,23 @@ void Render::render() {
 
 		Log::inf(LOG_RENDER, "-- Rendering: %s", obj->getName());
 
-		obj->draw(this->window);
+		obj->draw(this->window, i == 10);
 	}
 	
 
 	Log::dbg(LOG_RENDER, "-- Display window Content");
 	window->display();
 
+	if (i && (i == 10)) {
+		i = 0;
+	}
+	else{
+		i++;
+	}
+
 	Log::dbg(LOG_RENDER, "=== Rendering Done ===");
 	this->unlock("Render UnLock", b);
+	
 }
 
 void* renderThread(void* param) {

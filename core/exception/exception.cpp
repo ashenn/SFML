@@ -1,10 +1,10 @@
 #include "exception.h"
 
-Exception::Exception(unsigned short code, const char* msg) throw() {
+Exception::Exception(unsigned int code, const char* msg) throw() {
 	this->code = code;
 	this->msg = Str(msg);
 
-	Log::err(0, msg);
+	Log::err(code, msg);
 }
 
 Exception::~Exception() {
@@ -17,7 +17,7 @@ const char* Exception::getMsg() {
 	return this->msg;
 }
 
-const unsigned short Exception::getCode() {
+const unsigned int Exception::getCode() {
 	return this->code;
 }
 

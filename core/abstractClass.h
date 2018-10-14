@@ -9,15 +9,53 @@
 #include <iostream>
 #include <pthread.h>
 #include <thread>
+#include <map>
+
+void deleteCallable(Node* n);
+
+template <class T>
+class KeyEvt;
+
+
+class AbstractClass;
+class CallableFncAbstract {
+	public:
+		virtual ~CallableFncAbstract(){};
+};
+
+template <class T> 
+class CallableFncEvt : public CallableFncAbstract {
+	public:
+		virtual ~CallableFncEvt(){}
+		void (T::*fnc)(KeyEvt<T>* param);
+
+		CallableFncEvt(void (T::*fnc)(KeyEvt<T>* param)){
+			this->fnc = fnc;
+		}
+};
+
+class Collision;
+template <class T> 
+class CallableFncCol : public CallableFncAbstract {
+	public:
+		virtual ~CallableFncCol(){}
+		bool (T::*fnc)(Collision*, Collision*);
+
+		CallableFncCol(bool (T::*fnc)(Collision*, Collision*)){
+			this->fnc = fnc;
+		}
+};
+
 
 class AbstractClass
 {
 	protected:
 		char* name = NULL;
+		ListManager* callables = NULL;
 
 	private:
-		/** THREAD MANAGEMENT **/
 
+		/** THREAD MANAGEMENT **/
 		double pid = -1;			// Thread ID Who has lock the class
 		char* lockTag = NULL;		// Lock Tag Use For Debbugging
 		char* unlockTag = NULL;		// UnLock Tag Use For Debbugging
@@ -30,6 +68,8 @@ class AbstractClass
 
 	public:
 		unsigned int id = 0;
+		// void callFnc(const char* name, void* param);
+		CallableFncAbstract* getFnc(const char* name);
 
 		virtual ~AbstractClass();
 		
@@ -45,7 +85,6 @@ class AbstractClass
 
 		double getThreadId();
 };
-
 
 /*** MACRO TO CREATE SINGLETON CLASS ***/
 	// To Add in Public Section
