@@ -16,9 +16,9 @@
 #include "core/controller/player/playerCtrl.h"
 
 int main(int argc, char** argv) {
-    XInitThreads();
+
     Log::init(argc, argv);
-    
+
     Project* pro = Project::get();
     pro->init(argc, argv);
 
@@ -32,13 +32,13 @@ int main(int argc, char** argv) {
     Log::inf(LOG_MAIN, "--- Init Render");
     Render* rend = Render::get();
     rend->init(&window);
-    
+
     Log::inf(LOG_MAIN, "=== Init Event Mgr ===");
     EventMgr* evtMgr = EventMgr::get();
     evtMgr->init(&window);
 
     Log::inf(LOG_MAIN, "--- Init Object");
-    
+
 
 
     vector pos = {0, 0};
@@ -47,39 +47,52 @@ int main(int argc, char** argv) {
     // pos.x = -200;
     // pl->getObject()->setPosition(pos);
     // SpriteObj* obj = new SpriteObj("Test", &pos, 0, "adventurer");
-    
+
     SpriteObj* obj = pl->getObject();
     obj->addToView();
 
-    
+
     // sf::Texture* txt = AssetMgr::get()->getMultiTexture("land/sprite", "ground");
 
 
     // IntRect* clip = new IntRect(0, 0, 520, 111);
 
     pos.y = 60;
-    pos.x = -20;
+    pos.x = 380;
+    Object* obj5 = new EnvObj("Test Env", "land/sprite", "ground", &pos, 1);
+    obj5->addToView();
+
+    pos.y = 60;
+    pos.x = 100;
+    Object* obj4 = new EnvObj("Test Env", "land/sprite", "ground", &pos, 1);
+    obj4->addToView();
+
+    pos.y = 60;
+    pos.x = 240;
+    Object* obj3 = new EnvObj("Test Env", "land/sprite", "ground", &pos, 1);
+    obj3->addToView();
+
+    pos.y = 60;
+    pos.x = -40;
     Object* obj2 = new EnvObj("Test Env", "land/sprite", "ground", &pos, 1);
     obj2->addToView();
 
-    // Object* obj2 = new Object("Test Multi", &pos, txt, clip, 1);
-    // SpriteObj* obj2 = new SpriteObj("Base", &pos, 1, "adventurer");
 
-    //obj->addChild(obj2, pos, false);
+    int fi = (1 << (int)COL_ITEM);
+    int fw = (1 << (int)COL_WALL);
+    int fp = (1 << (int)COL_PLAYER);
 
-    // IntRect p(0,0,50,50);
-    // obj->addCollision(obj->getName(), p);
-    // obj2->addCollision(obj2->getName(), p, COL_MONSTER);
-    // Log::war(LOG_MAIN, "TEST: %d", *col && col2);
+    int cw = fw | fi | fp;
+    int ci = fw;
+    int cp = fp | fw;
 
+    /*Log::war(LOG_COL, "Testing Wall: %u", COL_WALL);
+    Log::war(LOG_COL, "Testing Player: %u", COL_PLAYER);
+    Log::war(LOG_COL, "Testing Item: %u", COL_ITEM);
 
-    // KeyEvt<PlayerCtrl>* e = evtMgr->bindKeyEvent("Test Left", sf::Keyboard::Key::Left, pl);
-    // e->setOnPress(pl, &PlayerCtrl::moveEvt);
-    // e->setOnRelease(pl, &PlayerCtrl::stopEvt);
-
-    // KeyEvt<PlayerCtrl>* e2 = evtMgr->bindKeyEvent("Test Right", sf::Keyboard::Key::Right, pl);
-    // e2->setOnPress(pl, &PlayerCtrl::moveEvt);
-    // e2->setOnRelease(pl, &PlayerCtrl::stopEvt);
+    Log::war(LOG_COL, "Testing Collision Wall Item: %d", cw & ci);
+    Log::war(LOG_COL, "Testing Collision Player Item: %d", cp & ci);
+    Log::war(LOG_COL, "Testing Collision Player Wall: %d", cp & cw);*/
 
     Animator* anim = Animator::get();
     TimeMgr* time = TimeMgr::get();
@@ -104,7 +117,7 @@ int main(int argc, char** argv) {
 
         anim->animate();
         colMgr->handle();
-        
+
         rend->render();
 
         eleapsed = time->getElapsedTime();

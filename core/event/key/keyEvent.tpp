@@ -9,11 +9,11 @@ Hold<T>::Hold(T* obj, KeyEvt<T>* evt, void (T::*fnc)(KeyEvt<T>*), float min, flo
 
 	this->killed = false;
 	this->enable = true;
-	
+
 	this->fnc = fnc;
 	this->min = min;
 	this->max = max;
-	
+
 	this->time = 0;
 	this->started = 0;
 }
@@ -94,6 +94,21 @@ KeyEvt<T>::KeyEvt(const char* name, sf::Keyboard::Key key, T* obj) {
 template <class T>
 KeyEvt<T>::KeyEvt(const char* name, sf::Keyboard::Key key, T* obj, Json* conf) : KeyEvt<T>(name, key, obj) {
 	Log::inf(LOG_EVENT_KEY, "=== Loading Key Conf: '%s' ===", conf->key);
+
+	bool allowRepeat = false;
+	jsonGetValue(conf, "repeat", &allowRepeat);
+	this->allowRepeat = allowRepeat;
+
+	if (this->allowRepeat) {
+		float repeatDelay = 0;
+		jsonGetValue(conf, "repeat-delay", &repeatDelay);
+		this->repeatDelay = repeatDelay * 1000000;
+	}
+
+
+	/*
+	Log::war(LOG_EVENT_KEY, "TEST-0 REPEAT: %d", allowRepeat);
+	Log::war(LOG_EVENT_KEY, "TEST-1 REPEAT: %d", this->allowRepeat);*/
 
 	char* press = (char*) jsonGetValue(conf, "pressed", NULL);
 	Log::inf(LOG_EVENT_KEY, "-- Press: '%s' ===", press);
@@ -223,9 +238,22 @@ template <class T>
 void KeyEvt<T>::callPressed(sf::Event evt) {
 	this->evt = evt;
 
+	double curTime = 0;
 	if (!this->allowRepeat && !this->released){
+		//Log::war(LOG_EVENT_KEY, "SKIP: %d | %d", this->allowRepeat, this->released);
 		return;
 	}
+
+	curTime = TimeMgr::get()->getTime();
+	if(this->allowRepeat && !this->released && this->pressedAt) {
+		// Log::war(LOG_EVENT_KEY, "Com: %f / %lf", this->repeatDelay, (curTime - this->pressedAt));
+		if ((double) this->repeatDelay > (curTime - this->pressedAt)) {
+			return;
+		}
+	}
+
+	this->pressedAt = curTime;
+	//Log::war(LOG_EVENT_KEY, "Pressed AT: %lf", this->pressedAt);
 
 	this->released = false;
 

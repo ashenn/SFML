@@ -195,8 +195,10 @@ vector Object::canMove(vector m) {
 		return m;
 	}
 
+	//Log::dbg(LOG_OBJ, "Can Move Call Hit");
 	bool applyCol = cols[0]->callHit(cols[1]);
 	if (!applyCol) {
+		Log::dbg(LOG_OBJ, "Skip Collision");
 		return m;
 	}
 
@@ -204,14 +206,14 @@ vector Object::canMove(vector m) {
 	move.x = m.x;
 
 	if (cols[0]->collides(cols[1], move)) {
-		Log::inf(LOG_OBJ, "UPDATE MOVE X: %d", m.x);
+		Log::dbg(LOG_OBJ, "UPDATE MOVE X: %d", m.x);
 		m.x = 0;
 	}
 
 	move.x = 0;
 	move.y = m.y;
 	if (cols[0]->collides(cols[1], move)) {
-		Log::inf(LOG_OBJ, "UPDATE MOVE Y: %d", m.y);
+		Log::dbg(LOG_OBJ, "UPDATE MOVE Y: %d", m.y);
 		m.y = 0;
 	}
 

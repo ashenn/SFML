@@ -9,7 +9,7 @@ Character::Character(CharacterType type, const char* name, const char* jsonKey, 
 	int len = strlen(name) + 6;
 	this->name = StrE(len);
 	snprintf(this->name, len, "%s_Char", name);
-	
+
 	this->initCallableFncs();
 
 	Json* data = this->loadConfig(jsonKey);
@@ -22,7 +22,7 @@ Character::Character(CharacterType type, const char* name, const char* jsonKey, 
 Character::~Character() {
 	Log::inf(LOG_CHAR, "Deleting Character: %s", this->getName());
 
-	this->removeView();	
+	this->removeView();
 
 	if (this->obj != NULL) {
 		delete this->obj;
@@ -88,7 +88,7 @@ Json* Character::loadConfig(const char* jsonKey) {
 void Character::loadObject(Json* data, const char* name, vector* pos, int z) {
 	char* sheet = (char*) jsonGetValue(data, "sheet", NULL);
 	Log::inf(LOG_CHAR, "-- Sheet: %s", sheet);
-	
+
 	this->obj = new CharObj(name, pos, z, sheet, this);
 
 	ListManager* cols = (ListManager*) jsonGetValue(data, "collisions", NULL);
@@ -122,7 +122,7 @@ void Character::initCollision(Json* js) {
 	jsonGetValue(posList, "left", &(pos.left));
 	jsonGetValue(posList, "width", &(pos.width));
 	jsonGetValue(posList, "height", &(pos.height));
-	
+
 	Log::inf(LOG_CHAR, "COL Position:\n-- Top: %d\n-- Left: %d\n-- Width: %d\n-- Height: %d", pos.top, pos.left, pos.width, pos.height);
 
 	Collision* col = this->obj->addCollision(js->key, pos, chan);
@@ -141,6 +141,7 @@ void Character::initCollision(Json* js) {
 		return;
 	}
 
+	Log::war(LOG_CHAR, "Init Hit COL: %s", callbackN);
 	col->setHit(this, fncCol->fnc);
 	free(callbackN);
 }
@@ -150,12 +151,21 @@ CharObj* Character::getObject() {
 }
 
 void Character::moveDir(DirectionEnum dir) {
+	if (!this->canMove()) {
+		return;
+	}
+
 	Movement* m = this->obj->getMovement();
 	vector vel = m->getVelocity();
 	Direction d = m->getDirection();
 
 	bool flip = true;
 	unsigned int speed = this->stats.moveSpeed;
+
+	if (flip && d.x != dir) {
+		this->obj->flipH();
+		vel.x = 0;
+	}
 
 	switch (dir) {
 		case DIR_LEFT:
@@ -171,19 +181,22 @@ void Character::moveDir(DirectionEnum dir) {
 			break;
 	}
 
-	if (flip && d.x != dir) {
-		this->obj->flipH();
-	}
-	
+	this->stats.moving = true;
+	Log::war(LOG_CHAR, "Adding Vel: %lf", vel.x);
+	//m->setVelocity(vel);
 	m->setVelocity(vel);
+
+	Log::war(LOG_CHAR, "Res Vel: %lf", m->getVelocity().x);
 }
 
 void Character::stopMove() {
-	Movement* m = this->obj->getMovement();
-	vector vel = m->getVelocity();
-	vel.x = 0;
-	
-	m->setVelocity(vel);
+	//Movement* m = this->obj->getMovement();
+	/*vector vel = m->getVelocity();
+	vel.x = 0;*/
+
+	this->stats.moving = 0;
+
+	//m->setVelocity(vel);
 }
 
 void Character::initAnimFncs() {
@@ -235,12 +248,12 @@ void Character::removeView() {
 
 void Character::setView(ViewMgr* v) {
 	this->removeView();
-	
+
 	Log::inf(LOG_CHAR, "-- Setting view: %p", v);
 	this->view = v;
 }
 
-void Character::update() {
+void Character::update(bool gravity) {
 	if (this->view != NULL) {
 		Log::inf(LOG_CHAR, "-- Char Call View Update");
 		this->view->update();
@@ -251,8 +264,23 @@ void Character::update() {
 	if (vel.y && !this->stats.inAir) {
 		this->stats.inAir =  true;
 	}
-	else if(!vel.y && this->stats.inAir) {
-		// this->landed();
+	else if(!this->stats.inAir && gravity && !this->stats.moving) {
+		vector vel = this->obj->getMovement()->getVelocity();
+		vector frict = {0, 0};
+
+		if (vel.x > 0){
+			frict.x = -1;
+		}
+		else if(vel.x < 0){
+			frict.x = 1;
+		}
+
+		Log::war(LOG_CHAR, "Velocity: %lf", vel.x);
+		Log::war(LOG_CHAR, "Friction: %lf", frict.x);
+		this->obj->getMovement()->addVelocity(frict);
+
+		vel = this->obj->getMovement()->getVelocity();
+		Log::war(LOG_CHAR, "New Velocity: %lf", vel.x);
 	}
 }
 
@@ -261,7 +289,7 @@ void Character::Crouch() {
 		return;
 	}
 
-	this->stopMove();
+	//this->stopMove();
 	this->stats.crouch = true;
 }
 
@@ -284,7 +312,7 @@ void Character::Jump(bool full) {
 	this->stats.crouch = false;
 
 	Movement* m = this->obj->getMovement();
-	
+
 	vector vel = m->getVelocity();
 
 	vel.y = 0;
@@ -297,7 +325,7 @@ void Character::Jump(bool full) {
 	else{
 		vel.y = -((double) (this->stats.jump));
 	}
-	
+
 	m->addVelocity(vel);
 }
 
@@ -309,10 +337,11 @@ void Character::initStats() {
 	this->stats.lifeMax = 50;
 
 	this->stats.inAir = false;
+	this->stats.moving = false;
 	this->stats.crouch = false;
 
-	this->stats.moveSpeed = 3;
-	this->stats.maxMoveSpeedX = 50;
+	this->stats.moveSpeed = 5;
+	this->stats.maxMoveSpeedX = 10;
 	this->stats.maxMoveSpeedY = 5;
 
 	this->stats.canDoubleJump = true;
@@ -322,10 +351,10 @@ void Character::initStats() {
 }
 
 void Character::landed() {
-	Log::war(LOG_CHAR, "LANDED !!!");
+	Log::dbg(LOG_CHAR, "LANDED !!!");
 	this->stats.inAir = false;
 	this->stats.canDoubleJump = true;
-	this->stats.hasDoubleJump = false;	
+	this->stats.hasDoubleJump = false;
 }
 
 bool Character::hit(Collision* col, Collision* col2) {
@@ -333,7 +362,7 @@ bool Character::hit(Collision* col, Collision* col2) {
 		return true;
 	}
 
-	if (col2->getFlag() != COL_WALL && col2->getFlag() != COL_PLATFORM) {
+	if (col2->getFlag() != (int) 1 << COL_WALL && col2->getFlag() != (int) 1 << COL_PLATFORM) {
 		return true;
 	}
 
@@ -341,17 +370,21 @@ bool Character::hit(Collision* col, Collision* col2) {
 	pos.top += this->obj->getMovement()->getVelocity().y;
 
 	IntRect pos2 = col2->getWorldPosition();
-	Log::war(LOG_CHAR, "=== Target: %d", pos2.top);
+	Log::dbg(LOG_CHAR, "=== Target: %d", pos2.top);
 
-	Log::war(LOG_CHAR, "=== Top: %d", pos.top);
-	Log::war(LOG_CHAR, "=== Height: %d", pos.top + pos.height);
+	Log::dbg(LOG_CHAR, "=== Top: %d", pos.top);
+	Log::dbg(LOG_CHAR, "=== Height: %d", pos.top + pos.height);
 
 	bool under = (pos2.top >= pos.top) && (pos2.top <= pos.top + pos.height);
 
 	if (under) {
 		this->landed();
 	}
-	Log::war(LOG_CHAR, "=== HIT UNDER: %d", under);
+	Log::dbg(LOG_CHAR, "=== HIT UNDER: %d", under);
 
 	return true;
+}
+
+bool Character::canMove() {
+	return !this->stats.crouch;
 }

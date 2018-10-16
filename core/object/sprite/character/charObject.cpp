@@ -17,5 +17,5 @@ void CharObj::draw(RenderWindow* window, bool grav) {
 		return;
 	}
 
-	this->ch->update();
+	this->ch->update(grav);
 }

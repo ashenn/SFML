@@ -26,7 +26,6 @@ static const char* COL_CHANEL_STRINGS[] = {
 };
 
 const char* colChanelName(ColChanel v) {
-	Log::err(LOG_COL, "TEST: %d", v);
 	return COL_CHANEL_STRINGS[v];
 }
 
@@ -45,7 +44,7 @@ ColChanel colChanelValue(const char* name) {
 
 Collision::Collision(const char* name, Object* obj, IntRect pos) {
 	Log::inf(LOG_COL, "=== Adding Collision '%s' To '%s'", name, obj->getName());
-	
+
 	const char* objN = obj->getName();
 
 	int len = strlen(name) + strlen(objN) + 5;
@@ -65,10 +64,14 @@ Collision::Collision(const char* name, Object* obj, IntRect pos) {
 }
 
 Collision::Collision(const char* name, Object* obj, IntRect pos, ColChanel chanel) : Collision(name, obj, pos) {
-	this->flag = chanel;
+	Log::inf(LOG_COL, "==== INIT COL ===");
+	Log::dbg(LOG_COL, "Channel: %s", colChanelName(chanel));
+
+	this->flag = 1 << (int) chanel;
+	Log::dbg(LOG_COL, "Channel: %u", this->flag);
+
 	ListManager* channels = CollisionMgr::get()->getChannels();
 
-	Log::inf(LOG_COL, "==== INIT COL ===");
 	Node* chanN = NULL;
 	while ((chanN = listIterate(channels, chanN)) != NULL) {
 		ListManager* chanConf = (ListManager*) chanN->value;
@@ -82,22 +85,31 @@ Collision::Collision(const char* name, Object* obj, IntRect pos, ColChanel chane
 		Node* valN = NULL;
 		while ((valN = listIterate(chanConf, valN)) != NULL) {
 			ColType* type = (ColType*) valN->value;
-			
-			Log::inf(LOG_COL, "%s : %d", valN->name, *type);
+
+			/*Log::dbg(LOG_COL, "%s : %d", valN->name, (int) *type);*/
+			//Log::dbg(LOG_COL, "Type : %s", colTypeName(*type));
+
 			if (*type == COL_BLOCK) {
-				this->hitFlags = this->hitFlags | colChanelValue(valN->name);
+                /*Log::dbg(LOG_COL, "Add Flag Hit: %s", valN->name);
+                Log::dbg(LOG_COL, "Add Flag Hit: %d", (int) colChanelValue(valN->name));
+                Log::dbg(LOG_COL, "Add Flag Hit: %u", (1 << (int) colChanelValue(valN->name)));*/
+
+				this->hitFlags = this->hitFlags | (1 << (int) colChanelValue(valN->name));
 			}
 			else if (*type == COL_OVERLAP) {
-				this->overlapFlags = this->overlapFlags | colChanelValue(valN->name);
+				this->overlapFlags = this->overlapFlags | (1 << (int) colChanelValue(valN->name));
 			}
 		}
 	}
+
+	Log::dbg(LOG_COL, "Hit: %u", this->hitFlags);
+	Log::dbg(LOG_COL, "Overlap: %u", this->overlapFlags);
 }
 
 
 Collision::~Collision() {
 	Log::inf(LOG_COL, "=== Deleting Collision: %s ===", this->name);
-	
+
 	if (this->onHit != NULL) {
 		Log::dbg(LOG_COL, "-- delete on Hit");
 		delete this->onHit;
@@ -109,7 +121,7 @@ Collision::~Collision() {
 	}
 }
 
-const ColChanel Collision::getFlag() const {
+const unsigned int Collision::getFlag() const {
 	return this->flag;
 }
 
@@ -172,7 +184,12 @@ ColType Collision::collides(const Collision* col) const {
 		(pos.top + pos.height <= pos2.top + pos2.height)
     ;
 
-    bool collides = flags && (width1 || width2) && (height1 || height2);
+    bool position = (width1 || width2) && (height1 || height2);
+    bool collides = flags && position;
+
+    if (position && ! collides) {
+    	//Log::war(LOG_COL, "BAD Flags !!!");
+    }
 
     if (collides) {
     	if (hit) {

@@ -83,6 +83,9 @@ class KeyEvtAbstract : public Evt {
 		Keyboard::Key getKey();
 	
 		bool breakEvt;
+
+		double pressedAt = 0;
+		float repeatDelay = 0;
 		bool allowRepeat = false;	// Is Repeated On Key Hold (/!\ Automatically Disable On Hold Function /!\)
 
 		sf::Event getEvent();
@@ -95,6 +98,7 @@ template <class T>
 class KeyEvt : public KeyEvtAbstract
 {
 	private:
+
 		Hold<T>* onHold = NULL;
 		Pressed<T>* onPress = NULL;
 		Released<T>* onRelease = NULL;

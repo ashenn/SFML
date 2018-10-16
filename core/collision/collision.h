@@ -78,7 +78,7 @@ class Collision : public AbstractClass
 		CollisionCallBackAbstract* onHit = NULL;
 		CollisionCallBackAbstract* onOverlap = NULL;
 	
-		ColChanel flag;
+		unsigned int flag;
 		unsigned short hitFlags = 0;
 		unsigned short overlapFlags = 0;
 		Collision(const char* name, Object* obj, IntRect pos);
@@ -91,7 +91,7 @@ class Collision : public AbstractClass
 		bool callHit(Collision* col2);
 		bool callOverlap(Collision* col2);
 
-		const ColChanel getFlag() const;
+		const unsigned int getFlag() const;
 
 		template <class T>
 		void setHit(T* target, bool (T::*fnc)(Collision*, Collision*));

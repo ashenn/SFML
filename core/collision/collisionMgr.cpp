@@ -59,9 +59,10 @@ void CollisionMgr::loadChanel(ListManager* channel, Json* conf) {
 	while ((n = listIterate(chanVals, n)) != NULL) {
 		Json* colConf = (Json*) n->value;
 		char* typeName = (char*) jsonGetValue(conf, colConf->key, NULL);
-		unsigned short* type = (unsigned short*) malloc(sizeof(unsigned short));
+		unsigned int* type = (unsigned int*) malloc(sizeof(unsigned int));
 
 		*type = colTypeValue(typeName);
+		Log::dbg(LOG_COL, "-- Value: '%u'", *type);
 		
 		addNodeV(channel, colConf->key, type, true);
 		free(typeName);

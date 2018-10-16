@@ -74,7 +74,7 @@ class Character : public AbstractClass
 		bool isFalling();
 		bool isCrouching();
 
-		void update();
+		void update(bool gravity);
 
 		void Crouch();
 		void Jump(bool full);
@@ -83,6 +83,9 @@ class Character : public AbstractClass
 
 
 		bool hit(Collision* col, Collision* col2);
+
+
+		bool canMove();
 };
 
 #include "../object/sprite/character/charObject.h"
