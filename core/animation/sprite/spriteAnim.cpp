@@ -76,8 +76,8 @@ SpriteAnim* SpriteAnim::callAnim(SpriteObj* obj, SpriteAnimData* anim, unsigned 
 	Log::inf(LOG_SPRITE_ANIM, "-- Calling Sprite Animation: %s #%d => %s", obj->getName(), anim->animID, anim->getName());
 	Log::inf(LOG_SPRITE_ANIM, "-- Removing Old Sprite Anim");
 
-	Animator* animator = Animator::get();
-	animator->removeSprite((Object*) obj);
+	// Animator* animator = Animator::get();
+	// animator->removeSprite((Object*) obj);
 	
 	Log::inf(LOG_SPRITE_ANIM, "-- Calling Sprite Animation: %s #%d => %s", obj->getName(), anim->animID, anim->getName());
 
@@ -106,7 +106,7 @@ SpriteAnim* SpriteAnim::callAnim(SpriteObj* obj, SpriteAnimData* anim, unsigned 
 	Log::dbg(LOG_SPRITE_ANIM, "-- Adding Anim To Animator: %s", anim->getName());
 	Log::dbg(LOG_SPRITE_ANIM, "-- Loop: %d", animParam->loop);
 
-	animator->addSprite(animParam);
+	// animator->addSprite(animParam);
 
 	return animParam;
 }
@@ -167,17 +167,18 @@ void SpriteAnim::updateSprite() {
 			continue;
 		}
 		
+		SpriteObj* sprite = (SpriteObj*) this->anim->obj;
 		if(link->name == NULL) {
 			Log::inf(LOG_SPRITE_ANIM, "Force Calling Anim: %s", link->target);
-			SpriteAnim::animate((SpriteObj*) this->anim->obj, link->target, 0);
+			sprite->animate(link->target, 0);
 			break;
 		}
-		else if(this->callAnimLinkFnc((SpriteObj*) this->anim->obj, link)){
+		else if(this->callAnimLinkFnc(sprite, link)){
 			Log::inf(LOG_SPRITE_ANIM, "Calling Anim: %s", link->target);
 			Log::inf(LOG_SPRITE_ANIM, "From Link: %s", link->name);
 
 			this->triggerCallBack(this->obj);
-			SpriteAnim::animate((SpriteObj*) this->anim->obj, link->target, 0);
+			sprite->animate(link->target, 0);
 			break;
 		}
 	}

@@ -7,15 +7,14 @@ NAME	=	mario
 
 MAIN    =       main.cpp
 
-CSRC	=	base/basic.c              \
-                base/libList.c            \
-                base/libParse.c           \
-                base/math.c               \
-                base/file.c               \
-                base/lib/jsmn/jsmn.c      \
-                base/json.c               \
-
-CPPSRC =        base/logger.cpp                 \
+CPPSRC	=	base/basic.cpp              \
+                base/libList.cpp            \
+                base/libParse.cpp           \
+                base/math.cpp               \
+                base/file.cpp               \
+                base/lib/jsmn/jsmn.cpp      \
+                base/json.cpp               \
+                base/logger.cpp                 \
                 core/exception/exception.cpp    \
                 core/abstractClass.cpp          \
                 core/asset/asset.cpp                                \
@@ -44,7 +43,6 @@ CPPSRC =        base/logger.cpp                 \
 
 
 OBJ	=	$(MAIN:%.cpp=%.o)
-OBJ1    =       $(CSRC:%.c=%.o)
 OBJ2    =       $(CPPSRC:%.cpp=%.o)
 
 RM	=	rm -f
@@ -55,13 +53,13 @@ LIB	=	-lsfml-graphics                   \
                 -D_REENTRANT
 
 
-$(NAME):	$(OBJ) $(OBJ1) $(OBJ2)
-		$(CC) $(OBJ) $(OBJ1) $(OBJ2) -L../libs $(LIB) -o $(NAME)
+$(NAME):	$(OBJ) $(OBJ2)
+		$(CC) $(OBJ) $(OBJ2) -L../libs $(LIB) -o $(NAME)
 
 all:		$(NAME)
 
 clean:
-		$(RM) $(OBJ) $(OBJ1) $(OBJ2)
+		$(RM) $(OBJ) $(OBJ2)
 
 fclean:		clean
 		$(RM) $(NAME)

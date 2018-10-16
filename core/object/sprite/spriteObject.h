@@ -20,11 +20,11 @@ class SpriteObj : public Object
 		void loadAnimLinks(const char* name, const Json* linkJson, SpriteAnimData* anim); 	// Loading Animation Links
 
 
+		SpriteAnim* anim = NULL;
 		ListManager* animLinkFncs = NULL;	// Animation Links Funtions
 
 		template<typename T>
 		void clearAnimLinks(T* obj);
-
 
 	protected:
 		IntRect* curClip;
@@ -64,6 +64,9 @@ class SpriteObj : public Object
 
 		void startMove(KeyEvt<SpriteObj>* evt);
 		void stopMove(KeyEvt<SpriteObj>* evt);
+		void animate(const char* name, unsigned int clipIndex);
+
+		virtual void draw(RenderWindow* window, bool grav);
 };
 
 #include "spriteObject.tpp"

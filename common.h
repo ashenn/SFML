@@ -26,6 +26,7 @@
 #define FPS 60
 #define FRAME (1.0 / FPS) * 1000000
 
+#define VIEW_DISTANCE 800
 
 
 #include <SFML/Graphics.hpp>

@@ -280,3 +280,48 @@ bool Collision::isEnabled() {
 void Collision::toggle(bool b) {
 	this->enabled = b;
 }
+
+bool Collision::isLeft(Collision* col2, vector move) {
+	IntRect pos = this->getWorldPosition();
+	IntRect pos2 = col2->getWorldPosition();
+	
+	pos.left += move.x;
+	pos.top += move.y;
+
+	return (pos2.left >= pos.left) && (pos2.left <= pos.left + pos.width);
+}
+
+bool Collision::isLeft(Collision* col2) {
+	return this->isLeft(col2, {0,0});
+}
+
+bool Collision::isRight(Collision* col2, vector move) {
+	return !this->isLeft(col2, move);
+}
+
+bool Collision::isRight(Collision* col2) {
+	return this->isRight(col2, {0,0});
+}
+
+
+bool Collision::isUnder(Collision* col2, vector move) {
+	IntRect pos = this->getWorldPosition();
+	IntRect pos2 = col2->getWorldPosition();
+
+	pos.left += move.x;
+	pos.top += move.y;
+	
+	return (pos.top >= pos2.top) && (pos.top <= pos2.top + pos2.height);
+}
+
+bool Collision::isUnder(Collision* col2) {
+	return this->isUnder(col2, {0, 0});
+}
+
+bool Collision::isOver(Collision* col2, vector move) {
+	return !this->isUnder(col2, move);
+}
+
+bool Collision::isOver(Collision* col2) {
+	return this->isOver(col2, {0,0});
+}

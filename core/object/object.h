@@ -34,6 +34,7 @@ class Object : public AbstractClass
 		ListManager* childs = NULL;
 		ListManager* collisions = NULL;
 
+		void checkCameraDistance();
 		static ListManager* objectList;				// All Objects Instanciated
 		static void addObject(Object* obj);			// Add Object To List
 		static void removeObject(Object* obj);		// Remove Object To List
@@ -106,6 +107,7 @@ class Object : public AbstractClass
 		bool removeChild(bool delChild);
 
 		ListManager* getCollisions();
+
 };
 
 

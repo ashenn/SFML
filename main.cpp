@@ -57,19 +57,29 @@ int main(int argc, char** argv) {
 
     // IntRect* clip = new IntRect(0, 0, 520, 111);
 
-    pos.y = 60;
-    pos.x = 380;
-    Object* obj5 = new EnvObj("Test Env", "land/sprite", "ground", &pos, 1);
+    pos.y = -130;
+    pos.x = 880;
+    Object* obj7 = new EnvObj("Test Env3", "land/sprite", "ground", &pos, 1);
+    obj7->addToView();
+
+    pos.y = -30;
+    pos.x = 780;
+    Object* obj6 = new EnvObj("Test Env3", "land/sprite", "ground", &pos, 1);
+    obj6->addToView();
+
+    pos.y = 40;
+    pos.x = 520;
+    Object* obj5 = new EnvObj("Test Env3", "land/sprite", "ground", &pos, 1);
     obj5->addToView();
 
     pos.y = 60;
-    pos.x = 100;
-    Object* obj4 = new EnvObj("Test Env", "land/sprite", "ground", &pos, 1);
+    pos.x = 380;
+    Object* obj4 = new EnvObj("Test Env2", "land/sprite", "ground", &pos, 1);
     obj4->addToView();
 
     pos.y = 60;
-    pos.x = 240;
-    Object* obj3 = new EnvObj("Test Env", "land/sprite", "ground", &pos, 1);
+    pos.x = 100;
+    Object* obj3 = new EnvObj("Test Env1", "land/sprite", "ground", &pos, 1);
     obj3->addToView();
 
     pos.y = 60;
@@ -94,7 +104,7 @@ int main(int argc, char** argv) {
     Log::war(LOG_COL, "Testing Collision Player Item: %d", cp & ci);
     Log::war(LOG_COL, "Testing Collision Player Wall: %d", cp & cw);*/
 
-    Animator* anim = Animator::get();
+    //Animator* anim = Animator::get();
     TimeMgr* time = TimeMgr::get();
     unsigned int eleapsed = 0;
 
@@ -115,13 +125,14 @@ int main(int argc, char** argv) {
 
         time->update();
 
-        anim->animate();
         colMgr->handle();
 
+        //anim->animate();
         rend->render();
 
-        eleapsed = time->getElapsedTime();
+        // eleapsed = time->getElapsedTime();
         double wait = FRAME - eleapsed;
+        // double wait = 500;
 
         if (wait > 0) {
             usleep(wait);

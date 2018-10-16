@@ -449,12 +449,12 @@ void* deleteNode(ListManager* lstMgr, int id){
 	//fprintf(stdout, "DELETING NODE: %u\n", id);
 	//printf("DELETING NODE: %d\n", id);
 	Node* node = getNode(lstMgr, id);
-	lockNode(node);
-
 	if (node == NULL) {
 		//fprintf(stdout, "NOt FOUND\n");
 		return NULL;
 	}
+
+	lockNode(node);
 	//fprintf(stdout, "-- FOUND !!!\n");
 
 

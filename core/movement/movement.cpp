@@ -117,6 +117,7 @@ void Movement::addVelocity(vector vel) {
 }
 
 void Movement::applyVelocity() {
+	return;
 	Log::inf(LOG_MOVE, "==== Applying Velocity ====");
 	vector* vel = &this->velocity;
 	if (!vel->x && !vel->y) {

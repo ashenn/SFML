@@ -53,7 +53,7 @@
 				"Jump": {
 					"waitEnd": false,
 					"target": "JumpStart",
-					"fnc": "Run2Jump"
+					"fnc": "Idle2Jump"
 				},
 				"Fall": {
 					"waitEnd": false,

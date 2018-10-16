@@ -1,4 +1,5 @@
 #include "project.h"
+#include "../view/view.h"
 #include "../asset/asset.h"
 #include "../render/render.h"
 #include "../event/eventMgr.h"
@@ -165,6 +166,9 @@ void Project::close() {
 	// 	pthread_join(this->renderTh, NULL);
 	// 	Log::dbg(LOG_PROJECT, "-- Thread Joned");
 	// }
+
+	Log::dbg(LOG_PROJECT, "-- Clearing ViewMgr");
+	ViewMgr::close();
 
 	Log::dbg(LOG_PROJECT, "-- Clearing Animator");
 	Animator::get(true);

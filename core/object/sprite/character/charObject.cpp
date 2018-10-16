@@ -11,7 +11,7 @@ CharObj::~CharObj() {
 }
 
 void CharObj::draw(RenderWindow* window, bool grav) {
-	Object::draw(window, grav);
+	SpriteObj::draw(window, grav);
 
 	if (this->ch == NULL) {
 		return;

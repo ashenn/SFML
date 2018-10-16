@@ -20,25 +20,35 @@ class ViewMgr : public AbstractClass
 		ViewType type;
 		Character* ch;
 		sf::View* view;
+
+		sf::FloatRect rect;
 		ViewBoundType boundType;
 
 		vector bound;
 		vector boundLimit;
 
-		//static ListManager* viewList;
+		static ListManager* viewList;
+		static void addView(ViewMgr* v);
 
 	public:
 		ViewMgr(Character* ch, ViewType type, sf::FloatRect pos, ViewBoundType boundType);
 		ViewMgr(Character* ch, ViewType type, sf::FloatRect pos) : ViewMgr(ch, type, pos, VIEW_BOUND_FIXED){};
 		~ViewMgr();
 
+		sf::FloatRect getRect();
+		vector getPos();
+		vector getSize();
+
+		Character* getOwner();
 		void setBound(vector b);
 		void setBoundLimit(vector bl);
 
 		ViewType getType();
 		ViewBoundType getBoundType();
 
-		void update();	
+		void update();
+		static void close();
+		static ListManager* getViews();
 };
 
 #endif

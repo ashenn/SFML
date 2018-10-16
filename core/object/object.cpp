@@ -1,5 +1,6 @@
 #include "object.h"
 #include "../render/render.h"
+#include "../view/view.h"
 #include "../asset/asset.h"
 #include "../animation/animation.h"
 #include "../collision/collisionMgr.h"
@@ -189,39 +190,67 @@ vector Object::move(vector m) {
 }
 
 vector Object::canMove(vector m) {
-	Collision** cols = CollisionMgr::get()->searchCollision(this, COL_BLOCK, m);
+	Collision** cols = NULL;
+	vector tmp = m;
 
-	if (cols == NULL) {
-		return m;
+	while ((cols = CollisionMgr::get()->searchCollision(this, COL_BLOCK, m)) != NULL) {
+		//Log::dbg(LOG_OBJ, "Can Move Call Hit");
+		bool applyCol = cols[0]->callHit(cols[1]);
+		if (!applyCol) {
+			Log::dbg(LOG_OBJ, "Skip Collision");
+			continue;
+		}
+
+		vector move = {0, 0};
+		move.x = m.x;
+
+		if (cols[0]->collides(cols[1], move)) {
+			Log::dbg(LOG_OBJ, "UPDATE MOVE X: %lf", m.x);
+			m.x = 0;
+		}
+
+		move.x = 0;
+		move.y = m.y;
+		if (cols[0]->collides(cols[1], move)) {
+			m.y = 0;
+			Log::dbg(LOG_OBJ, "UPDATE MOVE Y: %lf", m.y);
+		}
+
+		//Log::war(LOG_OBJ, "%s | %s", this->name, cols[1]->getName());
+
+		if (!m.x && !m.y) {
+			Collision* col = cols[0];
+			Collision* col2 = cols[1];
+			IntRect pos = col->getWorldPosition();
+			IntRect pos2 = col2->getWorldPosition();
+
+			if (col->isOver(col2)) {
+				// Log::war(LOG_OBJ, "Over");
+				m.y = -((pos.top + pos.height) - pos2.top) -1;
+				this->move(m);
+				m.y = 0;
+				m.x = tmp.x;
+			}
+			else {
+				Log::war(LOG_OBJ, "Under");
+				// m.y = pos2.top + pos.height +2;
+			}
+
+			//Log::war(LOG_OBJ, "FORCING: Top: %d", pos2.top);
+			//Log::war(LOG_OBJ, "FORCING: %lf", m.y);
+			//Log::war(LOG_OBJ, "New Bottom: %d + %d + %d = %d", pos.top, pos.height, (int) m.y, pos.top + pos.height + (int) m.y);
+		}
+		
+		free(cols);
+		break;
 	}
 
-	//Log::dbg(LOG_OBJ, "Can Move Call Hit");
-	bool applyCol = cols[0]->callHit(cols[1]);
-	if (!applyCol) {
-		Log::dbg(LOG_OBJ, "Skip Collision");
-		return m;
-	}
-
-	vector move = {0, 0};
-	move.x = m.x;
-
-	if (cols[0]->collides(cols[1], move)) {
-		Log::dbg(LOG_OBJ, "UPDATE MOVE X: %d", m.x);
-		m.x = 0;
-	}
-
-	move.x = 0;
-	move.y = m.y;
-	if (cols[0]->collides(cols[1], move)) {
-		Log::dbg(LOG_OBJ, "UPDATE MOVE Y: %d", m.y);
-		m.y = 0;
-	}
-
-	free(cols);
 	return m;
 }
 
 void Object::draw(RenderWindow* window, bool grav) {
+	this->checkCameraDistance();
+
 	if (!this->enabled || !this->visible || this->sprite == NULL) {
 		Log::dbg(LOG_OBJ, "-- Skip Rendre: %s", this->getName());
 		return;
@@ -229,7 +258,7 @@ void Object::draw(RenderWindow* window, bool grav) {
 
 	bool b = this->lock("Draw");
 	if (this->gravity && grav) {
-		vector gravity = {0, 1};
+		vector gravity = {0, 2};
 		this->movement->addVelocity(gravity);
 	}
 
@@ -238,8 +267,11 @@ void Object::draw(RenderWindow* window, bool grav) {
 	if (move.x > 0) {
 		Log::dbg(LOG_OBJ, "MOVE: %lf | %lf", move.x, move.y);
 	}
+	
+	if (move.x || move.y) {
+		move = this->canMove(move);
+	}
 
-	move = this->canMove(move);
 	this->pos.x += move.x;
 	this->pos.y += move.y;
 
@@ -310,29 +342,32 @@ void deleteObject(Node* n) {
 		return;
 	}
 
-	//Log::war(LOG_OBJ, "deleting Object: %s", obj->getName());
+	Log::war(LOG_OBJ, "deleting Object: %s", obj->getName());
 
 	delete obj;
 }
 
 void Object::addObject(Object* obj) {
-	Log::inf(LOG_OBJ, "Adding Object: %s", obj->getName());
+	Log::war(LOG_OBJ, "Adding Object: %s", obj->getName());
 	Node* n = addNodeV(objectList, obj->getName(), obj, false);
+	
 	n->del = deleteObject;
 }
 
 void Object::removeObject(Object* obj) {	
 	Node* n = getNodeByValue(objectList, obj);
 	if (n == NULL) {
-		//Log::war(LOG_OBJ, "Not Found Object: %s", obj->getName());
+		Log::war(LOG_OBJ, "Not Found Object: %s", obj->getName());
 		return;
 	}
 	
+	Log::war(LOG_OBJ, "Removeing Object: %s", obj->getName());
 	n->del = NULL;
 	removeAndFreeNode(objectList, n);
 }
 
 void Object::clearObjects() {
+	Log::war(LOG_OBJ, "Clearing Objects");
 	deleteList(objectList);
 }
 
@@ -552,4 +587,39 @@ void Object::stopMove() {
 void Object::setMaxSpeed(unsigned int x, unsigned int y) {
 	this->movement->maxVelocity.x = (double) x;
 	this->movement->maxVelocity.y = (double) y;
+}
+
+void Object::checkCameraDistance() {
+	Node* n = NULL;
+	ListManager* views = ViewMgr::getViews();
+
+	if (!views->nodeCount) {
+		this->enabled = false;
+		return;
+	}
+
+	while ((n = listIterate(views, n)) != NULL) {
+		Log::dbg(LOG_COL, "======= %s | Check View: %s", this->name, n->name);
+		ViewMgr* view = (ViewMgr*) n->value;
+		sf::FloatRect rect = view->getRect();
+
+		Log::dbg(LOG_COL, "--- Object Pos: %lf | %lf", this->pos.x, this->pos.y);
+
+		vector pos;
+		pos.y = rect.top;
+		pos.x = rect.left;
+		Log::dbg(LOG_COL, "--- View Pos: %lf | %lf", pos.x, pos.y);
+		
+		vector diff = diffVector(&pos, &this->pos);
+		Log::dbg(LOG_COL, "--- Diff: %lf | %lf", diff.x, diff.y);
+		Log::dbg(LOG_COL, "--- Distance: %lf", vectorDistance(&diff));
+
+		float dist = abs(vectorDistance(&diff));
+		if (dist <= VIEW_DISTANCE) {
+			this->enabled = true;
+			return;
+		}
+	}
+	
+	this->enabled = false;
 }

@@ -264,23 +264,36 @@ void Character::update(bool gravity) {
 	if (vel.y && !this->stats.inAir) {
 		this->stats.inAir =  true;
 	}
-	else if(!this->stats.inAir && gravity && !this->stats.moving) {
+	else if(!this->stats.inAir && !this->stats.moving) {
 		vector vel = this->obj->getMovement()->getVelocity();
-		vector frict = {0, 0};
+		vector frict = {1, 0};
 
+		//Log::war(LOG_CHAR, "Velocity: %lf", vel.x);
 		if (vel.x > 0){
-			frict.x = -1;
+			if (vel.x >= frict.x) {
+				frict.x *= -1;
+			}
+			else {
+				frict.x = -(vel.x);
+			}
 		}
 		else if(vel.x < 0){
-			frict.x = 1;
+			if (vel.x <= -frict.x) {
+				frict.x *= 1;
+			}
+			else {
+				frict.x = -(vel.x);
+			}
+		}
+		else {
+			frict.x = 0;
 		}
 
-		Log::war(LOG_CHAR, "Velocity: %lf", vel.x);
-		Log::war(LOG_CHAR, "Friction: %lf", frict.x);
+		//Log::war(LOG_CHAR, "Friction: %lf", frict.x);
 		this->obj->getMovement()->addVelocity(frict);
 
 		vel = this->obj->getMovement()->getVelocity();
-		Log::war(LOG_CHAR, "New Velocity: %lf", vel.x);
+		//Log::war(LOG_CHAR, "New Velocity: %lf", vel.x);
 	}
 }
 
@@ -330,8 +343,8 @@ void Character::Jump(bool full) {
 }
 
 void Character::initStats() {
-	this->stats.jump = 3;
-	this->stats.jumpMax = 5;
+	this->stats.jump = 5;
+	this->stats.jumpMax = 7;
 
 	this->stats.life = 50;
 	this->stats.lifeMax = 50;
@@ -375,7 +388,7 @@ bool Character::hit(Collision* col, Collision* col2) {
 	Log::dbg(LOG_CHAR, "=== Top: %d", pos.top);
 	Log::dbg(LOG_CHAR, "=== Height: %d", pos.top + pos.height);
 
-	bool under = (pos2.top >= pos.top) && (pos2.top <= pos.top + pos.height);
+	bool under = col->isOver(col2, this->obj->getMovement()->getVelocity()); //(pos2.top >= pos.top) && (pos2.top <= pos.top + pos.height);
 
 	if (under) {
 		this->landed();

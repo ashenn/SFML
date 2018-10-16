@@ -113,6 +113,18 @@ class Collision : public AbstractClass
 
 		bool isEnabled();
 		void toggle(bool b);
+
+		bool isLeft(Collision* col2);
+		bool isLeft(Collision* col2, vector move);
+
+		bool isRight(Collision* col2);
+		bool isRight(Collision* col2, vector move);
+
+		bool isOver(Collision* col2);
+		bool isOver(Collision* col2, vector move);
+
+		bool isUnder(Collision* col2);
+		bool isUnder(Collision* col2, vector move);
 };
 
 #include "collision.tpp"

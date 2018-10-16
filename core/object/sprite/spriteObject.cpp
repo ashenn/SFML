@@ -9,6 +9,10 @@ SpriteObj::SpriteObj(const char* name, vector* pos, unsigned short z, const char
 }
 
 SpriteObj::~SpriteObj() {
+	if (this->anim != NULL) {
+		delete this->anim;
+	}
+
 	if (this->animList != NULL) {
 		deleteList(this->animList);
 		this->animList = NULL;
@@ -248,7 +252,7 @@ void SpriteObj::loadAnims(const Json* json) {
 
 	this->removeClip(true);
 	SpriteAnimData* curAnim = (SpriteAnimData*) this->animList->first->value;
-	SpriteAnim::animate(this, curAnim->getName(), 0);
+	this->animate(curAnim->getName(), 0);
 }
 
 
@@ -290,4 +294,23 @@ void SpriteObj::clearAnimLinks() {
 		removeAndFreeNode(this->animLinkFncs, n);
 		n = NULL;
 	}
+}
+
+void SpriteObj::animate(const char* name, unsigned int clipIndex) {
+	if (this->anim != NULL) {
+		delete this->anim;
+		this->anim = NULL;
+	}
+
+	this->anim = SpriteAnim::animate(this, name, clipIndex);
+}
+
+void SpriteObj::draw(RenderWindow* window, bool grav) {
+	Object::draw(window, grav);
+
+	if (this->anim == NULL) {
+		return;
+	}
+
+	this->anim->fnc();
 }
