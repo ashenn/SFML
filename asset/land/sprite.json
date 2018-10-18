@@ -7,7 +7,7 @@
 			17,
 			32,
 			36,
-			255
+			0
 		],
 
 		"size": [
@@ -38,27 +38,27 @@
 			"top": {
 				"pos": [
 					92,
-					0
+					13
 				],
 				"clip": {
-					"top": 176,
+					"top": 190,
 					"left": 192,
 					"width": 48,
-					"height": 48
+					"height": 30
 				}
 			},
 			
 			"center": {
 				"pos": [
 					140,
-					0
+					11
 				],
 
 				"clip": {
-					"top": 176,
+					"top": 190,
 					"left": 144,
 					"width": 32,
-					"height": 48
+					"height": 30
 				},
 
 
@@ -78,7 +78,7 @@
 					"top": 240,
 					"left": 192,
 					"width": 32,
-					"height": 64
+					"height": 51
 				},
 
 				"scale": [
@@ -103,6 +103,118 @@
 				"channel": "COL_WALL",
 				"pos": {
 					"top": 16,
+					"left": 10,
+					"width": 50,
+					"height": 95
+				}
+			}
+		}
+	},
+
+	"ground2": {
+		"repeat": true,
+		"sheet": "land/sprite",
+
+		"color": [
+			17,
+			32,
+			36,
+			0
+		],
+
+		"size": [
+			272,
+			211
+		],
+
+		"spriteSize": [
+			350,
+			350
+		],
+
+		"sprites": {
+			"left": {
+				"pos": [
+					0,
+					114
+				],
+
+				"clip": {
+					"top": 190,
+					"left": 192,
+					"width": 46,
+					"height": 33
+				}
+			},
+
+			"tree": {
+				"pos": [
+					50,
+					0
+				],
+				"clip": {
+					"top": 46,
+					"left": 189,
+					"width": 123,
+					"height": 114
+				}
+			},
+
+			"top": {
+				"pos": [
+					46,
+					114
+				],
+				"clip": {
+					"top": 190,
+					"left": 256,
+					"width": 32,
+					"height": 35
+				}
+			},
+
+			"center": {
+				"pos": [
+					78,
+					114
+				],
+				"clip": {
+					"top": 190,
+					"left": 302,
+					"width": 32,
+					"height": 19
+				}
+			},
+
+			"center2": {
+				"pos": [
+					110,
+					114
+				],
+				"clip": {
+					"top": 190,
+					"left": 352,
+					"width": 16,
+					"height": 19
+				}
+			}
+		},
+
+		"collisions": {
+			"top": {
+				"channel": "COL_WALL",
+				"pos": {
+					"top": 114,
+					"left": 10,
+					"width": 162,
+					"height": 12
+				}
+			},
+
+			"left": {
+				"channel": "COL_WALL",
+				"pos": {
+					"top": 118,
 					"left": 10,
 					"width": 50,
 					"height": 95

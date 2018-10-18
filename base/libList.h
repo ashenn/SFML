@@ -86,6 +86,8 @@ void listIterateFnc(ListManager* list, short (*fnc)(int , Node*, short*, void*, 
 void listRevIterateFnc(ListManager* list, short (*fnc)(int , Node*, short*, void*, va_list* args), Node* n, void* param, ...);
 
 short listInsertAfter(ListManager* lst, Node* n, short id);
+
+void sortListById(ListManager * lst);
 void sortList(ListManager * lst, short (*fnc)(void*, void*));
 
 void lockList(ListManager* lst);

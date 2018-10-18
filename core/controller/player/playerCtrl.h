@@ -19,7 +19,7 @@ class PlayerCtrl : public Controller
 		PlayerCtrl(int id, const char* name, const char* jsonKey, vector* pos, int z);
 
 		unsigned short getId();
-		void setCharacter(Character* ch, bool deleteOld);
+		virtual void setCharacter(Character* ch, bool deleteOld);
 
 		void moveEvt(KeyEvt<PlayerCtrl>* evt);
 		void stopEvt(KeyEvt<PlayerCtrl>* evt);

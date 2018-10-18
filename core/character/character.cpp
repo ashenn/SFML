@@ -1,5 +1,6 @@
 #include "character.h"
 #include "../collision/collision.h"
+#include "../controller/controller.h"
 
 Character::Character(CharacterType type, const char* name, const char* jsonKey, vector* pos, int z) {
 	Log::inf(LOG_CHAR, "=== Creating Character: %s ===", name);
@@ -156,37 +157,38 @@ void Character::moveDir(DirectionEnum dir) {
 	}
 
 	Movement* m = this->obj->getMovement();
+	vector curVel = m->getVelocity();
 	vector vel = m->getVelocity();
-	Direction d = m->getDirection();
 
-	bool flip = true;
 	unsigned int speed = this->stats.moveSpeed;
-
-	if (flip && d.x != dir) {
-		this->obj->flipH();
-		vel.x = 0;
-	}
+	vel.x = 0;
+	vel.y = 0;
 
 	switch (dir) {
 		case DIR_LEFT:
 			vel.x = -((double) speed);
+			if (curVel.x > 0) {
+				vel.x -= curVel.x;
+			}
 			break;
 
 		case DIR_RIGHT:
 			vel.x = ((double) speed);
+			if (curVel.x < 0) {
+				vel.x -= curVel.x;
+			}
 			break;
 
 		default:
-			flip = false;
 			break;
 	}
 
 	this->stats.moving = true;
-	Log::war(LOG_CHAR, "Adding Vel: %lf", vel.x);
+	//Log::war(LOG_CHAR, "Adding Vel: %lf + %lf", curVel.x, vel.x);
 	//m->setVelocity(vel);
-	m->setVelocity(vel);
+	m->addVelocity(vel);
 
-	Log::war(LOG_CHAR, "Res Vel: %lf", m->getVelocity().x);
+	// Log::war(LOG_CHAR, "Res Vel: %lf", m->getVelocity().x);
 }
 
 void Character::stopMove() {
@@ -206,6 +208,27 @@ void Character::initAnimFncs() {
 	this->obj->addAnimLinkFnc("Idle2Jump", this, &Character::isJumping);
 	this->obj->addAnimLinkFnc("Idle2Fall", this, &Character::isFalling);
 	this->obj->addAnimLinkFnc("Idle2Down", this, &Character::isCrouching);
+	this->obj->addAnimLinkFnc("isGlinding", this, &Character::isGlinding);
+	this->obj->addAnimLinkFnc("Glide2Down", this, &Character::Glide2Down);
+	this->obj->addAnimLinkFnc("Down2Idle", this, &Character::Down2Idle);
+	this->obj->addAnimLinkFnc("Jump2DoubleJump", this, &Character::isDoubleJump);
+}
+
+
+bool Character::Down2Idle() {
+	return !this->stats.crouch;
+}
+
+bool Character::Glide2Down() {
+	return this->stats.crouch && this->obj->getMovement()->getVelocity().x == 0;
+}
+
+bool Character::isGlinding() {
+	return this->stats.crouch && this->obj->getMovement()->getVelocity().x != 0;
+}
+
+bool Character::isDoubleJump() {
+	return this->stats.doubleJumping;
 }
 
 bool Character::isOnLand() {
@@ -268,7 +291,11 @@ void Character::update(bool gravity) {
 		vector vel = this->obj->getMovement()->getVelocity();
 		vector frict = {1, 0};
 
-		//Log::war(LOG_CHAR, "Velocity: %lf", vel.x);
+		if (this->isGlinding()) {
+			frict.x = 0.05f;
+		}
+
+		Log::dbg(LOG_CHAR, "Friction: %lf", vel.x);
 		if (vel.x > 0){
 			if (vel.x >= frict.x) {
 				frict.x *= -1;
@@ -304,21 +331,25 @@ void Character::Crouch() {
 
 	//this->stopMove();
 	this->stats.crouch = true;
+	this->stats.moving = false;
+}
+
+void Character::Stand() {
+	this->stats.crouch = false;
 }
 
 void Character::Jump(bool full) {
 	if (this->stats.inAir && this->stats.hasDoubleJump) {
-		Log::war(LOG_CHAR, "Can't Jump");
+		Log::dbg(LOG_CHAR, "Can't Jump");
 		return;
 	}
 	else if(this->stats.inAir) {
-		Log::war(LOG_CHAR, "Double Jump");
-		Log::war(LOG_CHAR, "%d / %d", this->stats.inAir, this->stats.hasDoubleJump);
+		Log::dbg(LOG_CHAR, "Double Jump");
 		this->stats.hasDoubleJump = true;
-		Log::war(LOG_CHAR, "%d / %d", this->stats.inAir, this->stats.hasDoubleJump);
+		this->stats.doubleJumping = true;
 	}
 	else {
-		Log::war(LOG_CHAR, "Jump");
+		Log::dbg(LOG_CHAR, "Jump");
 	}
 
 	this->stats.inAir = true;
@@ -343,20 +374,23 @@ void Character::Jump(bool full) {
 }
 
 void Character::initStats() {
-	this->stats.jump = 5;
+	this->stats.jump = 4;
 	this->stats.jumpMax = 7;
 
-	this->stats.life = 50;
+	this->stats.life = 1;
 	this->stats.lifeMax = 50;
 
 	this->stats.inAir = false;
 	this->stats.moving = false;
 	this->stats.crouch = false;
 
-	this->stats.moveSpeed = 5;
-	this->stats.maxMoveSpeedX = 10;
+	this->stats.damage = 5;
+
+	this->stats.moveSpeed = 3;
+	this->stats.maxMoveSpeedX = 5;
 	this->stats.maxMoveSpeedY = 5;
 
+	this->stats.doubleJumping = false;
 	this->stats.canDoubleJump = true;
 	this->stats.hasDoubleJump = false;
 
@@ -367,18 +401,33 @@ void Character::landed() {
 	Log::dbg(LOG_CHAR, "LANDED !!!");
 	this->stats.inAir = false;
 	this->stats.canDoubleJump = true;
+	this->stats.doubleJumping = false;
 	this->stats.hasDoubleJump = false;
 }
 
+bool Character::hitWall(Collision* col, Collision* col2, IntRect pos, IntRect pos2) {
+	bool under = col->isOver(col2, this->obj->getMovement()->getVelocity());
+	if (under) {
+		this->landed();
+	}
+
+	return true;
+}
+
+bool Character::hitMonster(Collision* col, Collision* col2, IntRect pos, IntRect pos2) {
+	bool under = col->isOver(col2, this->obj->getMovement()->getVelocity());
+	if (under) {
+		this->landed();
+
+		CharObj* mon = (CharObj*) col2->getObject();
+		mon->getCharacter()->takeDamage(this->stats.damage);
+		this->Jump(true);
+	}
+
+	return true;
+}
+
 bool Character::hit(Collision* col, Collision* col2) {
-	if (!this->stats.inAir) {
-		return true;
-	}
-
-	if (col2->getFlag() != (int) 1 << COL_WALL && col2->getFlag() != (int) 1 << COL_PLATFORM) {
-		return true;
-	}
-
 	IntRect pos = col->getWorldPosition();
 	pos.top += this->obj->getMovement()->getVelocity().y;
 
@@ -388,16 +437,59 @@ bool Character::hit(Collision* col, Collision* col2) {
 	Log::dbg(LOG_CHAR, "=== Top: %d", pos.top);
 	Log::dbg(LOG_CHAR, "=== Height: %d", pos.top + pos.height);
 
-	bool under = col->isOver(col2, this->obj->getMovement()->getVelocity()); //(pos2.top >= pos.top) && (pos2.top <= pos.top + pos.height);
+	switch (col2->getFlag()) {
+		case (int) 1 << COL_WALL:
+		case (int) 1 << COL_PLATFORM:
+			return this->hitWall(col, col2, pos, pos2);
+			break;
 
-	if (under) {
-		this->landed();
+		case (int) 1 << COL_MONSTER:
+			return this->hitMonster(col, col2, pos, pos2);
+			break;
+
+		default:
+			return true;
+			break;
 	}
-	Log::dbg(LOG_CHAR, "=== HIT UNDER: %d", under);
-
-	return true;
 }
 
 bool Character::canMove() {
 	return !this->stats.crouch;
+}
+
+void Character::kill() {
+	Log::war(LOG_CHAR, "Killing: %s", this->name);
+	if (this->ctrl != NULL) {
+		Log::war(LOG_CHAR, "Delete Ctrl");
+		delete this->ctrl;
+	}
+	else {
+		Log::war(LOG_CHAR, "Delete Self");
+		delete this;
+	}
+}
+
+void Character::takeDamage(unsigned int dmg) {
+	Log::war(LOG_CHAR, "Taking Damage: %u", dmg);
+	if (this->stats.life <= dmg) {
+		this->stats.life = 0;
+		Log::war(LOG_CHAR, "Dead");
+		this->kill();
+	}
+	else {
+		this->stats.life -= dmg;
+		Log::war(LOG_CHAR, "Life: %u", this->stats.life);
+	}
+}
+
+void Character::setCtrl(Controller* ctrl) {
+	if (this->ctrl == ctrl) {
+		return;
+	}
+	
+	if (this->ctrl != NULL) {
+		this->ctrl->setCharacter(NULL, false);
+	}
+
+	this->ctrl = ctrl;
 }

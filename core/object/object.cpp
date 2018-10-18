@@ -27,8 +27,9 @@ Object::Object(const char* name, vector* pos, Texture* text, IntRect* clip, unsi
 	snprintf(this->name, len, "%s_Obj", name);
 
 
-	this->z = z;
+	this->setZ(z);
 	this->texture = text;
+	this->flipped = false;
 	this->visible = visible;
 	this->movement = new Movement(this);
 
@@ -66,6 +67,10 @@ Object::Object(const char* name, vector* pos, Texture* text, IntRect* clip, unsi
 
 Object::~Object() {
 	Log::inf(LOG_OBJ, "=== Deleting Object #%d: %s ===", this->id, this->name);
+
+	if (this->layer != NULL) {
+		deleteNodeByValue(this->layer, this);
+	}
 
 	this->removeTexture();
 	if (this->clip != NULL) {
@@ -278,14 +283,14 @@ void Object::draw(RenderWindow* window, bool grav) {
 	this->movement->setVelocity(move);
 	vector pos = this->getPosition();
 
-
-	if (move.x > 0) {
-		Log::dbg(LOG_OBJ, "POS: %lf | %lf", pos.x, pos.y);
-	}
-
-	
 	this->sprite->setPosition(pos.x, pos.y);
 
+	if (move.x < 0 && !this->flipped) {
+		this->flipH();
+	}
+	else if(move.x > 0 && this->flipped) {
+		this->flipH();
+	}
 
 	window->draw(*this->sprite);
 
@@ -348,7 +353,7 @@ void deleteObject(Node* n) {
 }
 
 void Object::addObject(Object* obj) {
-	Log::war(LOG_OBJ, "Adding Object: %s", obj->getName());
+	Log::inf(LOG_OBJ, "Adding Object: %s", obj->getName());
 	Node* n = addNodeV(objectList, obj->getName(), obj, false);
 	
 	n->del = deleteObject;
@@ -360,8 +365,8 @@ void Object::removeObject(Object* obj) {
 		Log::war(LOG_OBJ, "Not Found Object: %s", obj->getName());
 		return;
 	}
-	
-	Log::war(LOG_OBJ, "Removeing Object: %s", obj->getName());
+
+	Log::inf(LOG_OBJ, "Removeing Object: %s", obj->getName());
 	n->del = NULL;
 	removeAndFreeNode(objectList, n);
 }
@@ -380,6 +385,7 @@ vector Object::getVelocity() {
 }
 
 void Object::flipH() {
+	this->flipped = !this->flipped;
 	this->sprite->scale(-1,1);
 }
 
@@ -622,4 +628,17 @@ void Object::checkCameraDistance() {
 	}
 	
 	this->enabled = false;
+}
+
+unsigned short Object::getZ() {
+	return this->z;
+}
+
+void Object::setZ(unsigned short z) {
+	this->z = z;
+	Render::get()->addToLayer(this);
+}
+
+bool Object::isFlipped() {
+	return this->flipped;
 }

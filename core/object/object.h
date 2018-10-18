@@ -22,6 +22,7 @@ class Object : public AbstractClass
 		//IntRect defaultClip;		// Texture Clip
 
 		vector pos;					// position {x, y}
+		bool flipped;
 		Movement* movement = NULL;
 
 		Node* node = NULL;			// Node Pointer In All Objects List 
@@ -49,6 +50,7 @@ class Object : public AbstractClass
 		
 		Object(const char* name) : Object(name, NULL, NULL, NULL, 0, true){};
 		Object(const char* name, vector* pos) : Object(name, pos, NULL, NULL, 0, true){};
+		Object(const char* name, vector* pos, unsigned short z) : Object(name, pos, NULL, NULL, z, true){};
 		Object(const char* name, vector* pos, Texture* text, IntRect* clip) : Object(name, pos, text, clip, 0, true){};
 		Object(const char* name, vector* pos, Texture* text, IntRect* clip, unsigned short z) : Object(name, pos, text, clip, z, true){};
 
@@ -57,8 +59,13 @@ class Object : public AbstractClass
 
 		~Object();
 
+		ListManager* layer = NULL;			// Node Pointer In All Objects List 
+		unsigned short getZ();
+		void setZ(unsigned short z);
+
 		void setMaxSpeed(unsigned int x, unsigned int y);
 		void flipH();
+		bool isFlipped();
 
 		bool isEnabled();
 		void toggle(bool b);

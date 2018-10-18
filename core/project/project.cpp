@@ -5,6 +5,7 @@
 #include "../event/eventMgr.h"
 #include "../animation/sprite/spriteAnim.h"
 #include "../time/timeMgr.h"
+#include "../object/envirement/level.h"
 
 // Project State Enum Name
 const char* STATE_NAMES[] = {
@@ -91,7 +92,8 @@ void Project::initFlags() {
 		LOG_COL,
 		LOG_COL_LOOP,
 		LOG_MUL_TEXT,
-		LOG_ENV_OBJ
+		LOG_ENV_OBJ,
+		LOG_LEVEL
 	};
 
 
@@ -119,6 +121,7 @@ void Project::initFlags() {
 		"col_loop",
 		"texture",
 		"envirement",
+		"level",
 		NULL
 	};
 
@@ -166,6 +169,9 @@ void Project::close() {
 	// 	pthread_join(this->renderTh, NULL);
 	// 	Log::dbg(LOG_PROJECT, "-- Thread Joned");
 	// }
+
+	Log::dbg(LOG_PROJECT, "-- Closing Level");
+	Level::close();
 
 	Log::dbg(LOG_PROJECT, "-- Clearing ViewMgr");
 	ViewMgr::close();

@@ -19,3 +19,7 @@ void CharObj::draw(RenderWindow* window, bool grav) {
 
 	this->ch->update(grav);
 }
+
+Character* CharObj::getCharacter() {
+	return this->ch;
+}

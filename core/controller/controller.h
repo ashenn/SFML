@@ -24,7 +24,7 @@ class Controller : public AbstractClass
 		Controller(ControllerType type, const char* name);
 		~Controller();
 
-		void serCharacter(Character* ch, bool deleteOld);
+		virtual void setCharacter(Character* ch, bool deleteOld);
 		CharObj* getObject();
 		Character* getCharacter();
 

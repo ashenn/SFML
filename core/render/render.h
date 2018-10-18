@@ -10,6 +10,7 @@ class Render : public AbstractStaticClass
 		Render();
 		~Render();
 
+		ListManager* layers = NULL;		// Objects Layers
 		ListManager* objectList = NULL;		// Objects To Render
 
 	public:
@@ -28,6 +29,10 @@ class Render : public AbstractStaticClass
 
 		ListManager* getObjectList();
 		Node* addObject(Object* obj);	// Add Object To Render List
+
+		ListManager* getLayer(int z);
+		void addToLayer(Object* obj);
+		void removeFromLayer(Object* obj);
 };
 
 void* renderThread(void* param);

@@ -102,6 +102,7 @@ class Collision : public AbstractClass
 		~Collision();
 		Collision(const char* name, Object* obj, IntRect pos, ColChanel chanel);
 
+		Object* getObject()  const;
 		IntRect getPosition()  const;
 		IntRect getWorldPosition()  const;
 

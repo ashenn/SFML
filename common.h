@@ -22,6 +22,7 @@
 #define LOG_COL_LOOP	1 << 18
 #define LOG_MUL_TEXT	1 << 19
 #define LOG_ENV_OBJ		1 << 20
+#define LOG_LEVEL		1 << 21
 
 #define FPS 60
 #define FRAME (1.0 / FPS) * 1000000

@@ -5,7 +5,7 @@
 
 #include "core/control/control.h"
 #include "core/project/project.h"
-#include "core/object/envirement/envirement.h"
+#include "core/object/envirement/level.h"
 #include "core/asset/multiTexture/multiTexture.h"
 
 #include "core/collision/collisionMgr.h"
@@ -39,71 +39,12 @@ int main(int argc, char** argv) {
 
     Log::inf(LOG_MAIN, "--- Init Object");
 
-
-
+    Level::load("1");
     vector pos = {0, 0};
-    PlayerCtrl* pl = new PlayerCtrl(1, "test", "adventurer", &pos, 0);
-    //Character* ch = new Character(CHAR_PLAYER, "Test", "adventurer", &pos, 0);
-    // pos.x = -200;
-    // pl->getObject()->setPosition(pos);
-    // SpriteObj* obj = new SpriteObj("Test", &pos, 0, "adventurer");
+    PlayerCtrl* pl = new PlayerCtrl(1, "test", "adventurer", &pos, 1);
 
-    SpriteObj* obj = pl->getObject();
-    obj->addToView();
-
-
-    // sf::Texture* txt = AssetMgr::get()->getMultiTexture("land/sprite", "ground");
-
-
-    // IntRect* clip = new IntRect(0, 0, 520, 111);
-
-    pos.y = -130;
-    pos.x = 880;
-    Object* obj7 = new EnvObj("Test Env3", "land/sprite", "ground", &pos, 1);
-    obj7->addToView();
-
-    pos.y = -30;
-    pos.x = 780;
-    Object* obj6 = new EnvObj("Test Env3", "land/sprite", "ground", &pos, 1);
-    obj6->addToView();
-
-    pos.y = 40;
-    pos.x = 520;
-    Object* obj5 = new EnvObj("Test Env3", "land/sprite", "ground", &pos, 1);
-    obj5->addToView();
-
-    pos.y = 60;
-    pos.x = 380;
-    Object* obj4 = new EnvObj("Test Env2", "land/sprite", "ground", &pos, 1);
-    obj4->addToView();
-
-    pos.y = 60;
-    pos.x = 100;
-    Object* obj3 = new EnvObj("Test Env1", "land/sprite", "ground", &pos, 1);
-    obj3->addToView();
-
-    pos.y = 60;
-    pos.x = -40;
-    Object* obj2 = new EnvObj("Test Env", "land/sprite", "ground", &pos, 1);
-    obj2->addToView();
-
-
-    int fi = (1 << (int)COL_ITEM);
-    int fw = (1 << (int)COL_WALL);
-    int fp = (1 << (int)COL_PLAYER);
-
-    int cw = fw | fi | fp;
-    int ci = fw;
-    int cp = fp | fw;
-
-    /*Log::war(LOG_COL, "Testing Wall: %u", COL_WALL);
-    Log::war(LOG_COL, "Testing Player: %u", COL_PLAYER);
-    Log::war(LOG_COL, "Testing Item: %u", COL_ITEM);
-
-    Log::war(LOG_COL, "Testing Collision Wall Item: %d", cw & ci);
-    Log::war(LOG_COL, "Testing Collision Player Item: %d", cp & ci);
-    Log::war(LOG_COL, "Testing Collision Player Wall: %d", cp & cw);*/
-
+    pos.x += 90;
+    new Character(CHAR_MONSTER, "test Monster", "adventurer", &pos, 1);
     //Animator* anim = Animator::get();
     TimeMgr* time = TimeMgr::get();
     unsigned int eleapsed = 0;
@@ -125,7 +66,7 @@ int main(int argc, char** argv) {
 
         time->update();
 
-        colMgr->handle();
+        //colMgr->handle();
 
         //anim->animate();
         rend->render();

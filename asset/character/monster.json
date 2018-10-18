@@ -1,0 +1,18 @@
+{
+	"adventurer": {
+		"life": 5,
+		"sheet": "adventurer",
+		"collisions": {
+			"hitbox": {
+				"callback": "hit",
+				"type": "COL_MONSTER",
+				"pos": {
+					"top": 4, 
+					"left": 12, 
+					"width": 22, 
+					"height": 34
+				}
+			}
+		}
+	}
+}

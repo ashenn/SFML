@@ -325,3 +325,7 @@ bool Collision::isOver(Collision* col2, vector move) {
 bool Collision::isOver(Collision* col2) {
 	return this->isOver(col2, {0,0});
 }
+
+Object* Collision::getObject()  const {
+	return this->obj;
+}

@@ -10,4 +10,19 @@ class EnvObj : public Object
 		~EnvObj();
 };
 
+class EnvSection : public AbstractClass
+{
+	private:
+		vector pos;
+
+		char* sprite;
+		ListManager* objects;
+		void loadObjects(ListManager* objects);
+
+	public:
+		EnvSection(Json* conf);
+		~EnvSection();
+	
+};
+
 #endif

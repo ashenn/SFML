@@ -152,7 +152,12 @@ Texture* AssetMgr::getTexture(const char* path) {
 
 Texture* AssetMgr::getMultiTexture(const char* path, const char* name) {
 	Log::inf(LOG_ASSET, "=== GETTING Multi-Texture: %s ===", path);
-	Texture* text = (Texture*) this->isCached(path, this->multiTextures);
+
+	int len = strlen(path) + strlen(name) + 2;
+	char cacheName[len];
+	snprintf(cacheName, len, "%s_%s", path, name);
+	
+	Texture* text = (Texture*) this->isCached(cacheName, this->multiTextures);
 
 	if (text != NULL) {
 		Log::dbg(LOG_ASSET, "-- isCached");
@@ -167,7 +172,7 @@ Texture* AssetMgr::getMultiTexture(const char* path, const char* name) {
 		return NULL;
 	}
 
-	Node* n = this->cache(path, this->multiTextures, text);
+	Node* n = this->cache(cacheName, this->multiTextures, text);
 	n->del = deleteTexture;
 
 	return text;

@@ -1,0 +1,64 @@
+{
+	"sections": {
+		"First": {
+			"sprite": "sprite",
+			"background": "",
+
+			"pos": {
+				"x": 0,
+				"y": 0
+			},
+
+			"objects": {
+				"1": {
+					"sprite": "ground",
+					"pos": {
+						"x": 580,
+						"y": -130,
+						"z": 1
+					}
+				},
+				"2": {
+					"sprite": "ground2",
+					"pos": {
+						"x": 480,
+						"y": -60,
+						"z": 1
+					}
+				},
+				"3": {
+					"sprite": "ground",
+					"pos": {
+						"x": 380,
+						"y": 40,
+						"z": 1
+					}
+				},
+				"4": {
+					"sprite": "ground",
+					"pos": {
+						"x": 290,
+						"y": 60,
+						"z": 1
+					}
+				},
+				"5": {
+					"sprite": "ground",
+					"pos": {
+						"x": 120,
+						"y": 60,
+						"z": 1
+					}
+				},
+				"6": {
+					"sprite": "ground",
+					"pos": {
+						"x": -40,
+						"y": 60,
+						"z": 1
+					}
+				}
+			}
+		}
+	}
+}

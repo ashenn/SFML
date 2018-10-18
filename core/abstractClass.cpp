@@ -3,6 +3,16 @@
 #include <string>
 #include <sstream>
 
+void deleteAbstract(Node* n) {
+	AbstractClass* cl = (AbstractClass*) n->value;
+
+	Log::inf(LOG_MAIN, "Deleting: %s", cl->getName());
+
+	if (cl != NULL) {
+		delete cl;
+	}
+}
+
 void deleteCallable(Node* n) {
 	CallableFncAbstract* fnc = (CallableFncAbstract*) n->value;
 

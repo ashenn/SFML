@@ -12,11 +12,13 @@
 				}
 			},
 			"RIGHT": {
+				"repeat": false,
 				"pressed": "move",
 				"release": "stop",
 				"hold": null
 			},
 			"LEFT": {
+				"repeat": false,
 				"pressed": "move",
 				"release": "stop",
 				"hold": null

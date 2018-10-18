@@ -11,6 +11,7 @@
 #include <thread>
 #include <map>
 
+void deleteAbstract(Node* n);
 void deleteCallable(Node* n);
 
 template <class T>

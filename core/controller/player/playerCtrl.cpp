@@ -71,8 +71,9 @@ PlayerCtrl::~PlayerCtrl() {
 }
 
 void PlayerCtrl::setCharacter(Character* ch, bool deleteOld) {
-	if (this->ch != NULL && deleteOld) {
-		delete this->ch;
+	Controller::setCharacter(ch, deleteOld);
+	if (this->ch == NULL) {
+		return;
 	}
 
 	Log::inf(LOG_CTRL_PLAYER, "CREATE PLAYER");
@@ -94,7 +95,12 @@ void PlayerCtrl::moveEvt(KeyEvt<PlayerCtrl>* evt) {
 }
 
 void PlayerCtrl::stopEvt(KeyEvt<PlayerCtrl>* evt) {
-	this->stopMove();
+	if (evt->getKey() == sf::Keyboard::Key::Down) {
+		this->ch->Stand();
+	}
+	else {
+		this->stopMove();
+	}
 }
 
 unsigned short PlayerCtrl::getId() {

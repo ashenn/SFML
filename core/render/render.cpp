@@ -5,10 +5,12 @@
 
 Render::Render() {
 	this->name = Str("Render");
+	this->layers = initListMgr();
 	this->objectList = initListMgr();
 }
 
 Render::~Render() {
+	deleteList(this->layers);
 	deleteList(this->objectList);
 	this->window->close();
 }
@@ -46,21 +48,36 @@ void Render::init(RenderWindow* window) {
 
 void Render::render() {
 	static int i = 0;
-	Node* n = NULL;
+	Node* layerN = NULL;
+
 
 	bool b = this->lock("Render Lock");
 	Log::inf(LOG_RENDER, "=== Rendering ===");
-	this->window->clear();
-
+	sf::Color c(17,32,36,255);
+	this->window->clear(c);
 
 	Log::dbg(LOG_RENDER, "-- Start Loop");
-	while((n = listIterate(this->objectList, n)) != NULL) {
-		Object* obj = (Object*) n->value;
+	while((layerN = listIterate(this->layers, layerN)) != NULL) {
+		ListManager* layer = (ListManager*) layerN->value;
+		Log::dbg(LOG_RENDER, "## Rendering: %s ##", layerN->name);
+		
 
-		Log::inf(LOG_RENDER, "-- Rendering: %s", obj->getName());
+		Node* objN = NULL;
+		while((objN = listIterate(layer, objN)) != NULL) {
+			Object* obj = (Object*) objN->value;
+			Log::dbg(LOG_RENDER, "---- %s", obj->getName());
 
-		obj->draw(this->window, i == 10);
+			obj->draw(this->window, i == 10);
+		}
 	}
+
+	// Node* objN = NULL;
+	// while((objN = listIterate(this->objectList, objN)) != NULL) {
+	// 	Object* obj = (Object*) objN->value;
+	// 	Log::dbg(LOG_RENDER, "---- %s", obj->getName());
+
+	// 	obj->draw(this->window, i == 10);
+	// }
 	
 
 	Log::dbg(LOG_RENDER, "-- Display window Content");
@@ -132,4 +149,70 @@ void Render::setView(sf::View* view) {
 
 const sf::View& Render::getView() {
 	return this->window->getView();
+}
+
+void deleteLayer(Node* n) {
+	if (n->value == NULL) {
+		return;
+	}
+
+	deleteList((ListManager*) n->value);
+}
+
+ListManager* Render::getLayer(int z) {
+	Log::inf(LOG_RENDER, "=== Getting Layer: %d ===", z);
+	Node* n = getNode(this->layers, z);
+	if (n != NULL) {
+		return (ListManager*) n->value;
+	}
+
+	Log::dbg(LOG_RENDER, "-- Init Layer: %d", z);
+	
+	int len = (z / 10) + 8;
+	char name[len];
+	memset(name, 0, len);
+	snprintf(name, len, "layer-%d", z);
+
+	n = addNodeV(this->layers, name, initListMgr(), false);
+
+	if (n == NULL) {
+		Log::err(LOG_RENDER, "Fail To Create Layer: %s", name);
+		return NULL;
+	}
+
+	Log::dbg(LOG_RENDER, "-- Layer Created");
+	n->id = z;
+	n->del = deleteLayer;
+
+	Log::dbg(LOG_RENDER, "-- Sorting Layers");
+	sortListById(this->layers);
+
+	return (ListManager*) n->value;
+}
+
+void Render::removeFromLayer(Object* obj) {
+	if (obj->layer == NULL) {
+		return;
+	}
+
+	Log::inf(LOG_RENDER, "=== Remove '%s' From Layer ===", obj->getName());
+
+	deleteNodeByValue(obj->layer, obj);
+	obj->layer = NULL;
+}
+
+void Render::addToLayer(Object* obj) {
+	Log::inf(LOG_RENDER, "=== Adding '%s' To Layer %u ===", obj->getName(), obj->getZ());
+	this->removeFromLayer(obj);
+	
+	Log::dbg(LOG_RENDER, "-- Getting Layer: %u", obj->getZ());
+	ListManager* layer = this->getLayer((int) obj->getZ());
+	if (layer == NULL) {
+		Log::err(LOG_RENDER, "Fail To Add Object: %s To Layer: %u", obj->getName(), obj->getZ());
+	}
+
+	Log::dbg(LOG_RENDER, "-- Adding Object");
+	addNodeUniqValue(layer, obj->getName(), obj, false);
+
+	obj->layer = layer;
 }

@@ -59,6 +59,11 @@
 					"waitEnd": false,
 					"target": "Fall",
 					"fnc": "Idle2Fall"
+				},
+				"Glide": {
+					"waitEnd": false,
+					"target": "Glide",
+					"fnc": "isGlinding"
 				}
 			}
 		},
@@ -79,6 +84,11 @@
 					"waitEnd": false,
 					"target": "Idle",
 					"fnc": "Down2Idle"
+				},
+				"Glide": {
+					"waitEnd": false,
+					"target": "Glide",
+					"fnc": "Down2Glide"
 				}
 			}
 		},
@@ -90,6 +100,11 @@
 			"loop": false,
 			"row": 2,
 			"links": {
+				"Land": {
+					"waitEnd": false,
+					"target": "Land",
+					"fnc": "Fall2Land"
+				},
 				"Jump": {
 					"waitEnd": true,
 					"target": "Jump",
@@ -110,6 +125,11 @@
 			"loop": false,
 			"row": 2,
 			"links": {
+				"Land": {
+					"waitEnd": false,
+					"target": "Land",
+					"fnc": "Fall2Land"
+				},
 				"Fall": {
 					"waitEnd": true,
 					"target": "Fall",
@@ -172,6 +192,36 @@
 			"links": {
 				"Fall": {
 					"waitEnd": true,
+					"target": "Fall",
+					"fnc": "Idle2Fall"
+				},
+				"Land": {
+					"waitEnd": false,
+					"target": "Land",
+					"fnc": "Fall2Land"
+				}
+			}
+		},
+		"Glide": {
+			"name": "Glide",
+			"fps": 15,
+			"count": 4,
+			"index": 3,
+			"loop": true,
+			"row": 3,
+			"links": {
+				"Idle": {
+					"waitEnd": false,
+					"target": "Land",
+					"fnc": "Down2Idle"
+				},
+				"Down": {
+					"waitEnd": false,
+					"target": "Land",
+					"fnc": "Glide2Down"
+				},
+				"Fall": {
+					"waitEnd": false,
 					"target": "Fall",
 					"fnc": "Idle2Fall"
 				}

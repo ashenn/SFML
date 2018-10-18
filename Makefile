@@ -28,6 +28,7 @@ CPPSRC	=	base/basic.cpp              \
                 core/object/object.cpp                            \
                 core/movement/movement.cpp                        \
                 core/object/envirement/envirement.cpp             \
+                core/object/envirement/level.cpp                  \
                 core/object/sprite/spriteObject.cpp               \
                 core/object/sprite/character/charObject.cpp       \
                 core/character/character.cpp                      \

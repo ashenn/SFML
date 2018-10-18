@@ -45,3 +45,19 @@ void Controller::stopMove() {
 
 	this->ch->stopMove();
 }
+
+
+
+void Controller::setCharacter(Character* ch, bool deleteOld) {
+	if (this->ch == ch) {
+		return;
+	}
+	
+	if (this->ch != NULL && deleteOld) {
+		delete this->ch;
+	}
+
+	Log::inf(LOG_CTRL_PLAYER, "CREATE PLAYER");
+	this->ch = ch;
+	this->ch->setCtrl(this);
+}

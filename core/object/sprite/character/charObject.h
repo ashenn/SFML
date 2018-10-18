@@ -14,6 +14,7 @@ class CharObj : public SpriteObj
 		~CharObj();
 
 		virtual void draw(RenderWindow* window, bool grav);
+		Character* getCharacter();
 };
 
 #endif

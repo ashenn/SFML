@@ -26,8 +26,11 @@ struct CharStats
 	unsigned int jump;
 	unsigned int jumpMax;
 
+	unsigned int damage;
+
 	bool hasDoubleJump;
 	bool canDoubleJump;
+	bool doubleJumping;
 
 	unsigned int life;
 	unsigned int lifeMax;
@@ -37,6 +40,7 @@ struct CharStats
 	unsigned int maxMoveSpeedY;
 };
 
+class Controller;
 class Character : public AbstractClass
 {
 	private:
@@ -44,6 +48,8 @@ class Character : public AbstractClass
 		CharacterType type;
 
 		CharObj* obj = NULL;
+		Controller* ctrl = NULL;
+
 		ViewMgr* view = NULL;
 		Json* loadConfig(const char* jsonKey);
 
@@ -53,6 +59,9 @@ class Character : public AbstractClass
 	protected:
 		void initAnimFncs();
 		virtual void initStats();
+
+		bool hitWall(Collision* col, Collision* col2, IntRect pos, IntRect pos2);
+		bool hitMonster(Collision* col, Collision* col2, IntRect pos, IntRect pos2);
 
 	public:
 		void removeView();
@@ -73,9 +82,15 @@ class Character : public AbstractClass
 		bool isJumping();
 		bool isFalling();
 		bool isCrouching();
+		bool isDoubleJump();
+		bool isGlinding();
+		bool isStanding();
+		bool Down2Idle();
+		bool Glide2Down();
 
 		void update(bool gravity);
 
+		void Stand();
 		void Crouch();
 		void Jump(bool full);
 
@@ -84,8 +99,11 @@ class Character : public AbstractClass
 
 		bool hit(Collision* col, Collision* col2);
 
-
+		void kill();
 		bool canMove();
+		void takeDamage(unsigned int dmg);
+
+		void setCtrl(Controller* ctrl);
 };
 
 #include "../object/sprite/character/charObject.h"
