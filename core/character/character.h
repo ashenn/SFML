@@ -53,15 +53,14 @@ class Character : public AbstractClass
 		ViewMgr* view = NULL;
 		Json* loadConfig(const char* jsonKey);
 
+		DirectionEnum dir[2];
+
 		void initCallableFncs();
 		void initCollision(Json* js);
 
 	protected:
 		void initAnimFncs();
-		virtual void initStats();
-
-		bool hitWall(Collision* col, Collision* col2, IntRect pos, IntRect pos2);
-		bool hitMonster(Collision* col, Collision* col2, IntRect pos, IntRect pos2);
+		virtual void initStats(Json* data);
 
 	public:
 		void removeView();
@@ -71,6 +70,8 @@ class Character : public AbstractClass
 		~Character();
 
 		CharObj* getObject();
+		const DirectionEnum getDirX();
+		const DirectionEnum getDirY();
 		void moveDir(DirectionEnum dir);
 
 		void loadObject(Json* data, const char* name, vector* pos, int z);
@@ -98,10 +99,15 @@ class Character : public AbstractClass
 
 
 		bool hit(Collision* col, Collision* col2);
+		bool hitWall(Collision* col, Collision* col2, IntRect pos, IntRect pos2);
+		bool hitMonster(Collision* col, Collision* col2, IntRect pos, IntRect pos2);
+		
+		bool overlap(Collision* col, Collision* col2);
 
 		void kill();
 		bool canMove();
 		void takeDamage(unsigned int dmg);
+		void makeDamage(Character* target);
 
 		void setCtrl(Controller* ctrl);
 };

@@ -288,7 +288,7 @@ bool Collision::isLeft(Collision* col2, vector move) {
 	pos.left += move.x;
 	pos.top += move.y;
 
-	return (pos2.left >= pos.left) && (pos2.left <= pos.left + pos.width);
+	return pos.left < (pos2.left + (pos2.width / 2));
 }
 
 bool Collision::isLeft(Collision* col2) {

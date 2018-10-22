@@ -770,6 +770,10 @@ void sortListById(ListManager * lst) {
 	Node* tmp = NULL;
 	Node* comp = NULL;
 
+	if (lst->nodeCount <= 1) {
+		return;
+	}
+
 	lockList(lst);
 
 	Node* key = lst->first->next;
@@ -786,7 +790,7 @@ void sortListById(ListManager * lst) {
 				//fprintf(stdout, "-- Skipping\n");
         		comp = key->next;
         		unlockNode(key);
-        		unlockNode(comp);
+        		// unlockNode(comp);
         		continue;
         	}
 

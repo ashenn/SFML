@@ -7,6 +7,9 @@ Character::Character(CharacterType type, const char* name, const char* jsonKey, 
 
 	this->type = type;
 
+	this->dir[0] = DIR_RIGHT;
+	this->dir[1] = DIR_DOWN;
+
 	int len = strlen(name) + 6;
 	this->name = StrE(len);
 	snprintf(this->name, len, "%s_Char", name);
@@ -16,7 +19,7 @@ Character::Character(CharacterType type, const char* name, const char* jsonKey, 
 	Json* data = this->loadConfig(jsonKey);
 	this->loadObject(data, name, pos, z);
 
-	this->initStats();
+	this->initStats(data);
 	this->initAnimFncs();
 }
 
@@ -33,9 +36,14 @@ Character::~Character() {
 
 void Character::initCallableFncs() {
 	this->callables = initListMgr();
+	
 	CallableFncCol<Character>* ctrl = new CallableFncCol<Character>(&Character::hit);
-
 	Node* n = addNodeV(this->callables, "hit", ctrl, false);
+	n->del = deleteCallable;
+	
+
+	ctrl = new CallableFncCol<Character>(&Character::overlap);
+	n = addNodeV(this->callables, "overlap", ctrl, false);
 	n->del = deleteCallable;
 }
 
@@ -128,23 +136,43 @@ void Character::initCollision(Json* js) {
 
 	Collision* col = this->obj->addCollision(js->key, pos, chan);
 
-	char* callbackN = (char*) jsonGetValue(js, "callback", NULL);
-	if (callbackN == NULL){
+
+	Json* callBacks = jsonGetData(js, "callback");
+	if (callBacks == NULL){
 		return;
 	}
 
-	Log::war(LOG_CHAR, "CALLBACK COL: %s", callbackN);
-	CallableFncCol<Character>* fncCol = (CallableFncCol<Character>*) this->getFnc(callbackN);
+	char* hitBack = (char*) jsonGetValue(callBacks, "block", NULL);
+	Log::err(LOG_CHAR, "SET ON HIT: %s", hitBack);
+	if (hitBack != NULL)
+	{
+		CallableFncCol<Character>* fncCol = (CallableFncCol<Character>*) this->getFnc(hitBack);
 
-	if (fncCol == NULL) {
-		Log::war(LOG_CHAR, "Fail To Find Callable Function: '%s' In Object %s", callbackN, this->getName());
-		free(callbackN);
-		return;
+		if (fncCol == NULL) {
+			Log::war(LOG_CHAR, "Fail To Find Callable Function: '%s' In Object %s", hitBack, this->getName());
+			free(hitBack);
+		}
+		else {
+			col->setHit(this, fncCol->fnc);
+			free(hitBack);
+		}
 	}
 
-	Log::war(LOG_CHAR, "Init Hit COL: %s", callbackN);
-	col->setHit(this, fncCol->fnc);
-	free(callbackN);
+	char* overBack = (char*) jsonGetValue(callBacks, "overlap", NULL);
+	Log::err(LOG_CHAR, "SET ON Overlap: %s", overBack);
+	if (overBack != NULL)
+	{
+		CallableFncCol<Character>* fncCol = (CallableFncCol<Character>*) this->getFnc(overBack);
+
+		if (fncCol == NULL) {
+			Log::war(LOG_CHAR, "Fail To Find Callable Function: '%s' In Object %s", overBack, this->getName());
+			free(overBack);
+		}
+		else {
+			col->setOverlap(this, fncCol->fnc);
+			free(overBack);
+		}
+	}
 }
 
 CharObj* Character::getObject() {
@@ -277,6 +305,10 @@ void Character::setView(ViewMgr* v) {
 }
 
 void Character::update(bool gravity) {
+	if (this->ctrl != NULL) {
+		this->ctrl->update();
+	}
+
 	if (this->view != NULL) {
 		Log::inf(LOG_CHAR, "-- Char Call View Update");
 		this->view->update();
@@ -320,7 +352,28 @@ void Character::update(bool gravity) {
 		this->obj->getMovement()->addVelocity(frict);
 
 		vel = this->obj->getMovement()->getVelocity();
+		if (vel.x < 0) {
+			this->dir[0] = DIR_LEFT;
+		}
+		else if(vel.x > 0) {
+			this->dir[0] = DIR_RIGHT;
+		}
+
+		if (vel.y < 0) {
+			this->dir[0] = DIR_UP;
+		}
+		else if(vel.y > 0) {
+			this->dir[0] = DIR_DOWN;
+		}
 		//Log::war(LOG_CHAR, "New Velocity: %lf", vel.x);
+	}
+
+	
+	vector pos = this->obj->getPosition();
+	Log::err(LOG_CHAR, "Pos: %lf", pos.y);
+	if (pos.y > 500) {
+		Log::err(LOG_CHAR, "REACHED KILL ZONE !!!!");
+		this->kill();
 	}
 }
 
@@ -373,22 +426,33 @@ void Character::Jump(bool full) {
 	m->addVelocity(vel);
 }
 
-void Character::initStats() {
-	this->stats.jump = 4;
-	this->stats.jumpMax = 7;
+void Character::initStats(Json* data) {
+	int val = 0;
+	jsonGetValue(data, "jump", &val);
+	this->stats.jump = val;
+	
+	jsonGetValue(data, "jumpMax", &val);
+	this->stats.jumpMax = val;
 
-	this->stats.life = 1;
-	this->stats.lifeMax = 50;
+	jsonGetValue(data, "life", &val);
+	this->stats.life = val;
+	this->stats.lifeMax = val;
 
 	this->stats.inAir = false;
 	this->stats.moving = false;
 	this->stats.crouch = false;
 
+	jsonGetValue(data, "file", &val);
 	this->stats.damage = 5;
 
-	this->stats.moveSpeed = 3;
-	this->stats.maxMoveSpeedX = 5;
-	this->stats.maxMoveSpeedY = 5;
+	jsonGetValue(data, "speed", &val);
+	this->stats.moveSpeed = val;
+
+	jsonGetValue(data, "maxSpeed", &val);
+	this->stats.maxMoveSpeedX = val;
+
+	jsonGetValue(data, "fallSpeed", &val);
+	this->stats.maxMoveSpeedY = val;
 
 	this->stats.doubleJumping = false;
 	this->stats.canDoubleJump = true;
@@ -403,6 +467,10 @@ void Character::landed() {
 	this->stats.canDoubleJump = true;
 	this->stats.doubleJumping = false;
 	this->stats.hasDoubleJump = false;
+}
+
+void Character::makeDamage(Character* target) {
+	target->takeDamage(this->stats.damage);
 }
 
 bool Character::hitWall(Collision* col, Collision* col2, IntRect pos, IntRect pos2) {
@@ -428,6 +496,13 @@ bool Character::hitMonster(Collision* col, Collision* col2, IntRect pos, IntRect
 }
 
 bool Character::hit(Collision* col, Collision* col2) {
+	if (this->ctrl == NULL) {
+		return true;
+	}
+
+	return this->ctrl->hit(col, col2);
+
+
 	IntRect pos = col->getWorldPosition();
 	pos.top += this->obj->getMovement()->getVelocity().y;
 
@@ -453,32 +528,40 @@ bool Character::hit(Collision* col, Collision* col2) {
 	}
 }
 
+bool Character::overlap(Collision* col, Collision* col2) {
+	if (this->ctrl == NULL) {
+		return true;
+	}
+	
+	return this->ctrl->overlap(col, col2);
+}
+
 bool Character::canMove() {
 	return !this->stats.crouch;
 }
 
 void Character::kill() {
-	Log::war(LOG_CHAR, "Killing: %s", this->name);
+	Log::dbg(LOG_CHAR, "Killing: %s", this->name);
 	if (this->ctrl != NULL) {
-		Log::war(LOG_CHAR, "Delete Ctrl");
-		delete this->ctrl;
+		Log::dbg(LOG_CHAR, "Remove From Ctrl");
+		this->ctrl->kill();
 	}
 	else {
-		Log::war(LOG_CHAR, "Delete Self");
+		Log::dbg(LOG_CHAR, "Delete Self");
 		delete this;
 	}
 }
 
 void Character::takeDamage(unsigned int dmg) {
-	Log::war(LOG_CHAR, "Taking Damage: %u", dmg);
+	Log::dbg(LOG_CHAR, "Taking Damage: %u", dmg);
 	if (this->stats.life <= dmg) {
 		this->stats.life = 0;
-		Log::war(LOG_CHAR, "Dead");
+		Log::dbg(LOG_CHAR, "Dead");
 		this->kill();
 	}
 	else {
 		this->stats.life -= dmg;
-		Log::war(LOG_CHAR, "Life: %u", this->stats.life);
+		Log::dbg(LOG_CHAR, "Life: %u", this->stats.life);
 	}
 }
 
@@ -492,4 +575,12 @@ void Character::setCtrl(Controller* ctrl) {
 	}
 
 	this->ctrl = ctrl;
+}
+
+const DirectionEnum Character::getDirX() {
+	return this->dir[0];
+}
+
+const DirectionEnum Character::getDirY() {
+	return this->dir[1];
 }

@@ -221,5 +221,55 @@
 				}
 			}
 		}
+	},
+
+	"checkpoint": {
+		"repeat": false,
+		"sheet": "land/sprite",
+
+		"color": [
+			17,
+			32,
+			36,
+			0
+		],
+
+		"size": [
+			32,
+			52
+		],
+
+		"spriteSize": [
+			32,
+			52
+		],
+
+		"sprites": {
+			"left": {
+				"pos": [
+					0,
+					0
+				],
+
+				"clip": {
+					"top": 104,
+					"left": 144,
+					"width": 32,
+					"height": 52
+				}
+			}
+		},
+
+		"collisions": {
+			"trigger": {
+				"channel": "COL_CHECKPOINT",
+				"pos": {
+					"top": 0,
+					"left": 0,
+					"width": 32,
+					"height": 52
+				}
+			}
+		}
 	}
 }

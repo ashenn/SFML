@@ -34,6 +34,7 @@ CPPSRC	=	base/basic.cpp              \
                 core/character/character.cpp                      \
                 core/controller/controller.cpp                    \
                 core/controller/player/playerCtrl.cpp             \
+                core/controller/ai/aiCtrl.cpp             \
                 core/animation/animation.cpp                      \
                 core/animation/sprite/spriteAnim.cpp      \
                 core/view/view.cpp                        \

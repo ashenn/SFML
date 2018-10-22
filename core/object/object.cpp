@@ -195,69 +195,82 @@ vector Object::move(vector m) {
 }
 
 vector Object::canMove(vector m) {
-	Collision** cols = NULL;
 	vector tmp = m;
+	Node* n = NULL;
+	ListManager* collisions = CollisionMgr::get()->searchCollision(this, COL_IGNORE, m);
 
-	while ((cols = CollisionMgr::get()->searchCollision(this, COL_BLOCK, m)) != NULL) {
-		//Log::dbg(LOG_OBJ, "Can Move Call Hit");
-		bool applyCol = cols[0]->callHit(cols[1]);
-		if (!applyCol) {
-			Log::dbg(LOG_OBJ, "Skip Collision");
-			continue;
-		}
+	while ((n = listIterate(collisions, n)) != NULL) {
+		Collision** cols = (Collision**) n->value;
 
 		vector move = {0, 0};
 		move.x = m.x;
 
-		if (cols[0]->collides(cols[1], move)) {
+		Collision* col = cols[0];
+		Collision* col2 = cols[1];
+
+		if (col->collides(col2, m) == COL_OVERLAP) {
+			col->callOverlap(col2);
+			continue;
+		}
+
+
+		bool applyCol = col->callHit(col2);
+		if (!applyCol) {
+			Log::dbg(LOG_OBJ, "Skip Collision");
+			continue;
+		}
+		IntRect pos = col->getWorldPosition();
+		IntRect pos2 = col2->getWorldPosition();
+
+		if (col->isOver(col2, move)) {
+			m.y = -((pos.top + pos.height) - pos2.top) -1;
+			this->move(m);
+			m.y = 0;
+			continue;
+		}
+
+		if (col->collides(col2, move)) {
 			Log::dbg(LOG_OBJ, "UPDATE MOVE X: %lf", m.x);
 			m.x = 0;
 		}
 
 		move.x = 0;
 		move.y = m.y;
-		if (cols[0]->collides(cols[1], move)) {
+		if (col->collides(col2, move)) {
 			m.y = 0;
 			Log::dbg(LOG_OBJ, "UPDATE MOVE Y: %lf", m.y);
 		}
 
-		//Log::war(LOG_OBJ, "%s | %s", this->name, cols[1]->getName());
+		//Log::dbg(LOG_OBJ, "%s | %s", this->name, cols[1]->getName());
 
 		if (!m.x && !m.y) {
-			Collision* col = cols[0];
-			Collision* col2 = cols[1];
-			IntRect pos = col->getWorldPosition();
-			IntRect pos2 = col2->getWorldPosition();
 
 			if (col->isOver(col2)) {
-				// Log::war(LOG_OBJ, "Over");
-				m.y = -((pos.top + pos.height) - pos2.top) -1;
-				this->move(m);
-				m.y = 0;
+				// Log::dbg(LOG_OBJ, "Over");
 				m.x = tmp.x;
 			}
 			else {
-				Log::war(LOG_OBJ, "Under");
+				Log::dbg(LOG_OBJ, "Under");
 				// m.y = pos2.top + pos.height +2;
 			}
 
-			//Log::war(LOG_OBJ, "FORCING: Top: %d", pos2.top);
-			//Log::war(LOG_OBJ, "FORCING: %lf", m.y);
-			//Log::war(LOG_OBJ, "New Bottom: %d + %d + %d = %d", pos.top, pos.height, (int) m.y, pos.top + pos.height + (int) m.y);
+			//Log::dbg(LOG_OBJ, "FORCING: Top: %d", pos2.top);
+			//Log::dbg(LOG_OBJ, "FORCING: %lf", m.y);
+			//Log::dbg(LOG_OBJ, "New Bottom: %d + %d + %d = %d", pos.top, pos.height, (int) m.y, pos.top + pos.height + (int) m.y);
 		}
 		
-		free(cols);
-		break;
+		// break;
 	}
 
+	deleteList(collisions);
 	return m;
 }
 
 void Object::draw(RenderWindow* window, bool grav) {
 	this->checkCameraDistance();
 
-	if (!this->enabled || !this->visible || this->sprite == NULL) {
-		Log::dbg(LOG_OBJ, "-- Skip Rendre: %s", this->getName());
+	if (!this->enabled) {
+		Log::dbg(LOG_OBJ, "-- Skip Render: %s", this->getName());
 		return;
 	}
 
@@ -292,7 +305,12 @@ void Object::draw(RenderWindow* window, bool grav) {
 		this->flipH();
 	}
 
-	window->draw(*this->sprite);
+	if (this->visible && this->sprite != NULL) {
+		window->draw(*this->sprite);
+	}
+	else{
+		Log::dbg(LOG_OBJ, "-- Skip Draw: %s", this->getName());
+	}
 
 	Node* n = NULL;
 	while ((n = listIterate(this->childs, n)) != NULL) {
@@ -347,7 +365,7 @@ void deleteObject(Node* n) {
 		return;
 	}
 
-	Log::war(LOG_OBJ, "deleting Object: %s", obj->getName());
+	Log::dbg(LOG_OBJ, "deleting Object: %s", obj->getName());
 
 	delete obj;
 }
@@ -609,20 +627,58 @@ void Object::checkCameraDistance() {
 		ViewMgr* view = (ViewMgr*) n->value;
 		sf::FloatRect rect = view->getRect();
 
-		Log::dbg(LOG_COL, "--- Object Pos: %lf | %lf", this->pos.x, this->pos.y);
+		vector objPos = this->pos;
+		vector camPos;
+		camPos.x = rect.left;
+		camPos.y = rect.top;
 
-		vector pos;
-		pos.y = rect.top;
-		pos.x = rect.left;
-		Log::dbg(LOG_COL, "--- View Pos: %lf | %lf", pos.x, pos.y);
+
+		double objWidth = 0;
+		double objHeight = 0;
+
+		double camWidth = rect.width / 2;
+		// double camWidth = VIEW_DISTANCE;
+		double camHeight = rect.height / 2;
+
+		if (this->clip != NULL) {
+			objWidth = this->clip->width / 2;
+			objHeight = this->clip->height / 2;
+		}
+
+
+		Log::dbg(LOG_COL, "++++++++++++++ Obj: %s", this->getName());
+		Log::dbg(LOG_COL, "--- Object Pos: %lf | %lf | %f | %f", this->pos.x, this->pos.y, objWidth, objHeight);
+		Log::dbg(LOG_COL, "--- Cam Pos: %f | %f | %f", rect.left, rect.top, rect.width);
+
+		bool insideW = (objPos.x + objWidth) >= (camPos.x - camWidth) && (objPos.x - objWidth) <= (camPos.x + camWidth);
+		bool insideH = (objPos.y + objHeight) >= (camPos.y - camHeight) && objPos.y <= (camPos.y + camWidth);
+
+		Log::dbg(LOG_COL, "--- Width: (%lf + %lf) >= (%lf - %lf) && (%lf - %lf) <= (%lf - %lf)", objPos.x, objWidth, camPos.x, camWidth, objPos.x, objWidth, camPos.x, camWidth);
+		Log::dbg(LOG_COL, "--- Width: %lf >= %lf && %lf <= %lf", (objPos.x + objWidth), (camPos.x - camWidth), (objPos.x - objWidth), (camPos.x + camWidth));
+
+		Log::dbg(LOG_COL, "--- Width: %d", insideW);
+		Log::dbg(LOG_COL, "--- Height: %d", insideH);
+
+		bool isInside = insideH && insideW;
+		Log::dbg(LOG_COL, "--- Inside: %d", isInside);
 		
-		vector diff = diffVector(&pos, &this->pos);
-		Log::dbg(LOG_COL, "--- Diff: %lf | %lf", diff.x, diff.y);
-		Log::dbg(LOG_COL, "--- Distance: %lf", vectorDistance(&diff));
+		if (isInside) {
+			this->visible = this->enabled = true;
+			return;
+		}
 
-		float dist = abs(vectorDistance(&diff));
-		if (dist <= VIEW_DISTANCE) {
-			this->enabled = true;
+		double diffLeft = abs(objPos.x - (camPos.x + camWidth));
+		double diffRight = abs((camPos.x - camWidth) - (objPos.x + (objWidth)));
+
+		this->visible = (diffLeft <= VIEW_DISTANCE) || (diffRight <= VIEW_DISTANCE);
+		this->enabled = (diffLeft <= RENDER_DISTANCE) || (diffRight <= RENDER_DISTANCE);
+		
+		Log::dbg(LOG_COL, "--- Diff Pos Left: %lf / %d", diffLeft, VIEW_DISTANCE);
+		Log::dbg(LOG_COL, "--- Diff Pos Right: %lf / %d", diffLeft, VIEW_DISTANCE);
+		Log::dbg(LOG_COL, "--- Visible: %d", this->visible);
+		Log::dbg(LOG_COL, "--- Render: %d", this->enabled);
+		
+		if (this->visible || this->enabled) {
 			return;
 		}
 	}
@@ -635,6 +691,7 @@ unsigned short Object::getZ() {
 }
 
 void Object::setZ(unsigned short z) {
+	Log::dbg(LOG_OBJ, "Setting Obj Layer: %u", z);
 	this->z = z;
 	Render::get()->addToLayer(this);
 }

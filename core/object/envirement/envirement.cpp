@@ -1,6 +1,7 @@
 #include "envirement.h"
 #include "../../asset/asset.h"
 #include "../../collision/collision.h"
+#include "../../controller/ai/aiCtrl.h"
 
 EnvObj::EnvObj(const char* name, const char* path, const char* conf, vector* pos, unsigned int z)
 : Object(name, pos, z) {
@@ -102,12 +103,17 @@ EnvSection::EnvSection(Json* conf) {
 	Log::dbg(LOG_ENV_OBJ, "-- Object Count: %d", objects->nodeCount);
 	this->loadObjects(objects);
 
+	this->monsters = initListMgr();
+	ListManager* monsters = (ListManager*) jsonGetValue(conf, "monsters", NULL);
+	this->spawnMonsters(monsters);
+
 	free(sprite);
 }
 
 EnvSection::~EnvSection() {
 	free(this->sprite);
 	deleteList(this->objects);
+	deleteList(this->monsters);
 }
 
 void deleteSectionObjects(Node* n) {
@@ -156,5 +162,51 @@ void EnvSection::loadObjects(ListManager* objects) {
 		objN->del = deleteSectionObjects;
 
 		free(sprite);
+	}
+}
+
+void deleteSpawn(Node* n) {
+	if (n->value == NULL) {
+		return;
+	}
+
+	Log::dbg(LOG_ENV_OBJ, "DELETING MONSTER");
+	AiCtrl* mon = (AiCtrl*) n->value;
+	Log::dbg(LOG_ENV_OBJ, "%s", mon->getName());
+
+	delete mon;
+}
+
+void EnvSection::spawnMonsters(ListManager* monsters) {
+	Log::inf(LOG_ENV_OBJ, "=== Spawning Monsters: %d ===", monsters->nodeCount);
+
+	Node* n = NULL;
+	while ((n = listIterate(monsters, n)) != NULL) {
+		Json* monJ = (Json*) n->value;
+
+		Json* posJ = jsonGetData(monJ, "pos");
+
+		vector pos;
+		int data[3];
+		jsonGetValue(posJ, "x", &(data[0]));
+		jsonGetValue(posJ, "y", &(data[1]));
+		jsonGetValue(posJ, "z", &(data[2]));
+
+		pos.x = data[0];
+		pos.y = data[1];
+
+		char* key = (char*) jsonGetValue(monJ, "key", NULL);
+
+		int len = strlen(key) + (n->id / 10) + 3;
+		char name[len];
+		snprintf(name, len, "%s_%d", key, n->id);
+
+		Log::war(LOG_ENV_OBJ, "%s x: %lf Y: %lf Z: %d", name, pos.x, pos.y, data[2]);
+
+		AiCtrl* mon = new AiCtrl(name, key, &pos, data[2]);
+		Node* monN = addNodeV(this->monsters, name, mon, false);
+		monN->del = deleteAbstract;
+
+		free(key);
 	}
 }

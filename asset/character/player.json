@@ -1,10 +1,22 @@
 {
 	"adventurer": {
 		"life": 5,
+		"speed": 3,
+		"maxSpeed": 5,
+		"fallSpeed": 5,
+		"damage": 5,
+
+		"jump": 3,
+		"jumpMax": 7,
+
 		"sheet": "adventurer",
 		"collisions": {
 			"hitbox": {
-				"callback": "hit",
+				"callback": {
+					"block": "hit",
+					"overlap": "overlap"
+				},
+
 				"type": "COL_PLAYER",
 				"pos": {
 					"top": 4, 

@@ -93,7 +93,8 @@ void Project::initFlags() {
 		LOG_COL_LOOP,
 		LOG_MUL_TEXT,
 		LOG_ENV_OBJ,
-		LOG_LEVEL
+		LOG_LEVEL,
+		LOG_AI
 	};
 
 
@@ -122,6 +123,7 @@ void Project::initFlags() {
 		"texture",
 		"envirement",
 		"level",
+		"ai",
 		NULL
 	};
 

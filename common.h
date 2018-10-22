@@ -23,11 +23,13 @@
 #define LOG_MUL_TEXT	1 << 19
 #define LOG_ENV_OBJ		1 << 20
 #define LOG_LEVEL		1 << 21
+#define LOG_AI			1 << 22
 
 #define FPS 60
 #define FRAME (1.0 / FPS) * 1000000
 
-#define VIEW_DISTANCE 800
+#define VIEW_DISTANCE 300
+#define RENDER_DISTANCE VIEW_DISTANCE
 
 
 #include <SFML/Graphics.hpp>

@@ -189,9 +189,10 @@ ListManager* CollisionMgr::getChannels() {
 	return this->chanels;
 }
 
-Collision** CollisionMgr::searchCollision(Object* refObj, ColType type, vector move) {
+ListManager* CollisionMgr::searchCollision(Object* refObj, ColType type, vector move) {
 	Node* objN = NULL;
 
+	ListManager* res = initListMgr();
 	while ((objN = listIterate(this->colObjs, objN)) != NULL) {
 
 		Object* obj = (Object*) objN->value;
@@ -232,10 +233,10 @@ Collision** CollisionMgr::searchCollision(Object* refObj, ColType type, vector m
 				cols[0] = ref;
 				cols[1] = col;
 
-				return cols;
+				addNodeV(res, col->getName(), cols, true);
 			}
 		}
 	}
 
-	return NULL;
+	return res;
 }

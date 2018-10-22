@@ -79,10 +79,6 @@ void PlayerCtrl::setCharacter(Character* ch, bool deleteOld) {
 	Log::inf(LOG_CTRL_PLAYER, "CREATE PLAYER");
 	this->ch = ch;
 	new ViewMgr(this->ch, VIEW_CAMERA, sf::FloatRect(-150,0,800,600));
-
-	if (ch != NULL) {
-		this->obj = ch->getObject();
-	}
 }
 
 void PlayerCtrl::moveEvt(KeyEvt<PlayerCtrl>* evt) {
@@ -165,4 +161,80 @@ void PlayerCtrl::downEvt(KeyEvt<PlayerCtrl>* evt) {
 void PlayerCtrl::jumpEvt(KeyEvt<PlayerCtrl>* evt) {
 	vector time = evt->getOnHoldTime();
 	this->ch->Jump(time.x >= time.y);
+}
+
+bool PlayerCtrl::hitWall(Collision* col, Collision* col2, IntRect pos, IntRect pos2) {
+	this->ch->hitWall(col, col2, pos, pos2);
+	return true;
+}
+
+bool PlayerCtrl::hitMonster(Collision* col, Collision* col2, IntRect pos, IntRect pos2) {
+	bool under = col->isOver(col2, this->obj->getMovement()->getVelocity());
+	if (under) {
+		this->ch->landed();
+
+		CharObj* mon = (CharObj*) col2->getObject();
+		this->ch->makeDamage(mon->getCharacter());
+		this->ch->Jump(true);
+	}
+
+	return true;
+}
+
+void PlayerCtrl::kill() {
+	if (this->checkpoint != NULL) {
+		vector pos = this->checkpoint->getPosition();
+		this->obj->getMovement()->setVelocity({0,0});
+		this->obj->setPosition(pos);
+	}
+}
+
+bool PlayerCtrl::overlapCheckPoint(Object* checkObj) {
+	if (this->checkpoint == checkObj) {
+		return false;
+	}
+
+	this->checkpoint = checkObj;
+
+	return true;
+}
+
+bool PlayerCtrl::overlap(Collision* col, Collision* col2) {
+	switch (col2->getFlag()) {
+		case (int) 1 << COL_CHECKPOINT:
+			return this->overlapCheckPoint(col2->getObject());
+			break;
+
+		default:
+			return false;
+			break;
+	}
+
+}
+
+bool PlayerCtrl::hit(Collision* col, Collision* col2) {
+	IntRect pos = col->getWorldPosition();
+	pos.top += this->obj->getMovement()->getVelocity().y;
+
+	IntRect pos2 = col2->getWorldPosition();
+	// Log::war(LOG_CHAR, "=== Obj: %s", col2->getObject()->getName());
+	// Log::war(LOG_CHAR, "=== Target: %d", pos2.top);
+
+	// Log::war(LOG_CHAR, "=== Top: %d", pos.top);
+	// Log::war(LOG_CHAR, "=== Height: %d", pos.top + pos.height);
+
+	switch (col2->getFlag()) {
+		case (int) 1 << COL_WALL:
+		case (int) 1 << COL_PLATFORM:
+			return this->hitWall(col, col2, pos, pos2);
+			break;
+
+		case (int) 1 << COL_MONSTER:
+			return this->hitMonster(col, col2, pos, pos2);
+			break;
+
+		default:
+			return true;
+			break;
+	}
 }

@@ -57,7 +57,12 @@ void Controller::setCharacter(Character* ch, bool deleteOld) {
 		delete this->ch;
 	}
 
-	Log::inf(LOG_CTRL_PLAYER, "CREATE PLAYER");
 	this->ch = ch;
-	this->ch->setCtrl(this);
+	if (ch != NULL) {
+		this->obj = ch->getObject();
+		this->ch->setCtrl(this);
+	}
+
+
+	Log::inf(LOG_CTRL_PLAYER, "CREATE AI");
 }

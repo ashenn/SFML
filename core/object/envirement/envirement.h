@@ -17,12 +17,15 @@ class EnvSection : public AbstractClass
 
 		char* sprite;
 		ListManager* objects;
+		ListManager* monsters;
+
 		void loadObjects(ListManager* objects);
 
 	public:
 		EnvSection(Json* conf);
 		~EnvSection();
 	
+		void spawnMonsters(ListManager* monsters);
 };
 
 #endif

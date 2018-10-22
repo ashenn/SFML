@@ -4,11 +4,13 @@
 #include "../controller.h"
 #include "../../control/control.h"
 
+
 class PlayerCtrl : public Controller
 {
 	protected:
 		unsigned short id = 0;
 
+		Object* checkpoint = NULL;
 		static ListManager* playerList;
 
 		void loadControls();
@@ -20,6 +22,17 @@ class PlayerCtrl : public Controller
 
 		unsigned short getId();
 		virtual void setCharacter(Character* ch, bool deleteOld);
+
+		virtual bool hit(Collision* col, Collision* col2);
+		virtual bool hitWall(Collision* col, Collision* col2, IntRect pos, IntRect pos2);
+		
+		bool hitMonster(Collision* col, Collision* col2, IntRect pos, IntRect pos2);
+
+
+		bool overlapCheckPoint(Object* checkObj);
+		virtual bool overlap(Collision* col, Collision* col2);
+
+		void kill();
 
 		void moveEvt(KeyEvt<PlayerCtrl>* evt);
 		void stopEvt(KeyEvt<PlayerCtrl>* evt);

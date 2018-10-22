@@ -2,6 +2,7 @@
 	"SideScroll": {
 		"player-1": {
 			"SPACE": {
+				"repeat": false,
 				"pressed": "down",
 				"release": null,
 				"hold": {
@@ -12,18 +13,19 @@
 				}
 			},
 			"RIGHT": {
-				"repeat": false,
+				"repeat": true,
 				"pressed": "move",
 				"release": "stop",
 				"hold": null
 			},
 			"LEFT": {
-				"repeat": false,
+				"repeat": true,
 				"pressed": "move",
 				"release": "stop",
 				"hold": null
 			},
 			"DOWN": {
+				"repeat": false,
 				"pressed": "down",
 				"release": "stop",
 				"hold": null

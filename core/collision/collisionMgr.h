@@ -28,7 +28,7 @@ class CollisionMgr : public AbstractStaticClass {
 		ListManager* getChannels();
 		void addObject(Object* obj);
 
-		Collision** searchCollision(Object* ref, ColType type, vector move);
+		ListManager* searchCollision(Object* ref, ColType type, vector move);
 };
 
 #include "../object/object.h"

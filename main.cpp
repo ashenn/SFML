@@ -14,6 +14,7 @@
 
 #include "core/animation/sprite/spriteAnim.h"
 #include "core/controller/player/playerCtrl.h"
+#include "core/controller/ai/aiCtrl.h"
 
 int main(int argc, char** argv) {
 
@@ -40,11 +41,12 @@ int main(int argc, char** argv) {
     Log::inf(LOG_MAIN, "--- Init Object");
 
     Level::load("1");
-    vector pos = {0, 0};
+    vector pos = {150, -50};
     PlayerCtrl* pl = new PlayerCtrl(1, "test", "adventurer", &pos, 1);
 
-    pos.x += 90;
-    new Character(CHAR_MONSTER, "test Monster", "adventurer", &pos, 1);
+    pos.x += 100;
+    // AiCtrl* mon = new AiCtrl("Test AI", "adventurer", &pos, 1); 
+    // new Character(CHAR_MONSTER, "test Monster", "adventurer", &pos, 1);
     //Animator* anim = Animator::get();
     TimeMgr* time = TimeMgr::get();
     unsigned int eleapsed = 0;
@@ -56,7 +58,7 @@ int main(int argc, char** argv) {
     pro->signal();
     rend->lock("Start Render");
 
-    CollisionMgr* colMgr = CollisionMgr::get();
+    //CollisionMgr* colMgr = CollisionMgr::get();
 
     Log::inf(LOG_MAIN, "=== Starting Main Loop ===");
     while (pro->getStatus() < PRO_CLOSE) {      // Main Loop
@@ -85,6 +87,7 @@ int main(int argc, char** argv) {
     }
 
 
+    // delete mon;
     delete pl;
     Log::inf(LOG_MAIN, "CLOSING PROJECT");
 
