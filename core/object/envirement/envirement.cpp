@@ -43,7 +43,7 @@ EnvObj::EnvObj(const char* name, const char* path, const char* conf, vector* pos
 		char* colChanN = (char*) jsonGetValue(colJ, "channel", NULL);
 		ColChanel colChan = colChanelValue(colChanN);
 
-		Log::inf(LOG_ENV_OBJ, "-- Col Channel: %s | %d", colChanN, colChan);
+		Log::err(LOG_ENV_OBJ, "-- Col Channel: %s | %d", colChanN, colChan);
 		free(colChanN);
 
 		Json* posJ = jsonGetData(colJ, "pos");

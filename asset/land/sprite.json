@@ -90,7 +90,7 @@
 
 		"collisions": {
 			"top": {
-				"channel": "COL_WALL",
+				"channel": "COL_PLATFORM",
 				"pos": {
 					"top": 13,
 					"left": 10,
@@ -140,30 +140,43 @@
 				],
 
 				"clip": {
-					"top": 190,
+					"top": 186,
 					"left": 192,
-					"width": 46,
-					"height": 33
+					"width": 48,
+					"height": 38
 				}
 			},
 
 			"tree": {
 				"pos": [
-					50,
-					0
+					0,
+					5
 				],
 				"clip": {
 					"top": 46,
-					"left": 189,
-					"width": 123,
+					"left": 190,
+					"width": 124,
 					"height": 114
+				}
+			},
+
+			"center": {
+				"pos": [
+					75,
+					118
+				],
+				"clip": {
+					"top": 190,
+					"left": 304,
+					"width": 32,
+					"height": 25
 				}
 			},
 
 			"top": {
 				"pos": [
-					46,
-					114
+					48,
+					118
 				],
 				"clip": {
 					"top": 190,
@@ -173,23 +186,10 @@
 				}
 			},
 
-			"center": {
-				"pos": [
-					78,
-					114
-				],
-				"clip": {
-					"top": 190,
-					"left": 302,
-					"width": 32,
-					"height": 19
-				}
-			},
-
 			"center2": {
 				"pos": [
-					110,
-					114
+					105,
+					118
 				],
 				"clip": {
 					"top": 190,
@@ -202,7 +202,7 @@
 
 		"collisions": {
 			"top": {
-				"channel": "COL_WALL",
+				"channel": "COL_PLATFORM",
 				"pos": {
 					"top": 114,
 					"left": 10,
@@ -218,6 +218,299 @@
 					"left": 10,
 					"width": 50,
 					"height": 95
+				}
+			}
+		}
+	},
+
+	"platform-tree": {
+		"repeat": false,
+		"sheet": "land/sprite",
+
+		"color": [
+			17,
+			32,
+			36,
+			0
+		],
+
+		"size": [
+			92,
+			77
+		],
+
+		"spriteSize": [
+			92,
+			77
+		],
+
+		"sprites": {
+			"tree": {
+				"pos": [
+					0,
+					0
+				],
+				"clip": {
+					"top": 24,
+					"left": 41,
+					"width": 92,
+					"height": 77
+				}
+			},
+		},
+
+		"collisions": {
+			"top": {
+				"channel": "COL_PLATFORM",
+				"pos": {
+					"top": 4,
+					"left": 4,
+					"width": 91,
+					"height": 16
+				}
+			}
+		}
+	},
+
+	"platform-rock-1": {
+		"repeat": false,
+		"sheet": "land/sprite",
+
+		"color": [
+			17,
+			32,
+			36,
+			0
+		],
+
+		"size": [
+			32,
+			32
+		],
+
+		"spriteSize": [
+			32,
+			32
+		],
+
+		"sprites": {
+			"rock": {
+				"pos": [
+					0,
+					0
+				],
+				"clip": {
+					"top": 56,
+					"left": 537,
+					"width": 32,
+					"height": 32
+				}
+			},
+		},
+
+		"collisions": {
+			"top": {
+				"channel": "COL_PLATFORM",
+				"pos": {
+					"top": 0,
+					"left": 2,
+					"width": 28,
+					"height": 20
+				}
+			}
+		}
+	},
+
+	"platform-rock-2": {
+		"repeat": false,
+		"sheet": "land/sprite",
+
+		"color": [
+			17,
+			32,
+			36,
+			0
+		],
+
+		"size": [
+			48,
+			32
+		],
+
+		"spriteSize": [
+			48,
+			32
+		],
+
+		"sprites": {
+			"rock": {
+				"pos": [
+					0,
+					0
+				],
+				"clip": {
+					"top": 56,
+					"left": 601,
+					"width": 48,
+					"height": 32
+				}
+			},
+		},
+
+		"collisions": {
+			"top": {
+				"channel": "COL_PLATFORM",
+				"pos": {
+					"top": 0,
+					"left": 2,
+					"width": 43,
+					"height": 20
+				}
+			}
+		}
+	},
+
+	"background-rock": {
+		"repeat": false,
+		"sheet": "land/sprite",
+
+		"color": [
+			17,
+			32,
+			36,
+			0
+		],
+
+		"size": [
+			96,
+			40
+		],
+
+		"spriteSize": [
+			96,
+			40
+		],
+
+		"sprites": {
+			"left": {
+				"pos": [
+					0,
+					0
+				],
+				"clip": {
+					"top": 232,
+					"left": 320,
+					"width": 32,
+					"height": 40
+				}
+			},
+			"center": {
+				"pos": [
+					32,
+					0
+				],
+				"clip": {
+					"top": 232,
+					"left": 368,
+					"width": 32,
+					"height": 40
+				}
+			},
+			"right": {
+				"pos": [
+					64,
+					0
+				],
+				"clip": {
+					"top": 232,
+					"left": 416,
+					"width": 32,
+					"height": 40
+				}
+			},
+		},
+
+		"collisions": {
+			"top": {
+				"channel": "COL_NONE",
+				"pos": {
+					"top": 0,
+					"left": 0,
+					"width": 0,
+					"height": 0
+				}
+			}
+		}
+	},
+
+	"bridge": {
+		"repeat": true,
+		"sheet": "land/sprite",
+
+		"color": [
+			17,
+			32,
+			36,
+			0
+		],
+
+		"size": [
+			114,
+			31
+		],
+
+		"spriteSize": [
+			114,
+			31
+		],
+
+		"sprites": {
+			"left": {
+				"pos": [
+					0,
+					0
+				],
+				"clip": {
+					"top": 187,
+					"left": 583,
+					"width": 41,
+					"height": 31
+				}
+			},
+			"center": {
+				"pos": [
+					32,
+					0
+				],
+				"clip": {
+					"top": 187,
+					"left": 640,
+					"width": 32,
+					"height": 31
+				}
+			},
+			"right": {
+				"pos": [
+					63,
+					0
+				],
+				"clip": {
+					"top": 187,
+					"left": 688,
+					"width": 41,
+					"height": 31
+				}
+			},
+		},
+
+		"collisions": {
+			"top": {
+				"channel": "COL_PLATFORM",
+				"pos": {
+					"top": 22,
+					"left": 0,
+					"width": 114,
+					"height": 10
 				}
 			}
 		}

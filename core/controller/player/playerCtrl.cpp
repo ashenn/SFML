@@ -164,8 +164,7 @@ void PlayerCtrl::jumpEvt(KeyEvt<PlayerCtrl>* evt) {
 }
 
 bool PlayerCtrl::hitWall(Collision* col, Collision* col2, IntRect pos, IntRect pos2) {
-	this->ch->hitWall(col, col2, pos, pos2);
-	return true;
+	return this->ch->hitWall(col, col2, pos, pos2);
 }
 
 bool PlayerCtrl::hitMonster(Collision* col, Collision* col2, IntRect pos, IntRect pos2) {

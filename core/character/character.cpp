@@ -36,11 +36,11 @@ Character::~Character() {
 
 void Character::initCallableFncs() {
 	this->callables = initListMgr();
-	
+
 	CallableFncCol<Character>* ctrl = new CallableFncCol<Character>(&Character::hit);
 	Node* n = addNodeV(this->callables, "hit", ctrl, false);
 	n->del = deleteCallable;
-	
+
 
 	ctrl = new CallableFncCol<Character>(&Character::overlap);
 	n = addNodeV(this->callables, "overlap", ctrl, false);
@@ -368,9 +368,9 @@ void Character::update(bool gravity) {
 		//Log::war(LOG_CHAR, "New Velocity: %lf", vel.x);
 	}
 
-	
+
 	vector pos = this->obj->getPosition();
-	Log::err(LOG_CHAR, "Pos: %lf", pos.y);
+	//Log::inf(LOG_CHAR, "Pos: %lf", pos.y);
 	if (pos.y > 500) {
 		Log::err(LOG_CHAR, "REACHED KILL ZONE !!!!");
 		this->kill();
@@ -430,7 +430,7 @@ void Character::initStats(Json* data) {
 	int val = 0;
 	jsonGetValue(data, "jump", &val);
 	this->stats.jump = val;
-	
+
 	jsonGetValue(data, "jumpMax", &val);
 	this->stats.jumpMax = val;
 
@@ -475,6 +475,20 @@ void Character::makeDamage(Character* target) {
 
 bool Character::hitWall(Collision* col, Collision* col2, IntRect pos, IntRect pos2) {
 	bool under = col->isOver(col2, this->obj->getMovement()->getVelocity());
+
+	if (col2->getFlag() == 1 << COL_PLATFORM) {
+		if (this->obj->getMovement()->getVelocity().y < 0) {
+			Log::err(LOG_CHAR, "GO UP");
+			return false;
+		}
+		else {
+			Log::err(LOG_CHAR, "FALL");
+		}
+	}
+	else{
+		Log::err(LOG_CHAR, "RealCol: %d / %d", col2->getFlag(), 1 << COL_PLATFORM);
+	}
+
 	if (under) {
 		this->landed();
 	}
@@ -532,7 +546,7 @@ bool Character::overlap(Collision* col, Collision* col2) {
 	if (this->ctrl == NULL) {
 		return true;
 	}
-	
+
 	return this->ctrl->overlap(col, col2);
 }
 
@@ -569,7 +583,7 @@ void Character::setCtrl(Controller* ctrl) {
 	if (this->ctrl == ctrl) {
 		return;
 	}
-	
+
 	if (this->ctrl != NULL) {
 		this->ctrl->setCharacter(NULL, false);
 	}

@@ -216,7 +216,7 @@ vector Object::canMove(vector m) {
 
 		bool applyCol = col->callHit(col2);
 		if (!applyCol) {
-			Log::dbg(LOG_OBJ, "Skip Collision");
+			Log::err(LOG_OBJ, "Skip Collision");
 			continue;
 		}
 		IntRect pos = col->getWorldPosition();

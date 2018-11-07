@@ -763,6 +763,92 @@ short listInsertAfter(ListManager* lst, Node* n, short id) {
 	return 1;
 }
 
+void sortListById(ListManager * lst) {
+
+	int i;
+	short sort = 0;
+	Node* tmp = NULL;
+	Node* comp = NULL;
+
+	if (lst->nodeCount <= 1) {
+		return;
+	}
+
+	lockList(lst);
+
+	Node* key = lst->first->next;
+	for (i = 1; i < lst->nodeCount; i++) {
+    	comp = lst->first;
+    	lockNode(key);
+    	lockNode(comp);
+
+		//fprintf(stdout, "##### Node %d: %s #####\n", key->id, key->name);
+
+        do {
+			//fprintf(stdout, "-- Compare %d: %s\n", comp->id, comp->name);
+        	if (key == comp) {
+				//fprintf(stdout, "-- Skipping\n");
+        		comp = key->next;
+        		unlockNode(key);
+        		// unlockNode(comp);
+        		continue;
+        	}
+
+    		sort = comp->id < key->id;
+
+			//fprintf(stdout, "-- Res: %d\n", sort);
+
+    		if (sort) {
+    			tmp = NULL;
+				//fprintf(stdout, "+++++ Moving: %s\n", key->name);
+    			while((tmp = listIterate(lst, tmp)) != NULL) {
+    				if (tmp == comp) {
+						//fprintf(stdout, "-- Skipping\n");
+    					continue;
+    				}
+
+    				lockNode(tmp);
+					//fprintf(stdout, "-- Compare %d: %s\n", tmp->id, tmp->name);
+					sort = comp->id < tmp->id;
+
+					//fprintf(stdout, "-- Res: %d\n", sort);
+
+    			    if (sort) {
+						listInsertAfter(lst, comp, tmp->id);
+						listInsertAfter(lst, tmp, comp->id);
+
+						comp = key;
+						break;
+    			    }
+
+    				unlockNode(tmp);
+					//fprintf(stdout, "+++++++++++++++++++++++++\n");
+    			}
+
+    			//printNodes(lst);
+				//assert(0);
+    		}
+
+
+    		unlockNode(comp);
+    		comp = comp->next;
+			//fprintf(stdout, "================================================\n");
+        } while (comp != NULL);
+
+		//fprintf(stdout, "--------------------------------------------------------------------\n");
+		//
+		unlockNode(key);
+		unlockList(lst);
+
+		//printNodes(lst);
+
+   		key = key->next;
+        if (key == NULL) {
+        	break;
+        }
+	}
+}
+
 void sortList(ListManager * lst, short (*fnc)(void*, void*)) {
 
 	int i;

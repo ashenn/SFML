@@ -161,15 +161,15 @@ ColType Collision::collides(const Collision* col) const {
 	bool flags = hit || overlap;
 
 	bool width1 =
-		pos.left <= pos2.left
+		(pos2.left + pos2.width >= pos.left)
 		&&
-		pos.left + pos.width >= pos2.left
-	;
+		(pos2.left + pos2.width <= (pos.left + pos.width))
+    ;
 
 	bool width2 =
-		pos.left > pos2.left
+		(pos.left + pos.width >= pos2.left)
 		&&
-		pos.left <= pos2.left + pos2.width
+		(pos.left + pos.width <= pos2.left + pos2.width)
     ;
 
     bool height1 =
@@ -284,7 +284,7 @@ void Collision::toggle(bool b) {
 bool Collision::isLeft(Collision* col2, vector move) {
 	IntRect pos = this->getWorldPosition();
 	IntRect pos2 = col2->getWorldPosition();
-
+	
 	pos.left += move.x;
 	pos.top += move.y;
 
@@ -310,7 +310,7 @@ bool Collision::isUnder(Collision* col2, vector move) {
 
 	pos.left += move.x;
 	pos.top += move.y;
-
+	
 	return (pos.top >= pos2.top) && (pos.top <= pos2.top + pos2.height);
 }
 

@@ -25,7 +25,7 @@
 #define LOG_LEVEL		1 << 21
 #define LOG_AI			1 << 22
 
-#define FPS 60
+#define FPS 120
 #define FRAME (1.0 / FPS) * 1000000
 
 #define VIEW_DISTANCE 300
@@ -33,7 +33,7 @@
 
 
 #include <SFML/Graphics.hpp>
-#include <X11/Xlib.h>
+
 #include "base/logger.h"
 #include "core/exception/exception.h"
 
