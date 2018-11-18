@@ -26,43 +26,11 @@
 						"z": 0
 					}
 				},
-				"check": {
-					"sprite": "checkpoint",
-					"pos": {
-						"x": 650,
-						"y": -100,
-						"z": 0
-					}
-				},
 				"1": {
 					"sprite": "ground",
 					"pos": {
 						"x": 580,
 						"y": -70,
-						"z": 1
-					}
-				},
-				"01": {
-					"sprite": "bridge",
-					"pos": {
-						"x": 745,
-						"y": -80,
-						"z": 3
-					}
-				},
-				"02": {
-					"sprite": "ground",
-					"pos": {
-						"x": 835,
-						"y": -70,
-						"z": 1
-					}
-				},
-				"03": {
-					"sprite": "ground2",
-					"pos": {
-						"x": -100,
-						"y": -100,
 						"z": 1
 					}
 				},
@@ -105,18 +73,18 @@
 						"y": 60,
 						"z": 1
 					}
-				},
-				"7": {
-					"sprite": "platform-tree",
-					"pos": {
-						"x": 75,
-						"y": 125,
-						"z": 2
-					}
 				}
 			},
 
 			"monsters": {
+				"test1": {
+					"key": "adventurer",
+					"pos": {
+						"x": 250,
+						"y": 0,
+						"z": 2
+					}
+				}
 			}
 		}
 	}

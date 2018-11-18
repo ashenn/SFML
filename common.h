@@ -24,18 +24,19 @@
 #define LOG_ENV_OBJ		1 << 20
 #define LOG_LEVEL		1 << 21
 #define LOG_AI			1 << 22
+#define LOG_GARBAGE			1 << 22
 
 #define FPS 60
 #define FRAME (1.0 / FPS) * 1000000
 
 #define VIEW_DISTANCE 300
-#define RENDER_DISTANCE VIEW_DISTANCE
+#define RENDER_DISTANCE VIEW_DISTANCE +150
 
 
 #include <SFML/Graphics.hpp>
 #include <X11/Xlib.h>
+
 #include "base/logger.h"
 #include "core/exception/exception.h"
-
 
 #endif

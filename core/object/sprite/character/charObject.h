@@ -10,11 +10,13 @@ class CharObj : public SpriteObj
 		Character* ch = NULL;
 
 	public:
-		CharObj(const char* name, vector* pos, unsigned short z, const char* path, Character* ch);
 		~CharObj();
+		CharObj(const char* name, vector* pos, unsigned short z, const char* path, Character* ch);
 
-		virtual void draw(RenderWindow* window, bool grav);
 		Character* getCharacter();
+		virtual vector canMove(vector m);
+
+		virtual void draw(RenderWindow* window, bool grav);		
 };
 
 #endif

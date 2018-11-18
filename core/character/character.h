@@ -28,6 +28,11 @@ struct CharStats
 
 	unsigned int damage;
 
+	bool canAttack;
+	bool attackPosition;
+	unsigned short attack;
+	unsigned short maxAttack;
+
 	bool hasDoubleJump;
 	bool canDoubleJump;
 	bool doubleJumping;
@@ -38,6 +43,9 @@ struct CharStats
 	unsigned int moveSpeed;
 	unsigned int maxMoveSpeedX;
 	unsigned int maxMoveSpeedY;
+
+	bool canFallOfEdge;
+	unsigned int stepHeight;
 };
 
 class Controller;
@@ -47,6 +55,7 @@ class Character : public AbstractClass
 		CharStats stats;
 		CharacterType type;
 
+		bool alive = true;
 		CharObj* obj = NULL;
 		Controller* ctrl = NULL;
 
@@ -55,14 +64,20 @@ class Character : public AbstractClass
 
 		DirectionEnum dir[2];
 
+		ListManager* attacks = NULL;
+
 		void initCallableFncs();
 		void initCollision(Json* js);
+
+		void setAttackCol();
+		void loadAttacks(Json* attacks);
 
 	protected:
 		void initAnimFncs();
 		virtual void initStats(Json* data);
 
 	public:
+		bool isAlive();
 		void removeView();
 		void setView(ViewMgr* v);
 
@@ -88,6 +103,16 @@ class Character : public AbstractClass
 		bool isStanding();
 		bool Down2Idle();
 		bool Glide2Down();
+		bool Idle2Sword();
+		bool Sword2Idle();
+		bool Idle2Attack1();
+		bool Attack2Idle();
+
+		bool Attack2();
+		bool Attack3();
+		bool canAttack();
+
+		bool inAir();
 
 		void update(bool gravity);
 
@@ -97,18 +122,25 @@ class Character : public AbstractClass
 
 		void landed();
 
+		void attack();
+		bool attack_end();
 
 		bool hit(Collision* col, Collision* col2);
 		bool hitWall(Collision* col, Collision* col2, IntRect pos, IntRect pos2);
 		bool hitMonster(Collision* col, Collision* col2, IntRect pos, IntRect pos2);
 		
 		bool overlap(Collision* col, Collision* col2);
+		bool attackOverlap(Collision* col, Collision* col2);
 
 		void kill();
 		bool canMove();
 		void takeDamage(unsigned int dmg);
 		void makeDamage(Character* target);
 
+		bool canFallOfEdge();
+		unsigned int getStepHeight();
+
+		Controller* getCtrl();
 		void setCtrl(Controller* ctrl);
 };
 

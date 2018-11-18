@@ -29,21 +29,21 @@ class Object : public AbstractClass
 		Object* parent = NULL;		// Parent Object
 
 
-		IntRect* clip = NULL;		// Texture Clip
 		Texture* texture = NULL;
 
-		ListManager* childs = NULL;
 		ListManager* collisions = NULL;
 
-		void checkCameraDistance();
 		static ListManager* objectList;				// All Objects Instanciated
 		static void addObject(Object* obj);			// Add Object To List
 		static void removeObject(Object* obj);		// Remove Object To List
 
 	protected:
+		ListManager* childs = NULL;
+		IntRect* clip = NULL;		// Texture Clip
 		Sprite* sprite = NULL;
 		void updateClip();	// Update Sprite Clip
 		bool addChildToList(Object* child);
+		bool checkCameraDistance();
 		
 	public:
 		Object(const char* name, vector* pos, Texture* text, IntRect* clip, unsigned short z, bool visible);
@@ -87,7 +87,7 @@ class Object : public AbstractClass
 		vector getVelocity();				// Move Object Vector 
 
 		void stopMove();			// Move Object Vector 
-		vector canMove(vector m);
+		virtual vector canMove(vector m);
 		vector move(vector move);			// Move Object Vector 
 
 		Movement* getMovement();			// Move Object Vector 
@@ -114,7 +114,7 @@ class Object : public AbstractClass
 		bool removeChild(bool delChild);
 
 		ListManager* getCollisions();
-
+		Collision* getCollision(const char* name);
 };
 
 

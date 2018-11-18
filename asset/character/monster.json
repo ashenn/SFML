@@ -1,14 +1,18 @@
 {
 	"adventurer": {
 		"life": 5,
-		"speed": 3,
+		"speed": 1,
 		"maxSpeed": 3,
 		"fallSpeed": 5,
-		"damage": 5,
+		"damage": 0,
 
 		"jump": 4,
 		"jumpMax": 6,
+		"direction": 2,
 
+		"canFallOfEdge": false,
+
+		"stepHeight": 15,
 		"sheet": "adventurer",
 		"collisions": {
 			"hitbox": {

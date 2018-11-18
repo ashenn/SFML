@@ -26,6 +26,10 @@ SpriteAnimData::~SpriteAnimData() {
 		Log::dbg(LOG_SPRITE_ANIM, "-- Anim Links DELETED");
 		this->animLinks = NULL;
 	}
+
+	if (this->collisions != NULL) {
+		deleteList(this->collisions);
+	}
 }
 // void SpriteAnim::addAnimLinkFnc(const char* name, bool (*fnc)(SpriteAnim*)) {
 // 	AnimLinkFnc* animFnc = (AnimLinkFnc*) malloc(sizeof(AnimLinkFnc));
@@ -89,10 +93,18 @@ SpriteAnim* SpriteAnim::callAnim(SpriteObj* obj, SpriteAnimData* anim, unsigned 
 	}
 
 	Log::dbg(LOG_SPRITE_ANIM, "-- New Anim Param");
+	SpriteAnim* curParam = obj->getCurrentAnim();
 	SpriteAnim* animParam = new SpriteAnim(obj);
 
 
-	animParam->wait = 1;
+	if (curParam != NULL) {
+		animParam->wait = curParam->anim->wait;
+	}
+	else {
+		animParam->wait = (FPS / 10);
+	}
+
+	// animParam->wait = anim->wait;
 	animParam->anim = anim;
 	animParam->done = false;
 	animParam->animID = animID;
@@ -102,6 +114,7 @@ SpriteAnim* SpriteAnim::callAnim(SpriteObj* obj, SpriteAnimData* anim, unsigned 
 	animParam->clipMax = anim->clipCnt;
 
 	animParam->clip = *(anim->clipPos[clipIndex]);
+	animParam->setCollisions();
 
 	Log::dbg(LOG_SPRITE_ANIM, "-- Adding Anim To Animator: %s", anim->getName());
 	Log::dbg(LOG_SPRITE_ANIM, "-- Loop: %d", animParam->loop);
@@ -124,8 +137,7 @@ void SpriteAnim::fnc() {
 		this->done = false;
 	}
 
-	this->wait--;
-	if (this->wait > 0) {
+	if (this->wait-- > 0) {
 		Log::dbg(LOG_SPRITE_ANIM, "-- Sprite Wait: %d | %s", wait, this->getName());
 		return;
 	}
@@ -136,7 +148,13 @@ void SpriteAnim::fnc() {
 	if (++this->clipIndex >= this->clipMax) {
 		Log::dbg(LOG_SPRITE_ANIM, "-- Max Clip Reached: %s => %d", this->anim->getName(), this->clipMax);
 		this->done = true;
-		this->clipIndex = 0;
+
+		if (this->loop) {
+			this->clipIndex = 0;
+		}
+		else {
+			this->clipIndex = this->clipMax-1;
+		}
 	}
 
 	Log::dbg(LOG_SPRITE_ANIM, "-- Clip Index: %d / %d", this->clipIndex, this->clipMax);
@@ -180,6 +198,69 @@ void SpriteAnim::updateSprite() {
 			this->triggerCallBack(this->obj);
 			sprite->animate(link->target, 0);
 			break;
+		}
+	}
+}
+
+
+AnimColData::AnimColData(Json* colJ) {
+	this->name = Str(colJ->key);
+
+
+	Json* enJ = jsonGetData(colJ, "enabled");
+	
+	if (enJ != NULL) {
+		this->enabled = (bool*) malloc(sizeof(bool));
+		*(this->enabled) = enJ->boolean;
+	}
+
+	Json* posJ = jsonGetData(colJ, "pos");
+	if (posJ != NULL) {
+		this->pos = new IntRect(0,0,0,0);
+
+		jsonGetValue(posJ, "top", &this->pos->top);
+		jsonGetValue(posJ, "left", &this->pos->left);
+		jsonGetValue(posJ, "width", &this->pos->width);
+		jsonGetValue(posJ, "height", &this->pos->height);
+	}
+}
+
+AnimColData::~AnimColData() {
+	if (this->enabled != NULL) {
+		free(this->enabled);
+	}
+
+	if (this->pos != NULL) {
+		delete this->pos;
+	}
+}
+
+void SpriteAnim::setCollisions() {
+	if (this->anim->collisions == NULL) {
+		return;
+	}
+
+	Log::inf(LOG_SPRITE_ANIM, "==== Changing Collisions For Anim: %s ====", this->getName());
+
+	Node* n = NULL;
+	while ((n = listIterate(this->anim->collisions, n)) != NULL) {
+		AnimColData* colData = (AnimColData*) n->value;
+		Log::inf(LOG_SPRITE_ANIM, "++++ Anim Col: %s ====", colData->getName());
+
+		Collision* col = this->obj->getCollision(colData->getName());
+		if (col == NULL) {
+			Log::inf(LOG_SPRITE_ANIM, "Fail To Find Collision '%s' For Animation '%s'", colData->getName(), this->anim->getName());
+			continue;
+		}
+
+		if (colData->enabled != NULL) {
+			Log::inf(LOG_SPRITE_ANIM, "Updating Enabled: '%d'", *(colData->enabled));
+			col->toggle(*colData->enabled);
+		}
+
+		if (colData->pos != NULL) {
+			Log::inf(LOG_SPRITE_ANIM, "Updating Pos: %d | %d | %d | %d", colData->pos->left, colData->pos->top, colData->pos->width, colData->pos->height);
+			col->setPos(*(colData->pos));
 		}
 	}
 }

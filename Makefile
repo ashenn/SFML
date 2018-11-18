@@ -17,6 +17,7 @@ CPPSRC	=	base/basic.cpp              \
                 base/logger.cpp                 \
                 core/exception/exception.cpp    \
                 core/abstractClass.cpp          \
+                core/garbage/garbage.cpp        \
                 core/asset/asset.cpp                                \
                 core/asset/multiTexture/multiTexture.cpp            \
                 core/event/event.cpp                                \
@@ -30,6 +31,7 @@ CPPSRC	=	base/basic.cpp              \
                 core/object/envirement/envirement.cpp             \
                 core/object/envirement/level.cpp                  \
                 core/object/sprite/spriteObject.cpp               \
+                core/object/text/textObject.cpp               \
                 core/object/sprite/character/charObject.cpp       \
                 core/character/character.cpp                      \
                 core/controller/controller.cpp                    \

@@ -24,13 +24,16 @@ class PlayerCtrl : public Controller
 		virtual void setCharacter(Character* ch, bool deleteOld);
 
 		virtual bool hit(Collision* col, Collision* col2);
-		virtual bool hitWall(Collision* col, Collision* col2, IntRect pos, IntRect pos2);
 		
+		virtual bool hitWall(Collision* col, Collision* col2, IntRect pos, IntRect pos2);
 		bool hitMonster(Collision* col, Collision* col2, IntRect pos, IntRect pos2);
 
 
-		bool overlapCheckPoint(Object* checkObj);
 		virtual bool overlap(Collision* col, Collision* col2);
+		
+		bool overlapFinish(Object* finishObj);
+		bool overlapCheckPoint(Object* checkObj);
+		
 
 		void kill();
 
@@ -38,6 +41,7 @@ class PlayerCtrl : public Controller
 		void stopEvt(KeyEvt<PlayerCtrl>* evt);
 		void downEvt(KeyEvt<PlayerCtrl>* evt);
 		void jumpEvt(KeyEvt<PlayerCtrl>* evt);
+		void attackEvt(KeyEvt<PlayerCtrl>* evt);
 };
 
 #endif

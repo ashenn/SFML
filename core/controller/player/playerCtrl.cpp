@@ -1,5 +1,6 @@
 #include "playerCtrl.h"
 #include "../../view/view.h"
+#include "../../object/text/textObject.h"
 
 ListManager* PlayerCtrl::playerList = initListMgr();
 
@@ -61,6 +62,10 @@ Controller(CTRL_PLAYER, name) {
 
 	ctrl = new CallableFncEvt<PlayerCtrl>(&PlayerCtrl::jumpEvt);
 	n = addNodeV(this->callables, "jump", ctrl, false);
+	n->del = deleteCallable;
+
+	ctrl = new CallableFncEvt<PlayerCtrl>(&PlayerCtrl::attackEvt);
+	n = addNodeV(this->callables, "attack", ctrl, false);
 	n->del = deleteCallable;
 
 	this->loadControls();
@@ -163,22 +168,33 @@ void PlayerCtrl::jumpEvt(KeyEvt<PlayerCtrl>* evt) {
 	this->ch->Jump(time.x >= time.y);
 }
 
+void PlayerCtrl::attackEvt(KeyEvt<PlayerCtrl>* evt) {
+	if (this->ch != NULL) {
+		this->ch->attack();
+	}
+}
+
 bool PlayerCtrl::hitWall(Collision* col, Collision* col2, IntRect pos, IntRect pos2) {
-	this->ch->hitWall(col, col2, pos, pos2);
-	return true;
+	return this->ch->hitWall(col, col2, pos, pos2);
 }
 
 bool PlayerCtrl::hitMonster(Collision* col, Collision* col2, IntRect pos, IntRect pos2) {
 	bool under = col->isOver(col2, this->obj->getMovement()->getVelocity());
-	if (under) {
+	CharObj* mon = (CharObj*) col2->getObject();
+
+	if (under || this->ch->isGlinding()) {
 		this->ch->landed();
 
 		CharObj* mon = (CharObj*) col2->getObject();
 		this->ch->makeDamage(mon->getCharacter());
 		this->ch->Jump(true);
 	}
+	else {
+		mon->getCharacter()->makeDamage(this->ch);
+		// Log::dbg(LOG_CHAR, "=== Take Damage");
+	}
 
-	return true;
+	return false;
 }
 
 void PlayerCtrl::kill() {
@@ -186,6 +202,12 @@ void PlayerCtrl::kill() {
 		vector pos = this->checkpoint->getPosition();
 		this->obj->getMovement()->setVelocity({0,0});
 		this->obj->setPosition(pos);
+		this->obj->toggle(true);
+	}
+	else{
+		this->obj->getMovement()->setVelocity({0, 0});
+		this->obj->setPosition({10, -15});
+		this->obj->toggle(true);
 	}
 }
 
@@ -199,10 +221,36 @@ bool PlayerCtrl::overlapCheckPoint(Object* checkObj) {
 	return true;
 }
 
+bool PlayerCtrl::overlapFinish(Object* finishObj) {
+	if (this->checkpoint == finishObj) {
+		//Log::err(LOG_CTRL_PLAYER, "-- Obj Is Null");
+		return false;
+	}
+	
+	Log::dbg(LOG_CTRL_PLAYER, "===== OVERLAP FINISH =====");
+	this->checkpoint = finishObj;
+
+	Log::dbg(LOG_CTRL_PLAYER, "-- Creating Text");
+	vector pos = {0, -40};
+
+	TextObj* text = new TextObj("finish", &pos, "You've Reached The End !!", "pfBold", 24, 10, true);
+	// text->addToView();
+
+	Log::dbg(LOG_CTRL_PLAYER, "-- Adding To View");
+	this->obj->addChild(text, pos, false);
+	Log::dbg(LOG_CTRL_PLAYER, "-- Real Pos: %lf | %lf", this->obj->getPosition().x, this->obj->getPosition().y);
+
+	return true;
+}
+
 bool PlayerCtrl::overlap(Collision* col, Collision* col2) {
 	switch (col2->getFlag()) {
 		case (int) 1 << COL_CHECKPOINT:
 			return this->overlapCheckPoint(col2->getObject());
+			break;
+
+		case (int) 1 << COL_FINISH:
+			return this->overlapFinish(col2->getObject());
 			break;
 
 		default:

@@ -959,9 +959,6 @@ char* json2Str(const Json* json, bool breakLine, bool indent) {
 }
 
 
-
-
-
 Json* jsonGetData(const Json* json, const char* key) {
 	Log::inf(LOG_JSON, "Getting JSON data: %s", key);
 

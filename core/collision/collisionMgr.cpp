@@ -192,6 +192,10 @@ ListManager* CollisionMgr::getChannels() {
 ListManager* CollisionMgr::searchCollision(Object* refObj, ColType type, vector move) {
 	Node* objN = NULL;
 
+	if (!refObj->isEnabled()) {
+		return NULL;
+	}
+
 	ListManager* res = initListMgr();
 	while ((objN = listIterate(this->colObjs, objN)) != NULL) {
 
@@ -210,6 +214,8 @@ ListManager* CollisionMgr::searchCollision(Object* refObj, ColType type, vector 
 			if (!ref->isEnabled() || ref->getFlag() == COL_NONE) {
 				continue;
 			}
+
+			// Log::err(LOG_COL, "COL: %s | %d", ref->getName(), ref->isEnabled());
 
 			Node* colN = NULL;
 			while ((colN = listIterate(obj->getCollisions(), colN)) != NULL) {
@@ -233,9 +239,14 @@ ListManager* CollisionMgr::searchCollision(Object* refObj, ColType type, vector 
 				cols[0] = ref;
 				cols[1] = col;
 
-				addNodeV(res, col->getName(), cols, true);
+				addNodeUniqValue(res, col->getName(), cols, true);
 			}
 		}
+	}
+
+	if (!res->nodeCount) {
+		deleteList(res);
+		res = NULL;
 	}
 
 	return res;

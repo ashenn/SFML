@@ -12,7 +12,6 @@ Render::Render() {
 Render::~Render() {
 	deleteList(this->layers);
 	deleteList(this->objectList);
-	this->window->close();
 }
 
 ListManager* Render::getObjectList() {
@@ -23,8 +22,7 @@ Node* Render::addObject(Object* obj) {
 	if (obj == NULL) {
 		Log::war(LOG_RENDER, "Trying To add NULL Object To View");
 		return NULL;
-	}
-	
+	}	
 
 	Node* n = addNodeV(this->objectList, obj->getName(), obj, false);
 	if (n == NULL) {
@@ -52,11 +50,14 @@ void Render::render() {
 
 
 	bool b = this->lock("Render Lock");
+	
 	Log::inf(LOG_RENDER, "=== Rendering ===");
+	
+	Log::inf(LOG_RENDER, "-- Clear window");
 	sf::Color c(17,32,36,255);
 	this->window->clear(c);
 
-	Log::dbg(LOG_RENDER, "-- Start Loop");
+	Log::dbg(LOG_RENDER, "-- Start Render Loop");
 	while((layerN = listIterate(this->layers, layerN)) != NULL) {
 		ListManager* layer = (ListManager*) layerN->value;
 		Log::dbg(LOG_RENDER, "## Rendering: %s ##", layerN->name);
@@ -67,18 +68,11 @@ void Render::render() {
 			Object* obj = (Object*) objN->value;
 			Log::dbg(LOG_RENDER, "---- %s", obj->getName());
 
+			bool b1 = obj->lock("Draw Object");
 			obj->draw(this->window, i == 10);
+			obj->unlock("Drown Object", b1);
 		}
 	}
-
-	// Node* objN = NULL;
-	// while((objN = listIterate(this->objectList, objN)) != NULL) {
-	// 	Object* obj = (Object*) objN->value;
-	// 	Log::dbg(LOG_RENDER, "---- %s", obj->getName());
-
-	// 	obj->draw(this->window, i == 10);
-	// }
-	
 
 	Log::dbg(LOG_RENDER, "-- Display window Content");
 	window->display();
@@ -91,32 +85,25 @@ void Render::render() {
 	}
 
 	Log::dbg(LOG_RENDER, "=== Rendering Done ===");
-	this->unlock("Render UnLock", b);
-	
+	this->unlock("Render Loop UnLock", b);
 }
 
-void* renderThread(void* param) {
+void Render::renderThread() {
 	Log::inf(LOG_RENDER, "=== Start Render Thread ===");
 	
-	Render* rend = Render::get();
 	Project* pro = Project::get();
-	Animator* anim = Animator::get();
-
 	TimeMgr* time = TimeMgr::get();
 	unsigned int eleapsed = 0;
 
-	Log::inf(LOG_RENDER, "=== Start Render Loop ===");
-	pro->signal();
-	rend->lock("Start Render");
+	bool b = pro->lock("Start Render");
+	this->window->setActive(true);
 
-	while(pro->getStatus() < PRO_CLOSE) {
-		rend->unlock("Render Loop", true);
+	Log::inf(LOG_RENDER, "=== Start Render Loop ===");
+	while(this->running && pro->getStatus() < PRO_CLOSE) {
+		pro->unlock("Render Loop", b);
 
 		time->update();
-
-		anim->animate();
-		rend->render();
-		
+		this->render();
 
 		eleapsed = time->getElapsedTime();
 		double wait = FRAME - eleapsed;
@@ -125,13 +112,17 @@ void* renderThread(void* param) {
 			usleep(wait);
 		}
 
-		rend->lock("Render Loop");
+		b = pro->lock("Render Loop");
 	}
 
-	rend->unlock("Render End", true);
-	Log::inf(LOG_RENDER, "=== Render Thread Done ===");
+	this->window->setActive(false);
 
-	return NULL;
+	Log::dbg(LOG_RENDER, "-- Render: Unlock Project");
+	pro->unlock("Render End", b);
+
+	Log::dbg(LOG_RENDER, "=== Render Thread Done ===");
+
+	return;
 }
 
 RenderWindow* Render::getWindow() {
@@ -215,4 +206,34 @@ void Render::addToLayer(Object* obj) {
 	addNodeUniqValue(layer, obj->getName(), obj, false);
 
 	obj->layer = layer;
+}
+
+void Render::start() {
+	if (this->started) {
+		return;
+	}
+
+	Log::inf(LOG_RENDER, "==== Call Render Start ====");
+	this->started = true;
+	this->running = true;
+	
+	Log::dbg(LOG_RENDER, "-- Start Thread");
+	this->th = std::thread(&Render::renderThread, this);
+}
+
+void Render::close() {
+	if (!this->started) {
+		return;
+	}
+
+	Log::inf(LOG_RENDER, "==== Call Render Close ====");
+	this->started = false;
+	this->running = false;
+	
+	Log::dbg(LOG_RENDER, "-- Render: Join");
+	this->th.join();
+	Log::dbg(LOG_RENDER, "-- Render Closed");
+	
+	Render::get(true);
+	Log::dbg(LOG_RENDER, "-- Render Deleted");
 }

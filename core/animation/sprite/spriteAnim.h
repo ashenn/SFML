@@ -40,6 +40,15 @@ class AnimLinkFnc : AnimLinkFncAbstract {
 		}
 };
 
+class AnimColData : public AbstractClass {
+	public:
+		~AnimColData();
+		AnimColData(Json* posJ);
+		
+		IntRect* pos = NULL;
+		bool* enabled = NULL;
+};
+
 // Sprite Animation Information 
 class SpriteAnimData : public AbstractClass {
 	public:
@@ -61,6 +70,7 @@ class SpriteAnimData : public AbstractClass {
 		unsigned int clipCnt;		// Number Of Animation Rectangles
 
 		ListManager* animLinks = NULL;	// Animation Links
+		ListManager* collisions = NULL;	// Animation Links
 };
 
 // Predeclaration Of SpriteObj Class
@@ -85,6 +95,7 @@ class SpriteAnim : public Animation
 		// Call Animation Link
 		template<typename T>
 		bool callAnimLinkFnc(T* obj, AnimLink* link);
+		void setCollisions();
 
 		// Apply Animation By Animation Data 
 		static SpriteAnim* callAnim(SpriteObj* obj, SpriteAnimData* anim, unsigned int clipIndex);

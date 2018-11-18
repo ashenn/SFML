@@ -16,19 +16,40 @@
 #include "core/controller/player/playerCtrl.h"
 #include "core/controller/ai/aiCtrl.h"
 
-int main(int argc, char** argv) {
+void mainLoop(RenderWindow* window) {
+    Project* pro = Project::get();
+    Garbage* garbage = Garbage::get();
+    EventMgr* evtMgr = EventMgr::get();
+    // vector pos = {0, 0};
+    // sf::Texture* text = AssetMgr::get()->getTexture("land/sea");
 
+    while (pro->getStatus() < PRO_CLOSE) {      // Main Loop
+        pro->updateTick();
+
+        evtMgr->handle();
+        garbage->clean();
+
+        pro->unlock("Main Loop: Un-Lock", true);
+
+        usleep(500);
+        pro->lock("Main Loop: Lock");
+    }
+}
+
+int main(int argc, char** argv) {
+    XInitThreads();
     Log::init(argc, argv);
 
     Project* pro = Project::get();
     pro->init(argc, argv);
 
     Log::inf(LOG_MAIN, "=== Init Main ===");
+    Log::inf(LOG_MAIN, "--- Init Garbage Collector");
+    Garbage::get();
+
     Log::inf(LOG_MAIN, "--- Init Window");
     RenderWindow window(sf::VideoMode(800, 600), "OpenGL");
-
-    // sf::View view(sf::FloatRect(-150, 0, 800, 600));
-    // window.setView(view);
+    window.setActive(false);
 
     Log::inf(LOG_MAIN, "--- Init Render");
     Render* rend = Render::get();
@@ -38,60 +59,23 @@ int main(int argc, char** argv) {
     EventMgr* evtMgr = EventMgr::get();
     evtMgr->init(&window);
 
-    Log::inf(LOG_MAIN, "--- Init Object");
+    Log::inf(LOG_MAIN, "--- Init Level");
+    Level::load("2");
 
-    Level::load("1");
-    vector pos = {150, -50};
-    PlayerCtrl* pl = new PlayerCtrl(1, "test", "adventurer", &pos, 1);
-
-    pos.x += 100;
-    // AiCtrl* mon = new AiCtrl("Test AI", "adventurer", &pos, 1); 
-    // new Character(CHAR_MONSTER, "test Monster", "adventurer", &pos, 1);
-    //Animator* anim = Animator::get();
-    TimeMgr* time = TimeMgr::get();
-    unsigned int eleapsed = 0;
-
-    // ControlMgr* ctrls = ControlMgr::get();
-    //anim->moveTo(obj, 150, 0,1.0f, 0);
-
-    Log::inf(LOG_RENDER, "=== Start Render Loop ===");
-    pro->signal();
-    rend->lock("Start Render");
-
-    //CollisionMgr* colMgr = CollisionMgr::get();
-
+    pro->lock("Start Loop: Lock");
+    rend->start();
+    
     Log::inf(LOG_MAIN, "=== Starting Main Loop ===");
-    while (pro->getStatus() < PRO_CLOSE) {      // Main Loop
-        rend->lock("Event Lock");
+    mainLoop(&window);
 
-        evtMgr->handle();
-
-        time->update();
-
-        //colMgr->handle();
-
-        //anim->animate();
-        rend->render();
-
-        // eleapsed = time->getElapsedTime();
-        double wait = FRAME - eleapsed;
-        // double wait = 500;
-
-        if (wait > 0) {
-            usleep(wait);
-        }
-
-        rend->unlock("Event UnLock", true);
-
-        //usleep(100);
-    }
-
-
-    // delete mon;
-    delete pl;
-    Log::inf(LOG_MAIN, "CLOSING PROJECT");
-
+    Log::inf(LOG_MAIN, "##### CLOSING PROJECT #####");
     pro->close();
+
+    Log::inf(LOG_MAIN, "==== CLOSING: Window ====");
+    window.setActive(true);
+    window.close();
+    
+    Log::inf(LOG_MAIN, "==== CLOSING: Logger ====");
     Log::closeLog();
 
     return 0;

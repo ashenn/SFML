@@ -31,6 +31,7 @@ class Project : public AbstractStaticClass
 	    ~Project();
 
 		unsigned int flags = 0;				// Flags enabled by Program Arguments
+		double tick = 0;				// Flags enabled by Program Arguments
 		ProjectState status = PRO_NULL;		// Current State
 
 		ListManager* flagList = NULL;		// List Of Available Program Arguments
@@ -38,7 +39,6 @@ class Project : public AbstractStaticClass
 		void initFlags();						// Fill Program Arguments Flags
 		void setArgs(int argc, char* argv[]);	// Enagle Flags From Program Arguments
 
-		// pthread_t renderTh;			// Render Thread (/!\ Un-used: SFML window create massive memory leaks in other thread than main /!\)
 		// bool rendering = false;		// Is Render Thread Running
 	
 	public:
@@ -62,6 +62,9 @@ class Project : public AbstractStaticClass
 		static const char* getStatusName(ProjectState status);	// Get Project State Enum Name
 
 		bool operator&(const ProjectState& state);
+
+		void updateTick();
+		double getTick();
 };
 
 bool operator&(Project* pro, const ProjectState& state);

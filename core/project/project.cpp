@@ -94,7 +94,8 @@ void Project::initFlags() {
 		LOG_MUL_TEXT,
 		LOG_ENV_OBJ,
 		LOG_LEVEL,
-		LOG_AI
+		LOG_AI,
+		LOG_GARBAGE
 	};
 
 
@@ -124,6 +125,7 @@ void Project::initFlags() {
 		"envirement",
 		"level",
 		"ai",
+		"garbage",
 		NULL
 	};
 
@@ -163,9 +165,12 @@ void Project::setArgs(int argc, char* argv[]) {
 }
 
 void Project::close() {
+	this->lock("Project::Close");
+	Log::dbg(LOG_PROJECT, "=== Closing Project ===");
+
+	Log::dbg(LOG_PROJECT, "-- Closing Status");
 	this->status = PRO_CLOSE;
-	Log::inf(LOG_PROJECT, "=== Closing Project ===");
-	
+
 	// if (this->rendering) {
 	// 	Log::dbg(LOG_PROJECT, "-- Waiting Render Thread");
 	// 	pthread_join(this->renderTh, NULL);
@@ -187,8 +192,15 @@ void Project::close() {
 	Log::dbg(LOG_PROJECT, "-- Clearing Events");
 	EventMgr::get(true);
 
+
+	Log::dbg(LOG_PROJECT, "-- Unlock Project");
+	
+	this->unlock("Clear Render", true);
+
 	Log::dbg(LOG_PROJECT, "-- Clearing Render");
-	Render::get(true);
+	Render::get()->close();
+
+	this->lock("Project: End Close");
 
 	Log::dbg(LOG_PROJECT, "-- Clearing Objects");
 	Object::clearObjects();
@@ -198,6 +210,9 @@ void Project::close() {
 
 	Log::dbg(LOG_PROJECT, "-- Clearing TimeMgr");
 	TimeMgr::get(true);
+
+
+	this->unlock("Project: End Close", true);
 
 	Log::dbg(LOG_PROJECT, "-- Deleting Project");
 	Project::get(true);
@@ -234,4 +249,13 @@ bool Project::operator&(const ProjectState& state) {
 
 bool operator&(Project* pro, const ProjectState& state) {
 	return pro->getStatus() & state;
+}
+
+
+void Project::updateTick() {
+	this->tick++;
+}
+
+double Project::getTick() {
+	return this->tick;
 }

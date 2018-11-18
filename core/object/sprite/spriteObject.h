@@ -18,6 +18,7 @@ class SpriteObj : public Object
 		void addAnim(int i, const Json* anim);	// Add Anim To List
 		void loadAnim(const char* name, const Json* animJson, int* data);	// Loading Animation Data
 		void loadAnimLinks(const char* name, const Json* linkJson, SpriteAnimData* anim); 	// Loading Animation Links
+		void loadAnimCollisions(const char* name, const Json* colsJson, SpriteAnimData* anim); 	// Loading Animation Links
 
 
 		SpriteAnim* anim = NULL;
@@ -59,6 +60,8 @@ class SpriteObj : public Object
 		SpriteObj(const char* name, vector* pos, unsigned short z, const char* path) : SpriteObj(name, pos, z, path, true) {}
 
 		
+		SpriteAnim* getCurrentAnim();
+
 		bool isMoving();	// Anim Sprite Test
 		bool isStopped();	// Anim Sprite Test
 

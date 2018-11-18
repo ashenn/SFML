@@ -36,6 +36,7 @@ class Controller : public AbstractClass
 		virtual bool hit(Collision* col, Collision* col2) = 0;
 		virtual bool hitWall(Collision* col, Collision* col2, IntRect pos, IntRect pos2) = 0;
 
+		virtual bool willFall();
 
 		virtual bool overlap(Collision* col, Collision* col2) = 0;
 		virtual void kill() = 0;

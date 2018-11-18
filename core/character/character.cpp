@@ -21,6 +21,11 @@ Character::Character(CharacterType type, const char* name, const char* jsonKey, 
 
 	this->initStats(data);
 	this->initAnimFncs();
+
+	Json* attacks = jsonGetData(data, "attacks");
+	if (attacks != NULL) {
+		this->loadAttacks(attacks);
+	}
 }
 
 Character::~Character() {
@@ -31,6 +36,11 @@ Character::~Character() {
 	if (this->obj != NULL) {
 		delete this->obj;
 	}
+
+	if (this->attacks != NULL) {
+		deleteList(this->attacks);
+	}
+
 	Log::inf(LOG_CHAR, "Deleting Character: %s Done", this->getName());
 }
 
@@ -44,6 +54,10 @@ void Character::initCallableFncs() {
 
 	ctrl = new CallableFncCol<Character>(&Character::overlap);
 	n = addNodeV(this->callables, "overlap", ctrl, false);
+	n->del = deleteCallable;
+
+	ctrl = new CallableFncCol<Character>(&Character::attackOverlap);
+	n = addNodeV(this->callables, "attackOverlap", ctrl, false);
 	n->del = deleteCallable;
 }
 
@@ -116,8 +130,6 @@ void Character::initCollision(Json* js) {
 	Log::inf(LOG_CHAR, "Adding Collision: %s", js->key);
 	IntRect pos(0,0,0,0);
 
-	Log::inf(LOG_CHAR, "Adding Collision: %s", js->key);
-
 	char* colChanelName = (char*) jsonGetValue(js, "type", NULL);
 	ColChanel chan = colChanelValue(colChanelName);
 
@@ -143,7 +155,7 @@ void Character::initCollision(Json* js) {
 	}
 
 	char* hitBack = (char*) jsonGetValue(callBacks, "block", NULL);
-	Log::err(LOG_CHAR, "SET ON HIT: %s", hitBack);
+	Log::dbg(LOG_CHAR, "SET ON HIT: %s", hitBack);
 	if (hitBack != NULL)
 	{
 		CallableFncCol<Character>* fncCol = (CallableFncCol<Character>*) this->getFnc(hitBack);
@@ -159,7 +171,7 @@ void Character::initCollision(Json* js) {
 	}
 
 	char* overBack = (char*) jsonGetValue(callBacks, "overlap", NULL);
-	Log::err(LOG_CHAR, "SET ON Overlap: %s", overBack);
+	Log::dbg(LOG_CHAR, "SET ON Overlap: %s", overBack);
 	if (overBack != NULL)
 	{
 		CallableFncCol<Character>* fncCol = (CallableFncCol<Character>*) this->getFnc(overBack);
@@ -194,6 +206,7 @@ void Character::moveDir(DirectionEnum dir) {
 
 	switch (dir) {
 		case DIR_LEFT:
+			this->dir[0] = DIR_LEFT;
 			vel.x = -((double) speed);
 			if (curVel.x > 0) {
 				vel.x -= curVel.x;
@@ -201,10 +214,16 @@ void Character::moveDir(DirectionEnum dir) {
 			break;
 
 		case DIR_RIGHT:
+			this->dir[0] = DIR_RIGHT;
 			vel.x = ((double) speed);
 			if (curVel.x < 0) {
 				vel.x -= curVel.x;
 			}
+			break;
+			
+		case DIR_UP:
+		case DIR_DOWN:
+			this->dir[0] = dir;
 			break;
 
 		default:
@@ -240,8 +259,49 @@ void Character::initAnimFncs() {
 	this->obj->addAnimLinkFnc("Glide2Down", this, &Character::Glide2Down);
 	this->obj->addAnimLinkFnc("Down2Idle", this, &Character::Down2Idle);
 	this->obj->addAnimLinkFnc("Jump2DoubleJump", this, &Character::isDoubleJump);
+
+	this->obj->addAnimLinkFnc("Idle2Sword", this, &Character::Idle2Sword);
+	this->obj->addAnimLinkFnc("Sword2Idle", this, &Character::Sword2Idle);
+	this->obj->addAnimLinkFnc("Idle2Attack1", this, &Character::Idle2Attack1);
+
+	this->obj->addAnimLinkFnc("Attack2Idle", this, &Character::Attack2Idle);
+	this->obj->addAnimLinkFnc("Attack2", this, &Character::Attack2);
+	this->obj->addAnimLinkFnc("Attack3", this, &Character::Attack3);
+	this->obj->addAnimLinkFnc("attack_end", this, &Character::attack_end);
 }
 
+bool Character::Attack3() {
+	return this->stats.attack == 3;
+}
+
+bool Character::Attack2() {
+	return this->stats.attack == 2;
+}
+
+bool Character::Attack2Idle() {
+	Log::war(LOG_CHAR, "=== ATTACK RESET 2 ===");
+	this->stats.attack = 0;
+	this->stats.canAttack = true;
+	this->stats.attackPosition = false;
+	return true; 
+}
+
+bool Character::Idle2Attack1() {
+	return this->stats.attack == 1;
+}
+
+bool Character::Sword2Idle() {
+	Log::war(LOG_CHAR, "=== ATTACK RESET ===");
+
+	this->stats.attack = 0;
+	this->stats.canAttack = true;
+	this->stats.attackPosition = false;
+	return true; 
+}
+
+bool Character::Idle2Sword() {
+	return this->stats.attackPosition;
+}
 
 bool Character::Down2Idle() {
 	return !this->stats.crouch;
@@ -370,9 +430,8 @@ void Character::update(bool gravity) {
 
 	
 	vector pos = this->obj->getPosition();
-	Log::err(LOG_CHAR, "Pos: %lf", pos.y);
 	if (pos.y > 500) {
-		Log::err(LOG_CHAR, "REACHED KILL ZONE !!!!");
+		Log::inf(LOG_CHAR, "%s REACHED KILL ZONE !!!!", this->name);
 		this->kill();
 	}
 }
@@ -428,6 +487,20 @@ void Character::Jump(bool full) {
 
 void Character::initStats(Json* data) {
 	int val = 0;
+
+	this->stats.inAir = true;
+	this->stats.moving = false;
+	this->stats.crouch = false;
+
+	this->stats.canDoubleJump = true;
+	this->stats.doubleJumping = false;
+	this->stats.hasDoubleJump = false;
+
+	this->stats.attack = 0;
+	this->stats.maxAttack = 3;
+	this->stats.canAttack = true;
+	this->stats.attackPosition = false;
+
 	jsonGetValue(data, "jump", &val);
 	this->stats.jump = val;
 	
@@ -438,12 +511,8 @@ void Character::initStats(Json* data) {
 	this->stats.life = val;
 	this->stats.lifeMax = val;
 
-	this->stats.inAir = false;
-	this->stats.moving = false;
-	this->stats.crouch = false;
-
-	jsonGetValue(data, "file", &val);
-	this->stats.damage = 5;
+	jsonGetValue(data, "damage", &val);
+	this->stats.damage = val;
 
 	jsonGetValue(data, "speed", &val);
 	this->stats.moveSpeed = val;
@@ -454,10 +523,13 @@ void Character::initStats(Json* data) {
 	jsonGetValue(data, "fallSpeed", &val);
 	this->stats.maxMoveSpeedY = val;
 
-	this->stats.doubleJumping = false;
-	this->stats.canDoubleJump = true;
-	this->stats.hasDoubleJump = false;
+	jsonGetValue(data, "direction", &val);
+	this->dir[0] = (DirectionEnum) val;
 
+	jsonGetValue(data, "stepHeight", &val);
+	this->stats.stepHeight = val;
+
+	jsonGetValue(data, "canFallOfEdge", &this->stats.canFallOfEdge);
 	this->obj->setMaxSpeed(this->stats.maxMoveSpeedX, this->stats.maxMoveSpeedY);
 }
 
@@ -470,11 +542,23 @@ void Character::landed() {
 }
 
 void Character::makeDamage(Character* target) {
-	target->takeDamage(this->stats.damage);
+	if (this->alive) {
+		target->takeDamage(this->stats.damage);
+	}
 }
 
 bool Character::hitWall(Collision* col, Collision* col2, IntRect pos, IntRect pos2) {
 	bool under = col->isOver(col2, this->obj->getMovement()->getVelocity());
+
+	if (col2->getFlag() == 1 << COL_PLATFORM) {
+		if (this->obj->getMovement()->getVelocity().y < 0) {
+			return false;
+		}
+		else if(col->getWorldPosition().top + col->getWorldPosition().height > col2->getWorldPosition().top + 15) {
+			return false;
+		}
+	}
+
 	if (under) {
 		this->landed();
 	}
@@ -484,12 +568,16 @@ bool Character::hitWall(Collision* col, Collision* col2, IntRect pos, IntRect po
 
 bool Character::hitMonster(Collision* col, Collision* col2, IntRect pos, IntRect pos2) {
 	bool under = col->isOver(col2, this->obj->getMovement()->getVelocity());
-	if (under) {
+	CharObj* mon = (CharObj*) col2->getObject();
+	if (under || this->isGlinding()) {
 		this->landed();
 
-		CharObj* mon = (CharObj*) col2->getObject();
 		mon->getCharacter()->takeDamage(this->stats.damage);
 		this->Jump(true);
+	}
+	else {
+		mon->getCharacter()->makeDamage(this);
+		Log::dbg(LOG_CHAR, "=== Take Damage");
 	}
 
 	return true;
@@ -536,20 +624,30 @@ bool Character::overlap(Collision* col, Collision* col2) {
 	return this->ctrl->overlap(col, col2);
 }
 
+bool Character::attackOverlap(Collision* col, Collision* col2) {
+	CharObj* target = (CharObj*) col2->getObject();
+
+	this->makeDamage(target->getCharacter());
+	return true;
+}
+
 bool Character::canMove() {
 	return !this->stats.crouch;
 }
 
 void Character::kill() {
-	Log::dbg(LOG_CHAR, "Killing: %s", this->name);
+	Log::war(LOG_CHAR, "Killing: %s", this->obj->getName());
+
+	this->obj->toggle(false);
 	if (this->ctrl != NULL) {
 		Log::dbg(LOG_CHAR, "Remove From Ctrl");
 		this->ctrl->kill();
 	}
 	else {
 		Log::dbg(LOG_CHAR, "Delete Self");
-		delete this;
+		Garbage::get()->add(this);
 	}
+	
 }
 
 void Character::takeDamage(unsigned int dmg) {
@@ -583,4 +681,58 @@ const DirectionEnum Character::getDirX() {
 
 const DirectionEnum Character::getDirY() {
 	return this->dir[1];
+}
+
+void Character::loadAttacks(Json* attacks) {
+	this->attacks = initListMgr();
+}
+
+void Character::setAttackCol() {
+
+}
+
+void Character::attack() {
+	if (!this->canAttack()) {
+		return;
+	}
+
+	this->stats.canAttack = false;
+	this->stats.attackPosition = true;
+
+	if (this->stats.attack++ > this->stats.maxAttack) {
+		this->stats.attack = this->stats.maxAttack;
+	}
+
+	Log::war(LOG_CHAR, "=== ATTACK: %d ===", this->stats.attack);
+}
+
+bool Character::canAttack() {
+	return !this->stats.inAir && this->stats.canAttack;
+}
+
+bool Character::canFallOfEdge() {
+	return this->stats.canFallOfEdge;
+}
+
+Controller* Character::getCtrl() {
+	return this->ctrl;
+}
+
+
+unsigned int Character::getStepHeight() {
+	return this->stats.stepHeight;
+}
+
+bool Character::inAir() {
+	return this->stats.inAir;
+}
+
+bool Character::isAlive() {
+	return this->alive;
+}
+
+bool Character::attack_end() {
+	Log::war(LOG_CHAR, "=== ATTACK END ===");
+	this->stats.canAttack = true;
+	return true;
 }

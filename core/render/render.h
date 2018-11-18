@@ -10,8 +10,16 @@ class Render : public AbstractStaticClass
 		Render();
 		~Render();
 
+		bool started = false;
+		bool running = false;
+
 		ListManager* layers = NULL;		// Objects Layers
 		ListManager* objectList = NULL;		// Objects To Render
+
+		std::thread th;			// Render Thread
+		
+		void render();		// Print Object To Window
+		void renderThread();
 
 	public:
 		// Singleton Initialization
@@ -21,8 +29,9 @@ class Render : public AbstractStaticClass
 		void init(RenderWindow* window);
 		RenderWindow* getWindow();
 
-		void render();		// Print Object To Window
+		void start();
 		void close();
+
 
 		void setView(sf::View* v);
 		const sf::View& getView();
@@ -35,6 +44,5 @@ class Render : public AbstractStaticClass
 		void removeFromLayer(Object* obj);
 };
 
-void* renderThread(void* param);
 
 #endif

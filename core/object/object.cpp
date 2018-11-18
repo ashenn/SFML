@@ -60,6 +60,8 @@ Object::Object(const char* name, vector* pos, Texture* text, IntRect* clip, unsi
 		vector pos2 = {0, 0};
 		this->setPosition(pos2);
 	}
+
+	this->setMaxSpeed(200, 200);
 	
 	Object::addObject(this);
 	Log::dbg(LOG_OBJ, "=== Ready Object #%d: %s ===", this->id, this->name);
@@ -67,6 +69,8 @@ Object::Object(const char* name, vector* pos, Texture* text, IntRect* clip, unsi
 
 Object::~Object() {
 	Log::inf(LOG_OBJ, "=== Deleting Object #%d: %s ===", this->id, this->name);
+
+	this->enabled = false;
 
 	if (this->layer != NULL) {
 		deleteNodeByValue(this->layer, this);
@@ -106,7 +110,7 @@ void Object::setTexture(Texture* text) {
 
 
 	if (this->texture != NULL) {
-		Log::inf(LOG_OBJ, "-- Applying New Texture");
+		Log::dbg(LOG_OBJ, "-- Applying New Texture");
 		this->sprite = new Sprite(*this->texture, *this->clip);
 		// this->sprite->setOrigin({ this->sprite->getLocalBounds().width / 2, 0 });
 		
@@ -169,10 +173,17 @@ vector Object::getRelativePosition() {
 void Object::setPosition(vector pos) {
 	bool b = this->lock("Set Posision");
 
-	this->pos = pos;
-	if (this->sprite != NULL) {
-		this->sprite->setPosition(pos.x, pos.y);
+	if (this->parent != NULL) {
+		sf::Vector2f org = this->parent->getOrigin();
+
+		pos.x -= org.x;
+		pos.y -= org.y;
 	}
+
+	this->pos = pos;
+	// if (this->sprite != NULL) {
+	// 	this->sprite->setPosition(pos.x, pos.y);
+	// }
 
 	this->unlock("Set Posision", b);
 }
@@ -197,9 +208,22 @@ vector Object::move(vector m) {
 vector Object::canMove(vector m) {
 	vector tmp = m;
 	Node* n = NULL;
-	ListManager* collisions = CollisionMgr::get()->searchCollision(this, COL_IGNORE, m);
 
+	if (this->collisions == NULL || !this->collisions->nodeCount) {
+		return m;
+	}
+
+	ListManager* collisions = CollisionMgr::get()->searchCollision(this, COL_IGNORE, m);
+	if (collisions == NULL) {
+		return m;
+	}
+
+	//Log::war(LOG_OBJ, "=== START LOOP: %s ===", this->name);
 	while ((n = listIterate(collisions, n)) != NULL) {
+		if (!this->enabled) {
+			return {0,0};
+		}
+
 		Collision** cols = (Collision**) n->value;
 
 		vector move = {0, 0};
@@ -210,6 +234,10 @@ vector Object::canMove(vector m) {
 
 		if (col->collides(col2, m) == COL_OVERLAP) {
 			col->callOverlap(col2);
+			Node* tmp = n->prev;
+
+			removeAndFreeNode(collisions, n);
+			n = tmp;
 			continue;
 		}
 
@@ -261,15 +289,14 @@ vector Object::canMove(vector m) {
 		
 		// break;
 	}
+	//Log::err(LOG_OBJ, "=== END LOOP ===");
 
 	deleteList(collisions);
 	return m;
 }
 
 void Object::draw(RenderWindow* window, bool grav) {
-	this->checkCameraDistance();
-
-	if (!this->enabled) {
+	if (!this->enabled || !this->checkCameraDistance()) {
 		Log::dbg(LOG_OBJ, "-- Skip Render: %s", this->getName());
 		return;
 	}
@@ -280,8 +307,7 @@ void Object::draw(RenderWindow* window, bool grav) {
 		this->movement->addVelocity(gravity);
 	}
 
-	vector move = this->movement->getVelocity();
-	
+	vector move = this->movement->getVelocity();	
 	if (move.x > 0) {
 		Log::dbg(LOG_OBJ, "MOVE: %lf | %lf", move.x, move.y);
 	}
@@ -296,16 +322,18 @@ void Object::draw(RenderWindow* window, bool grav) {
 	this->movement->setVelocity(move);
 	vector pos = this->getPosition();
 
-	this->sprite->setPosition(pos.x, pos.y);
-
-	if (move.x < 0 && !this->flipped) {
-		this->flipH();
-	}
-	else if(move.x > 0 && this->flipped) {
-		this->flipH();
+	if (this->getOrigin().x || this->getOrigin().y)
+	{
+		if (move.x < 0 && !this->flipped) {
+			this->flipH();
+		}
+		else if(move.x > 0 && this->flipped) {
+			this->flipH();
+		}
 	}
 
 	if (this->visible && this->sprite != NULL) {
+		this->sprite->setPosition(pos.x, pos.y);
 		window->draw(*this->sprite);
 	}
 	else{
@@ -350,7 +378,6 @@ void Object::setClip(IntRect* clip, bool clean=true) {
 
 	if (clip != NULL) {
 		this->clip = clip;
-		// this->defaultClip = *clip;
 	}
 	else {
 		this->clip = new IntRect(0, 0, 50, 50);
@@ -380,7 +407,7 @@ void Object::addObject(Object* obj) {
 void Object::removeObject(Object* obj) {	
 	Node* n = getNodeByValue(objectList, obj);
 	if (n == NULL) {
-		Log::war(LOG_OBJ, "Not Found Object: %s", obj->getName());
+		//Log::war(LOG_OBJ, "Not Found Object: %s", obj->getName());
 		return;
 	}
 
@@ -390,7 +417,7 @@ void Object::removeObject(Object* obj) {
 }
 
 void Object::clearObjects() {
-	Log::war(LOG_OBJ, "Clearing Objects");
+	Log::inf(LOG_OBJ, "Clearing Objects");
 	deleteList(objectList);
 }
 
@@ -455,6 +482,7 @@ Collision* Object::addCollision(const char* name, IntRect pos, ColChanel chan) {
 	colObj->scale(scale);
 
 	this->addChild(colObj, v, false);
+	colObj->setPosition(v);
 	
 	return col;
 }
@@ -613,13 +641,16 @@ void Object::setMaxSpeed(unsigned int x, unsigned int y) {
 	this->movement->maxVelocity.y = (double) y;
 }
 
-void Object::checkCameraDistance() {
+bool Object::checkCameraDistance() {
+	if (!this->enabled) {
+		return false; 
+	}
+
 	Node* n = NULL;
 	ListManager* views = ViewMgr::getViews();
 
 	if (!views->nodeCount) {
-		this->enabled = false;
-		return;
+		return true;
 	}
 
 	while ((n = listIterate(views, n)) != NULL) {
@@ -627,7 +658,7 @@ void Object::checkCameraDistance() {
 		ViewMgr* view = (ViewMgr*) n->value;
 		sf::FloatRect rect = view->getRect();
 
-		vector objPos = this->pos;
+		vector objPos = this->getPosition();
 		vector camPos;
 		camPos.x = rect.left;
 		camPos.y = rect.top;
@@ -637,53 +668,82 @@ void Object::checkCameraDistance() {
 		double objHeight = 0;
 
 		double camWidth = rect.width / 2;
-		// double camWidth = VIEW_DISTANCE;
 		double camHeight = rect.height / 2;
 
-		if (this->clip != NULL) {
-			objWidth = this->clip->width / 2;
-			objHeight = this->clip->height / 2;
-		}
+		double camTop = rect.top - camHeight;
+		double camLeft = rect.left - camWidth;
 
+		double camRight = rect.left + camWidth;
+		double camBottom = rect.top + camWidth;
+
+		if (this->clip != NULL) {
+			objWidth = this->clip->width;
+			objHeight = this->clip->height;
+		}
 
 		Log::dbg(LOG_COL, "++++++++++++++ Obj: %s", this->getName());
 		Log::dbg(LOG_COL, "--- Object Pos: %lf | %lf | %f | %f", this->pos.x, this->pos.y, objWidth, objHeight);
-		Log::dbg(LOG_COL, "--- Cam Pos: %f | %f | %f", rect.left, rect.top, rect.width);
 
-		bool insideW = (objPos.x + objWidth) >= (camPos.x - camWidth) && (objPos.x - objWidth) <= (camPos.x + camWidth);
-		bool insideH = (objPos.y + objHeight) >= (camPos.y - camHeight) && objPos.y <= (camPos.y + camWidth);
+		Log::dbg(LOG_COL, "--- Cam Pos: %f | %f | %f | %f", rect.left, rect.top, rect.width, rect.height);
+		Log::dbg(LOG_COL, "--- Cam Bounds: %lf | %lf | %lf| %lf", camLeft, camTop, camRight, camBottom);
 
-		Log::dbg(LOG_COL, "--- Width: (%lf + %lf) >= (%lf - %lf) && (%lf - %lf) <= (%lf - %lf)", objPos.x, objWidth, camPos.x, camWidth, objPos.x, objWidth, camPos.x, camWidth);
-		Log::dbg(LOG_COL, "--- Width: %lf >= %lf && %lf <= %lf", (objPos.x + objWidth), (camPos.x - camWidth), (objPos.x - objWidth), (camPos.x + camWidth));
+		bool insideW = 
+			((objPos.x <= camLeft) && (objPos.x + objWidth) >= camLeft)
+			||
+			((camLeft <= objPos.x) && (camRight >= objPos.x))
+		;
 
+		bool insideH = 
+			((objPos.y <= camTop) && (objPos.y + objHeight) >= camTop)
+			||
+			((camTop <= objPos.y) && (camBottom >= objPos.y))
+		;
+		
+		bool isInside = insideH && insideW;
+
+		Log::dbg(LOG_COL, "--- Width1: ((%lf <= %lf) && (%lf + %lf) >= %lf)", objPos.x, camLeft, objPos.x, objWidth, camLeft);
+		Log::dbg(LOG_COL, "--- Width2: ((%lf <= %lf) && (%lf >= %lf))", camLeft, objPos.x, camRight, objPos.x);
 		Log::dbg(LOG_COL, "--- Width: %d", insideW);
+
+		Log::dbg(LOG_COL, "--- Height1: ((%lf <= %lf) && (%lf + %lf) >= %lf)", objPos.y, camTop, objPos.y, objHeight, camTop);
+		Log::dbg(LOG_COL, "--- Height2: ((%lf <= %lf) && (%lf >= %lf))", camTop, objPos.y, camBottom, objPos.y);
 		Log::dbg(LOG_COL, "--- Height: %d", insideH);
 
-		bool isInside = insideH && insideW;
 		Log::dbg(LOG_COL, "--- Inside: %d", isInside);
 		
 		if (isInside) {
-			this->visible = this->enabled = true;
-			return;
+			this->visible = true;
+			return true;
 		}
 
-		double diffLeft = abs(objPos.x - (camPos.x + camWidth));
-		double diffRight = abs((camPos.x - camWidth) - (objPos.x + (objWidth)));
 
-		this->visible = (diffLeft <= VIEW_DISTANCE) || (diffRight <= VIEW_DISTANCE);
-		this->enabled = (diffLeft <= RENDER_DISTANCE) || (diffRight <= RENDER_DISTANCE);
+
+
+		double diffLeft = abs(objPos.x - (camPos.x - camWidth));
+		double diffRight = abs((camPos.x + camWidth) - (objPos.x + (objWidth)));
+
+		double diffTop = abs(objPos.y - (camPos.y - camHeight));
+		double diffBottom = abs((camPos.y + camHeight) - (objPos.y + (objHeight)));
+
+		this->visible = ((diffLeft <= VIEW_DISTANCE) || (diffRight <= VIEW_DISTANCE)) || ((diffTop <= VIEW_DISTANCE) || (diffBottom <= VIEW_DISTANCE));
+
+		bool enabled = ((diffLeft <= RENDER_DISTANCE) || (diffRight <= RENDER_DISTANCE)) || ((diffTop <= RENDER_DISTANCE) || (diffBottom <= RENDER_DISTANCE));
 		
 		Log::dbg(LOG_COL, "--- Diff Pos Left: %lf / %d", diffLeft, VIEW_DISTANCE);
-		Log::dbg(LOG_COL, "--- Diff Pos Right: %lf / %d", diffLeft, VIEW_DISTANCE);
-		Log::dbg(LOG_COL, "--- Visible: %d", this->visible);
-		Log::dbg(LOG_COL, "--- Render: %d", this->enabled);
+		Log::dbg(LOG_COL, "--- Diff Pos Right: %lf / %d", diffRight, VIEW_DISTANCE);
 		
-		if (this->visible || this->enabled) {
-			return;
+		Log::dbg(LOG_COL, "--- Diff Pos Top: %lf / %d", diffTop, VIEW_DISTANCE);
+		Log::dbg(LOG_COL, "--- Diff Pos Bottom: %lf / %d", diffBottom, VIEW_DISTANCE);
+
+		Log::dbg(LOG_COL, "--- Visible: %d", this->visible);
+		Log::dbg(LOG_COL, "--- Render: %d", enabled);
+		
+		if (this->visible || enabled) {
+			return true;
 		}
 	}
 	
-	this->enabled = false;
+	return false;
 }
 
 unsigned short Object::getZ() {
@@ -698,4 +758,13 @@ void Object::setZ(unsigned short z) {
 
 bool Object::isFlipped() {
 	return this->flipped;
+}
+
+Collision* Object::getCollision(const char* name) {
+	Node* n = getNodeByName(this->collisions, name);
+	if (n == NULL) {
+		return NULL;
+	}
+
+	return (Collision*) n->value;
 }

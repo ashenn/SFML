@@ -125,4 +125,6 @@ class AbstractStaticClass : public AbstractClass {
 		void operator=(AbstractStaticClass const&)  = delete;
 };
 
+#include "./garbage/garbage.h"
+
 #endif

@@ -59,6 +59,8 @@ Collision::Collision(const char* name, Object* obj, IntRect pos) {
 	this->obj = obj;
 	this->pos = pos;
 	this->flag = COL_NONE;
+	this->overlaps = initListMgr();
+
 
 	CollisionMgr::get()->addObject(obj);
 }
@@ -110,6 +112,8 @@ Collision::Collision(const char* name, Object* obj, IntRect pos, ColChanel chane
 Collision::~Collision() {
 	Log::inf(LOG_COL, "=== Deleting Collision: %s ===", this->name);
 
+	deleteList(this->overlaps);
+
 	if (this->onHit != NULL) {
 		Log::dbg(LOG_COL, "-- delete on Hit");
 		delete this->onHit;
@@ -138,6 +142,43 @@ ColType Collision::collides(Collision* col, vector move) {
 }
 
 
+bool Collision::widthCollides(const Collision* col) const {
+	return this->widthCollides(col, {0,0});
+}
+
+bool Collision::widthCollides(const Collision* col, vector move) const{
+	IntRect pos = this->getWorldPosition();
+	IntRect pos2 = col->getWorldPosition();
+
+	pos.left += move.x;
+	pos.top += move.y;
+
+	return
+		((pos.left <= pos2.left) && (pos.left + pos.width >= pos2.left))
+		||
+		((pos2.left <= pos.left) && (pos2.left + pos2.width >= pos.left))
+    ;
+}
+
+bool Collision::heightCollides(const Collision* col) const {
+	return this->heightCollides(col, {0,0});
+}
+
+bool Collision::heightCollides(const Collision* col, vector move) const{
+	IntRect pos = this->getWorldPosition();
+	IntRect pos2 = col->getWorldPosition();
+
+	pos.left += move.x;
+	pos.top += move.y;
+
+	return
+		((pos.top <= pos2.top) && (pos.top + pos.height >= pos2.top))
+		||
+		((pos2.top <= pos.top) && (pos2.top + pos2.height >= pos.top))
+    ;
+}
+
+
 ColType Collision::collides(const Collision* col) const {
 	ColType res = COL_IGNORE;
 	IntRect pos = this->getWorldPosition();
@@ -157,39 +198,18 @@ ColType Collision::collides(const Collision* col) const {
 
 	bool hit = this->hitFlags & col->getFlag();
 	bool overlap = this->overlapFlags & col->getFlag();
-
 	bool flags = hit || overlap;
 
-	bool width1 =
-		(pos2.left + pos2.width >= pos.left)
-		&&
-		(pos2.left + pos2.width <= (pos.left + pos.width))
-    ;
+	if (!flags) {
+		this->updateColObj(COL_IGNORE);
+	}
 
-	bool width2 =
-		(pos.left + pos.width >= pos2.left)
-		&&
-		(pos.left + pos.width <= pos2.left + pos2.width)
-    ;
 
-    bool height1 =
-    	(pos2.top + pos2.height >= pos.top)
-    	&&
-		(pos2.top + pos2.height <= pos.top + pos.height)
-    ;
+	bool width = this->widthCollides(col);
+	bool height = this->heightCollides(col);
 
-    bool height2 =
-    	(pos.top + pos.height >= pos2.top)
-    	&&
-		(pos.top + pos.height <= pos2.top + pos2.height)
-    ;
-
-    bool position = (width1 || width2) && (height1 || height2);
+    bool position = width && height;
     bool collides = flags && position;
-
-    if (position && ! collides) {
-    	//Log::war(LOG_COL, "BAD Flags !!!");
-    }
 
     if (collides) {
     	if (hit) {
@@ -200,12 +220,18 @@ ColType Collision::collides(const Collision* col) const {
     	}
     }
 
+    this->updateColObj(res);
+
+	return res;
+}
+
+void Collision::updateColObj(ColType type) const {
     if (this->colObj == NULL) {
-    	return res;
+    	return;
     }
 
     IntRect* clip = new IntRect(0, 0, 50, 50);
-    if (collides) {
+    if (type != COL_IGNORE) {
     	clip->left = 50;
     }
     else{
@@ -213,13 +239,16 @@ ColType Collision::collides(const Collision* col) const {
     }
 
     this->colObj->setClip(clip, true);
-
-	return res;
 }
 
 bool Collision::callHit(Collision* col2) {
 	// Log::war(LOG_COL, "=== Call Hit: '%s' ===", this->name);
 	bool b = true;
+
+	if (!this->obj->isEnabled() || !col2->getObject()->isEnabled()) {
+		return false;
+	}
+
 	if (this->onHit != NULL) {
 		b = this->onHit->call(this, col2);
 	}
@@ -241,7 +270,11 @@ bool Collision::callHit(Collision* col2) {
 
 bool Collision::callOverlap(Collision* col2) {
 	Log::inf(LOG_COL, "=== Call Overlap: '%s' ===", this->name);
-	if (this->onOverlap != NULL) {
+	if (!this->obj->isEnabled() || !col2->getObject()->isEnabled()) {
+		return false;
+	}
+	
+	if (this->onOverlap != NULL /*&& this->addOverlap(col2)*/) {
 		return this->onOverlap->call(this, col2);
 	}
 
@@ -266,8 +299,8 @@ IntRect Collision::getWorldPosition() const {
 	res.width = this->pos.width;
 	res.height = this->pos.height;
 
-	res.top = this->pos.top + this->obj->getPosition().y;
-	res.left = this->pos.left + this->obj->getPosition().x;
+	res.top = (this->pos.top + this->obj->getPosition().y) - obj->getOrigin().y;
+	res.left = (this->pos.left + this->obj->getPosition().x) - obj->getOrigin().x;
 
 	return res;
 }
@@ -279,6 +312,10 @@ bool Collision::isEnabled() {
 
 void Collision::toggle(bool b) {
 	this->enabled = b;
+
+	if (this->colObj != NULL) {
+		this->colObj->toggle(b);
+	}
 }
 
 bool Collision::isLeft(Collision* col2, vector move) {
@@ -328,4 +365,120 @@ bool Collision::isOver(Collision* col2) {
 
 Object* Collision::getObject()  const {
 	return this->obj;
+}
+
+void Collision::setPos(IntRect pos) {
+	this->pos.left = pos.left;
+	this->pos.top = pos.top;
+	this->pos.width = pos.width;
+	this->pos.height = pos.height;
+
+	if (this->colObj == NULL) {
+		return;
+	}
+
+	vector posV;
+	posV.x = pos.left;
+	posV.y = pos.top;
+
+	this->colObj->setPosition(posV);
+
+	vector scale;
+	scale.x = (float) (pos.width / 50.0f);
+	scale.y = (float) (pos.height / 50.0f);
+	this->colObj->setScale(scale);
+}
+
+bool Collision::addOverlap(Collision* col) {
+	Node* n = addNodeUniqValue(this->overlaps, col->getName(), col, false);
+	if (n != NULL) {
+		Log::err(LOG_COL, "ADD OVERLAP: LIST: %p | COL: %p", this->overlaps, col);
+	}
+	return n != NULL;
+}
+
+vector Collision::getHitMove(Collision* col2) {
+	return this->getHitMove(col2, {0,0});
+}
+
+vector Collision::getHitMove(Collision* col2, vector move) {
+	IntRect pos = this->getWorldPosition();
+	IntRect pos2 = col2->getWorldPosition();
+
+
+	Log::err(LOG_COL, "Move: %lf | %lf", move.x, move.y);
+	Log::err(LOG_COL, "POS: X: %d | Y: %d | W: %d | H: %d", pos.left, pos.top, pos.width, pos.height);
+	Log::err(LOG_COL, "POS2: X: %d | Y: %d | W: %d | H: %d", pos2.left, pos2.top, pos2.width, pos2.height);
+
+	pos.left += move.x;
+	pos.top += move.y;
+
+	int up = abs((pos.top + pos.height) - pos2.top );	
+
+	int down = abs(pos.top - (pos2.top + pos2.height));	
+
+	int left = abs((pos.left + pos.width) - pos2.left);	
+	int right = abs(pos.left - (pos2.left + pos2.width));
+
+	Log::err(LOG_COL, "Up: %d | Down: %d | Left: %d | Right: %d", up, down, left, right);
+
+
+	vector res = {0,0};
+	vector test = {0,0};
+
+	if (this->heightCollides(col2, move)) {
+		if (up <= down) {
+			res.y = (pos2.top - pos.height) -1;
+		}
+		else{
+			res.y = (pos2.top + pos2.height) + 1;
+		}
+
+		Log::err(LOG_COL, "Top Target: %lf", res.y);
+		
+		test.x = 0;
+		test.y = pos.top - res.y;
+		if (!this->collides(col2, test)) {
+			res.y = res.y - (pos.top);
+			Log::err(LOG_COL, "1-Change Top: %lf", res.y);
+			return res;
+		}
+	}
+	else {
+		res.y = move.y;
+	}
+
+	if (this->widthCollides(col2, move)) {
+		if (left <= right) {
+			res.x = (pos2.left - pos.width) -1;
+		}
+		else{
+			res.x = (pos2.left + pos2.width) + 1;
+		}
+
+		test.y = 0;
+		test.x = res.x - (pos.left - move.x);
+		if (!this->collides(col2, test)) {
+			
+			Log::err(LOG_COL, "Top Target: %lf", res.y);
+			if (res.y < res.x) {
+				res.x = 0;
+				res.y = res.y - (pos.top);
+				Log::err(LOG_COL, "2-Change Top: %lf", res.y);
+				return res;
+			}
+			else{
+				res.y = 0;
+				res.x = res.x - (pos.left);
+
+				Log::err(LOG_COL, "Change Left: %lf", res.x);
+				return res;
+			}
+		}
+	}
+	else {
+		res.x = move.x;
+	}
+
+	return res;
 }

@@ -1,14 +1,14 @@
 {
 	"SideScroll": {
 		"player-1": {
-			"SPACE": {
+			"UP": {
 				"repeat": false,
 				"pressed": "down",
 				"release": null,
 				"hold": {
 					"fnc": "jump",
 					"minTime": 0.000000,
-					"maxTime": 0.500000,
+					"maxTime": 0.250000,
 					"callOnMax": true
 				}
 			},
@@ -28,6 +28,12 @@
 				"repeat": false,
 				"pressed": "down",
 				"release": "stop",
+				"hold": null
+			},
+			"Z": {
+				"repeat": false,
+				"pressed": "attack",
+				"release": null,
 				"hold": null
 			}
 		}

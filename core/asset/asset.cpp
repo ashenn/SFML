@@ -6,6 +6,7 @@ AssetMgr::AssetMgr() {
 
 	this->imgs = initListMgr();
 	this->jsons = initListMgr();
+	this->fonts = initListMgr();
 	this->confs = initListMgr();
 	this->textures = initListMgr();
 	this->multiTextures = initListMgr();
@@ -14,6 +15,7 @@ AssetMgr::AssetMgr() {
 AssetMgr::~AssetMgr() {
 	deleteList(this->imgs);
 	deleteList(this->jsons);
+	deleteList(this->fonts);
 	deleteList(this->confs);
 	deleteList(this->textures);
 	deleteList(this->multiTextures);
@@ -249,4 +251,41 @@ Json* AssetMgr::loadDefaultConf(const char* src) {
 	free(txt);
 
 	return loadJsonFile(confPath);
+}
+
+
+void deleteFont(Node* n) {
+	sf::Font* font = (sf::Font*) n->value;
+	delete font;
+}
+
+sf::Font* AssetMgr::getFont(const char* path) {
+	Log::inf(LOG_ASSET, "=== GETTING Font: %s ===", path);
+	sf::Font* font = (sf::Font*) this->isCached(path, this->fonts);
+
+	if (font != NULL) {
+		Log::dbg(LOG_ASSET, "-- isCached");
+		return font;
+	}
+
+	int len = strlen(path) + 19;
+
+	char fontPath[len];
+	memset(fontPath, 0, len);
+
+	snprintf(fontPath, len, "asset/font/%s.ttf", path);
+	validatePath(fontPath);
+
+	Log::dbg(LOG_ASSET, "-- Loading File: %s", fontPath);
+
+	font = new sf::Font();
+	if (!font->loadFromFile(fontPath)) {
+		Log::err(LOG_ASSET, "Fail To Load Font: %s", fontPath);
+		return NULL;
+	}
+
+	Node* n = this->cache(path, this->fonts, font);
+	n->del = deleteFont;
+
+	return font;
 }

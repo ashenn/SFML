@@ -1,0 +1,418 @@
+{
+	"start": {
+		"x": 10,
+		"y": 3,
+		"z": 3
+	},
+
+	"end": {
+		"x": 3350,
+		"y": -465,
+		"z": 1
+	},
+
+	"sections": {
+		"First": {
+			"sprite": "sprite",
+			"background": "",
+
+			"pos": {
+				"x": 0,
+				"y": 0
+			},
+
+			"objects": {
+				"ground-0": {
+					"sprite": "ground",
+					"pos": {
+						"x": -80,
+						"y": 35,
+						"z": 3
+					}
+				},
+				"ground2-1": {
+					"sprite": "ground2",
+					"pos": {
+						"x": 92,
+						"y": -71,
+						"z": 3
+					}
+				},
+				"ground-2": {
+					"sprite": "ground-nocol",
+					"pos": {
+						"x": 230,
+						"y": -60,
+						"z": 2
+					}
+				},
+				"ground3-3": {
+					"sprite": "ground3",
+					"pos": {
+						"x": 210,
+						"y": 10,
+						"z": 2
+					}
+				},
+				"ground3-4": {
+					"sprite": "ground3",
+					"pos": {
+						"x": 400,
+						"y": -85,
+						"z": 2
+					}
+				},
+				"end-4": {
+					"sprite": "end-cliff",
+					"pos": {
+						"x": 568,
+						"y": -48,
+						"z": 2
+					}
+				},
+				"ground3-5": {
+					"sprite": "ground3",
+					"pos": {
+						"x": 380,
+						"y": 10,
+						"z": 2
+					}
+				},
+				"ground4-6": {
+					"sprite": "ground4",
+					"pos": {
+						"x": 548,
+						"y": 20,
+						"z": 6
+					}
+				},
+				"end-6": {
+					"sprite": "end-cliff",
+					"pos": {
+						"x": 718,
+						"y": 48,
+						"z": 2
+					}
+				},
+				"bridge-7": {
+					"sprite": "bridge",
+					"pos": {
+						"x": 752,
+						"y": 28,
+						"z": 6
+					}
+				},
+				"bridge-8": {
+					"sprite": "bridge",
+					"pos": {
+						"x": 840,
+						"y": 28,
+						"z": 6
+					}
+				},
+				"ground-9": {
+					"sprite": "ground",
+					"pos": {
+						"x": 925,
+						"y": 35,
+						"z": 2
+					}
+				},
+				"ground2-9": {
+					"sprite": "ground2",
+					"pos": {
+						"x": 1025,
+						"y": -71,
+						"z": 2
+					}
+				},
+				"ground3-10": {
+					"sprite": "ground3",
+					"pos": {
+						"x": 1145,
+						"y": 10,
+						"z": 2
+					}
+				},
+				"end-10": {
+					"sprite": "end-cliff",
+					"pos": {
+						"x": 1305,
+						"y": 48,
+						"z": 2
+					}
+				},
+				"ground-10": {
+					"sprite": "ground-nocol",
+					"pos": {
+						"x": 1200,
+						"y": -150,
+						"z": 2
+					}
+				},
+				"ground4-11": {
+					"sprite": "ground4",
+					"pos": {
+						"x": 1370,
+						"y": -170,
+						"z": 2
+					}
+				},
+				"tree-platform-11": {
+					"sprite": "platform-tree",
+					"pos": {
+						"x": 1330,
+						"y": -15,
+						"z": 2
+					}
+				},
+				"tree-platform-12": {
+					"sprite": "platform-tree",
+					"pos": {
+						"x": 1500,
+						"y": -60,
+						"z": 2
+					}
+				},
+				"ground3-13": {
+					"sprite": "ground3",
+					"pos": {
+						"x": 1535,
+						"y": -180,
+						"z": 2
+					}
+				},
+				"check-13": {
+					"sprite": "checkpoint",
+					"pos": {
+						"x": 1595,
+						"y": -185,
+						"z": 0
+					}
+				},
+				"ground2-13": {
+					"sprite": "ground2",
+					"pos": {
+						"x": 1702,
+						"y": -262,
+						"z": 2
+					}
+				},
+				"end-13": {
+					"sprite": "end-cliff",
+					"pos": {
+						"x": 1822,
+						"y": -145,
+						"z": 2
+					}
+				},
+				"ground-14": {
+					"sprite": "ground",
+					"pos": {
+						"x": 2200,
+						"y": 35,
+						"z": 2
+					}
+				},
+				"ground2-15": {
+					"sprite": "ground2",
+					"pos": {
+						"x": 2340,
+						"y": -72,
+						"z": 2
+					}
+				},
+				"end-15": {
+					"sprite": "end-cliff",
+					"pos": {
+						"x": 2460,
+						"y": 45,
+						"z": 2
+					}
+				},
+
+				"bridge-16": {
+					"sprite": "bridge",
+					"pos": {
+						"x": 2490,
+						"y": 25,
+						"z": 6
+					}
+				},
+
+				"bridge-17": {
+					"sprite": "bridge",
+					"pos": {
+						"x": 2590,
+						"y": 25,
+						"z": 6
+					}
+				},
+				"ground-18": {
+					"sprite": "ground",
+					"pos": {
+						"x": 2685,
+						"y": 35,
+						"z": 3
+					}
+				},
+				"rock-19": {
+					"sprite": "background-rock",
+					"pos": {
+						"x": 2795,
+						"y": 15,
+						"z": 1
+					}
+				},
+				"ground3-19": {
+					"sprite": "ground3",
+					"pos": {
+						"x": 2850,
+						"y": 10,
+						"z": 3
+					}
+				},
+				"ground3-20": {
+					"sprite": "ground3",
+					"pos": {
+						"x": 2994,
+						"y": 10,
+						"z": 3
+					}
+				},
+				"ground2-22": {
+					"sprite": "ground2",
+					"pos": {
+						"x": 3160,
+						"y": -72,
+						"z": 3
+					}
+				},
+				"ground3-22": {
+					"sprite": "ground3",
+					"pos": {
+						"x": 3280,
+						"y": 11,
+						"z": 3
+					}
+				},
+				"ground3-23": {
+					"sprite": "ground3",
+					"pos": {
+						"x": 3448,
+						"y": 11,
+						"z": 3
+					}
+				},
+				"ground3-24": {
+					"sprite": "ground3",
+					"pos": {
+						"x": 3615,
+						"y": 11,
+						"z": 3
+					}
+				},
+				"Check-22": {
+					"sprite": "checkpoint",
+					"pos": {
+						"x": 3050,
+						"y": 2,
+						"z": 1
+					}
+				},
+				"rockPlatform-23": {
+					"sprite": "platform-rock-2",
+					"pos": {
+						"x": 3500,
+						"y": -90,
+						"z": 3
+					}
+				},
+				"rockPlatform-24": {
+					"sprite": "platform-rock-2",
+					"pos": {
+						"x": 3700,
+						"y": -20,
+						"z": 3
+					}
+				},
+				"ground-nocol-21": {
+					"sprite": "ground-nocol",
+					"pos": {
+						"x": 2994,
+						"y": -400,
+						"z": 2
+					}
+				},
+				"ground2-23": {
+					"sprite": "ground2",
+					"pos": {
+						"x": 3471,
+						"y": -277,
+						"z": 3
+					}
+				},
+				"ground3-25": {
+					"sprite": "ground3",
+					"pos": {
+						"x": 3280,
+						"y": -426,
+						"z": 3
+					}
+				},
+				"ground3-26": {
+					"sprite": "ground3",
+					"pos": {
+						"x": 3400,
+						"y": -426,
+						"z": 3
+					}
+				},
+				"end-26": {
+					"sprite": "end-cliff",
+					"pos": {
+						"x": 3568,
+						"y": -389,
+						"z": 3
+					}
+				},
+				"ground-nocol-27": {
+					"sprite": "ground-nocol",
+					"pos": {
+						"x": 3800,
+						"y": -400,
+						"z": 2
+					}
+				},
+				"ground2-21": {
+					"sprite": "ground2",
+					"pos": {
+						"x": 3160,
+						"y": -507,
+						"z": 2
+					}
+				},
+				"ground-nocol-22": {
+					"sprite": "ground-nocol",
+					"pos": {
+						"x": 3300,
+						"y": -170,
+						"z": 2
+					}
+				},
+				"rockPlatform-25": {
+					"sprite": "platform-rock-2",
+					"pos": {
+						"x": 3650,
+						"y": -290,
+						"z": 3
+					}
+				},
+			},
+
+			"monsters": {
+				
+			}
+		}
+	}
+}

@@ -41,8 +41,8 @@ void Movement::_setVelocityY(double y) {
 	oVel->y = y;
 	if (oVel->y < 0) {
 		this->dir.y = DIR_UP;
-		if (oVel->x < -this->maxVelocity.x) {
-			oVel->x = -this->maxVelocity.x;
+		if (oVel->y < -this->maxVelocity.y) {
+			oVel->y = -this->maxVelocity.y;
 		}
 	}
 	else if (oVel->y > 0) {
@@ -74,7 +74,7 @@ void Movement::setVelocityY(double y) {
 }
 
 void Movement::setVelocity(vector vel) {
-	Log::inf(LOG_MOVE, "==== Setting Velocity ====");
+	Log::dbg(LOG_MOVE, "==== Setting Velocity ====");
 	Object* obj = this->obj;
 
 	//Log::err(LOG_ANIM, "Lock Set Velocity");

@@ -9,9 +9,13 @@
 		"jump": 3,
 		"jumpMax": 7,
 
+		"stepHeight": 15,
+		"canFallOfEdge": true,
+
 		"sheet": "adventurer",
 		"collisions": {
 			"hitbox": {
+				"enabled": true,
 				"callback": {
 					"block": "hit",
 					"overlap": "overlap"
@@ -23,6 +27,20 @@
 					"left": 12, 
 					"width": 22, 
 					"height": 34
+				}
+			},
+			"attack": {
+				"enabled": false,
+				"callback": {
+					"overlap": "attackOverlap"
+				},
+
+				"type": "COL_PLAYER_ATTACK",
+				"pos": {
+					"top": 0, 
+					"left": 0, 
+					"width": 0, 
+					"height": 0
 				}
 			}
 		}

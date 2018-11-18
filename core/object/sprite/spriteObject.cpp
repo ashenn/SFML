@@ -130,7 +130,6 @@ void SpriteObj::loadAnim(const char* name, const Json* animJson, int* data) {
 
 
 	animData->wait = (FPS / animData->fps);
-
 	animData->duration = (animData->fps * animData->clipCnt);
 
 	Log::dbg(LOG_SPRITE_OBJ, "-- Calloc Anim Array[%d]:  %s", animData->clipCnt, name);
@@ -148,7 +147,7 @@ void SpriteObj::loadAnim(const char* name, const Json* animJson, int* data) {
 		animData->clipPos[a] = new IntRect(i * this->cell_x, curRow * this->cell_y, this->cell_x, this->cell_y);
 		IntRect* pos = animData->clipPos[a];
 		
-		Log::dbg(LOG_SPRITE_OBJ, "-- X: %d | Y: %d  W: %d | H: %d", pos->left, pos->top, pos->width, pos->height);
+		Log::war(LOG_SPRITE_OBJ, "--'%s': X: %d | Y: %d  W: %d | H: %d", animJson->key, pos->left, pos->top, pos->width, pos->height);
 		i++;
 	}
 
@@ -157,8 +156,10 @@ void SpriteObj::loadAnim(const char* name, const Json* animJson, int* data) {
 	n->del = spriteAnimDataDelete;
 
 	Json* linkJson = jsonGetData(animJson, "links");
+	Json* colsJson = jsonGetData(animJson, "collisions");
 
 	this->loadAnimLinks(name, linkJson, animData);
+	this->loadAnimCollisions(name, colsJson, animData);
 }
 
 void AnimLinkDelete(Node* n) {
@@ -173,11 +174,11 @@ void AnimLinkDelete(Node* n) {
 	}
 }
 
-void SpriteObj::loadAnimLinks(const char* name, const Json* linkJson, SpriteAnimData* anim) {
+void SpriteObj::loadAnimLinks(const char* name, const Json* linksJson, SpriteAnimData* anim) {
 	Log::inf(LOG_SPRITE_OBJ, "=== Loading Anim Links For: %s ===", name);
 
 	Node* n = NULL;
-	while ((n = listIterate(linkJson->childs, n)) != NULL) {
+	while ((n = listIterate(linksJson->childs, n)) != NULL) {
 		Json* linkJson = (Json*) n->value;
 		Log::dbg(LOG_SPRITE_OBJ, "+++++++++++++++++++++++++++++++++++++");
 		Log::dbg(LOG_SPRITE_OBJ, "-- link: %s", linkJson->key);
@@ -203,6 +204,30 @@ void SpriteObj::loadAnimLinks(const char* name, const Json* linkJson, SpriteAnim
 		Node* n = addNodeV(anim->animLinks, linkName, link, true);
 		n->del = AnimLinkDelete;
 	}
+}
+
+
+void SpriteObj::loadAnimCollisions(const char* name, const Json* colsJson, SpriteAnimData* anim) {
+	Log::inf(LOG_SPRITE_OBJ, "=== Loading Anim Collisions For: %s ===", name);
+
+	if (colsJson == NULL) {
+		return;
+	}
+
+	anim->collisions = initListMgr();
+
+	Node* n = NULL;
+	while ((n = listIterate(colsJson->childs, n)) != NULL) {
+		Json* colJ = (Json*) n->value;
+		Log::dbg(LOG_SPRITE_OBJ, "+++++++++++++++++++++++++++++++++++++");
+		Log::dbg(LOG_SPRITE_OBJ, "-- Col: %s", colJ->key);
+
+
+		AnimColData* colData = new AnimColData(colJ);
+		Node* colN = addNodeV(anim->collisions, colJ->key, colData, false);
+		colN->del = deleteAbstract;
+	}
+
 }
 
 void SpriteObj::addAnim(int i, const Json* animJson) {
@@ -313,4 +338,8 @@ void SpriteObj::draw(RenderWindow* window, bool grav) {
 	}
 
 	this->anim->fnc();
+}
+
+SpriteAnim* SpriteObj::getCurrentAnim() {
+	return this->anim;
 }

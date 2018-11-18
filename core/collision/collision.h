@@ -23,7 +23,10 @@ using namespace sf;
 	TYPE(COL_PLAYER)	\
 	TYPE(COL_MONSTER)	\
 	TYPE(COL_PLATFORM)	\
-	TYPE(COL_CHECKPOINT)
+	TYPE(COL_PLAYER_ATTACK)	\
+	TYPE(COL_CHECKPOINT)	\
+	TYPE(COL_FINISH)	\
+
 
 #define GEN_COL_CHANEL_ENUM(ENUM) ENUM,
 #define GEN_COL_CHANEL_STRING(STRING) #STRING,
@@ -84,6 +87,9 @@ class Collision : public AbstractClass
 		unsigned short overlapFlags = 0;
 		Collision(const char* name, Object* obj, IntRect pos);
 
+		ListManager* overlaps = NULL;
+
+		void updateColObj(ColType type) const;
 		// void initFlags();
 
 	public:
@@ -103,12 +109,24 @@ class Collision : public AbstractClass
 		~Collision();
 		Collision(const char* name, Object* obj, IntRect pos, ColChanel chanel);
 
+		void setPos(IntRect pos);
+
+		bool addOverlap(Collision* col);
+		void removeOverlap(Collision* col);
+
 		Object* getObject()  const;
 		IntRect getPosition()  const;
 		IntRect getWorldPosition()  const;
 
 		ColType collides(const Collision* col) const;
 		ColType collides(Collision* col, vector move);
+
+		bool widthCollides(const Collision* col) const;
+		bool widthCollides(const Collision* col, vector move) const;
+
+		bool heightCollides(const Collision* col) const;
+		bool heightCollides(const Collision* col, vector move) const;
+
 
 		bool operator&&(const Collision& col) const;
 		bool operator&&(const Collision* col) const;
@@ -127,6 +145,9 @@ class Collision : public AbstractClass
 
 		bool isUnder(Collision* col2);
 		bool isUnder(Collision* col2, vector move);
+
+		vector getHitMove(Collision* col2);
+		vector getHitMove(Collision* col2, vector move);
 };
 
 #include "collision.tpp"

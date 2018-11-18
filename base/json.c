@@ -265,12 +265,12 @@ Json* jsonSetValue(Json* json, char* key, void* value, JsonDataEnum type) {
 		json->type = JSON_OBJECT;
 	}
 	else if(json->type != JSON_ARRAY && json->type != JSON_OBJECT){
-		Log::war(LOG_JSON, "Trying to Set Json Value But JSON IS NOT ARRAY OR OBJECT !!!");
+		// Log::war(LOG_JSON, "Trying to Set Json Value But JSON IS NOT ARRAY OR OBJECT !!!");
 		json->type = JSON_OBJECT;
 	}
 
 	if (value == NULL && type != JSON_NULL) {
-		Log::war(LOG_JSON, "Trying to Set Json Value As NULL But Type is not JSON_NULL !!!");
+		// Log::war(LOG_JSON, "Trying to Set Json Value As NULL But Type is not JSON_NULL !!!");
 		type = JSON_NULL;
 	}
 
@@ -348,7 +348,7 @@ short jsonClearChilds(int i, Node* n, short* deleteChild, void* param, va_list* 
 	Log::inf(LOG_JSON, "-- Child Delete: #%d => %s", i, n->name);
 
 	if (n->value == NULL) {
-		Log::war(LOG_JSON, "-- Deleting NULL Json Child");
+		// Log::war(LOG_JSON, "-- Deleting NULL Json Child");
 		*deleteChild = true;
 		return true;
 	}
@@ -549,7 +549,7 @@ short jsonPrintData(int i, Node* n, short* deleteJson, void* param, va_list* arg
 
 void jsonPrint(const Json* json, int tab) {
 	if (json == NULL) {
-		Log::war(LOG_JSON, "Trying to Print NULL JSON");
+		// Log::war(LOG_JSON, "Trying to Print NULL JSON");
 		return;
 	}
 
@@ -861,7 +861,7 @@ char* json2Str(const Json* json, bool breakLine, bool indent) {
 	Log::inf(LOG_JSON, "===== JSON 2 STRING ====");
 
 	if (json == NULL) {
-		Log::war(LOG_JSON, "Trying to Print NULL JSON");
+		// Log::war(LOG_JSON, "Trying to Print NULL JSON");
 		return NULL;
 	}
 
@@ -966,19 +966,19 @@ Json* jsonGetData(const Json* json, const char* key) {
 	Log::inf(LOG_JSON, "Getting JSON data: %s", key);
 
 	if (json == NULL) {
-		Log::war(LOG_JSON, "Trying To Get Value of A NULL JSON !!!");
+		// Log::war(LOG_JSON, "Trying To Get Value of A NULL JSON !!!");
 		return NULL;
 	}
 
 
 	if (json->childs == NULL) {
-		Log::war(LOG_JSON, "Trying To Get Value of A None Parent JSON !!!");
+		// Log::war(LOG_JSON, "Trying To Get Value of A None Parent JSON !!!");
 		return NULL;
 	}
 
 	Node* n = getNodeByName(json->childs, key);
 	if (n == NULL) {
-		Log::war(LOG_JSON, "Fail To Find JSON Data: %s", key);
+		// Log::war(LOG_JSON, "Fail To Find JSON Data: %s", key);
 		return NULL;
 	}
 
@@ -1037,12 +1037,12 @@ short jsonIteraterator(int i, Node* n, short* deleteVal, void* param, va_list* a
 
 void jsonIterate(const Json* json, bool (*fnc)(unsigned int, Json*, void*), void* param, ...) {
 	if (json == NULL) {
-		Log::war(LOG_JSON, "Trying To Iterate Through NULL JSON !!!");
+		// Log::war(LOG_JSON, "Trying To Iterate Through NULL JSON !!!");
 		return;
 	}
 
 	if (json->childs == NULL) {
-		Log::war(LOG_JSON, "Trying To Iterate Through JSON BUT CHILDS IS NULL !!!");
+		// Log::war(LOG_JSON, "Trying To Iterate Through JSON BUT CHILDS IS NULL !!!");
 		return;
 	}
 

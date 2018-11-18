@@ -7,9 +7,12 @@ class EnvObj : public Object
 {
 	public:
 		EnvObj(const char* name, const char* path, const char* conf, vector* pos, unsigned int z);
+		EnvObj(const char* name, const char* path, const char* conf, vector* pos, unsigned int z, IntRect* resize);
 		~EnvObj();
 };
 
+
+class AiCtrl;
 class EnvSection : public AbstractClass
 {
 	private:
@@ -26,6 +29,9 @@ class EnvSection : public AbstractClass
 		~EnvSection();
 	
 		void spawnMonsters(ListManager* monsters);
+		void removeAi(AiCtrl* ai);
 };
+
+#include "../../controller/ai/aiCtrl.h"
 
 #endif

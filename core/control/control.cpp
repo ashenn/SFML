@@ -6,7 +6,8 @@ static sf::Keyboard::Key keysVals[] = {
 	sf::Keyboard::Key::Right,
 	sf::Keyboard::Key::Up,
 	sf::Keyboard::Key::Down,
-	sf::Keyboard::Key::Space
+	sf::Keyboard::Key::Space,
+	sf::Keyboard::Key::Z
 };
 
 const char* names[] = {
@@ -16,6 +17,7 @@ const char* names[] = {
 	"UP",
 	"DOWN",
 	"SPACE",
+	"Z",
 	NULL
 };
 

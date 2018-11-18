@@ -46,8 +46,6 @@ void Controller::stopMove() {
 	this->ch->stopMove();
 }
 
-
-
 void Controller::setCharacter(Character* ch, bool deleteOld) {
 	if (this->ch == ch) {
 		return;
@@ -65,4 +63,8 @@ void Controller::setCharacter(Character* ch, bool deleteOld) {
 
 
 	Log::inf(LOG_CTRL_PLAYER, "CREATE AI");
+}
+
+bool Controller::willFall() {
+	return true;
 }

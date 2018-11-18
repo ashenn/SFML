@@ -12,7 +12,7 @@ class AssetMgr : public AbstractStaticClass
 		AssetMgr();
 		~AssetMgr();
 		ListManager* imgs;
-		//ListManager* fonts;
+		ListManager* fonts;
 		ListManager* jsons;		// Cache List Of Loaded Jsons
 		ListManager* confs;		// Cache List Of Loaded Confs
 		ListManager* textures;	// Cache List Of Loaded Textures
@@ -21,12 +21,13 @@ class AssetMgr : public AbstractStaticClass
 	public:
 		STATIC_CLASS_BODY(AssetMgr)
 	
-		//Texture* getFont(const char* path);
 		Json* getJson(const char* path);
 		Json* getConf(const char* path);
 		Json* loadDefaultConf(const char* src);
 
+		sf::Font* getFont(const char* path);
 		Image* getImage(const char* path);
+
 		Texture* getSheet(const char* path);
 		Texture* getTexture(const char* path);
 		Texture* getMultiTexture(const char* path, const char* name);

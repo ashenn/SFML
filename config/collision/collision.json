@@ -6,7 +6,9 @@
 		"COL_ITEM",
 		"COL_PLAYER",
 		"COL_MONSTER",
-		"COL_PLATFORM"
+		"COL_PLATFORM",
+		"COL_PLAYER_ATTACK",
+		"COL_FINISH"
 	],
 
 	"channels": {
@@ -24,7 +26,8 @@
 			"COL_PLAYER": "COL_BLOCK",
 			"COL_MONSTER": "COL_BLOCK",
 			"COL_PLATFORM": "COL_BLOCK",
-			"COL_CHECKPOINT": "COL_OVERLAP"
+			"COL_CHECKPOINT": "COL_OVERLAP",
+			"COL_FINISH": "COL_OVERLAP"
 		},
 
 		"COL_ITEM": {
@@ -51,8 +54,16 @@
 			"COL_PLATFORM": "COL_BLOCK"
 		},
 
+		"COL_FINISH": {
+			"COL_PLAYER": "COL_OVERLAP"
+		},
+
 		"COL_CHECKPOINT": {
 			"COL_PLAYER": "COL_OVERLAP"
+		},
+
+		"COL_PLAYER_ATTACK": {
+			"COL_MONSTER": "COL_OVERLAP"
 		}
 	}
 }

@@ -57,4 +57,6 @@ Json* jsonSetValue(Json* json, char* key, void* value, JsonDataEnum type);
 
 void jsonIterate(const Json* json, bool (*fnc)(unsigned int, Json*, void*), void* param, ...);
 
+const char* getJsonTypeName(JsonDataEnum val);
+
 #endif

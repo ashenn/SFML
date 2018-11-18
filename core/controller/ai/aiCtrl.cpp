@@ -1,17 +1,14 @@
 #include "aiCtrl.h"
 
-ListManager* AiCtrl::aiList = initListMgr();
+//ListManager* AiCtrl::aiList = initListMgr();
 
-AiCtrl::AiCtrl(const char* name, const char* jsonKey, vector* pos, int z) :
+AiCtrl::AiCtrl(const char* name, const char* jsonKey, vector* pos, int z, EnvSection* section)  :
 Controller(CTRL_AI, name) {
 	Log::inf(LOG_AI, "=== Spawn AI: %s / %s ===", name, jsonKey);
 
 	static unsigned int id = 0;
 	this->id = id++;
 
-
-	this->dir[0] = DIR_RIGHT;
-	this->dir[1] = DIR_DOWN;
 
 	Log::dbg(LOG_AI, "-- id: %d", this->id);
 
@@ -27,12 +24,40 @@ Controller(CTRL_AI, name) {
 		this->setCharacter(ch, true);
 	}
 
+	this->dir[0] = ch->getDirX();
+	this->dir[1] = DIR_DOWN;
+
 	this->callables = initListMgr();
 	this->ch->moveDir(DIR_RIGHT);
+
+	this->section = section;
 }
 
 AiCtrl::~AiCtrl() {
-	
+	if (this->section != NULL) {
+		this->section->removeAi(this);
+	}
+}
+
+bool AiCtrl::hitPlayer(Collision* col, Collision* col2, IntRect pos, IntRect pos2) {
+	bool under = col->isOver(col2, this->obj->getMovement()->getVelocity());
+
+	if (under) {
+		this->ch->landed();
+
+		CharObj* player = (CharObj*) col2->getObject();
+		this->ch->makeDamage(player->getCharacter());
+		this->ch->Jump(true);
+		
+		if (this->ch->getDirX() == DIR_LEFT) {
+			this->dir[0] = DIR_RIGHT;
+		}
+		else {
+			this->dir[0] = DIR_LEFT;
+		}
+	}
+
+	return false;
 }
 
 bool AiCtrl::hitWall(Collision* col, Collision* col2, IntRect pos, IntRect pos2) {
@@ -69,9 +94,12 @@ bool AiCtrl::hit(Collision* col, Collision* col2) {
 
 	switch (col2->getFlag()) {
 		case (int) 1 << COL_WALL:
-		case (int) 1 << COL_PLAYER:
 		case (int) 1 << COL_PLATFORM:
 			return this->hitWall(col, col2, pos, pos2);
+			break;
+			
+		case (int) 1 << COL_PLAYER:
+			return this->hitPlayer(col, col2, pos, pos2);
 			break;
 
 		default:
@@ -91,7 +119,23 @@ bool AiCtrl::overlap(Collision* col, Collision* col2) {
 
 void AiCtrl::kill() {
 	Log::dbg(LOG_CHAR, "Killing: %s", this->name);
-	if (this->ch != NULL) {
-		this->setCharacter(NULL, true);
+	Garbage::get()->add(this);
+	// if (this->ch != NULL) {
+	// 	this->setCharacter(NULL, true);
+	// }
+}
+
+bool AiCtrl::willFall() {
+	if (this->ch == NULL || this->ch->canFallOfEdge() || this->ch->inAir()) {
+		return true;
 	}
+
+	if (this->ch->getDirX() == DIR_LEFT) {
+		this->dir[0] = DIR_RIGHT;
+	}
+	else {
+		this->dir[0] = DIR_LEFT;
+	}
+
+	return false;
 }

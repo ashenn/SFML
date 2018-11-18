@@ -4,12 +4,12 @@
 		"rows": 16,
 		"columns": 7,
 		"cell_x": 50,
-		"cell_y": 38
+		"cell_y": 37
 	},
 	"anims": {
 		"Idle": {
 			"name": "Idle",
-			"fps": 8,
+			"fps": 10,
 			"count": 4,
 			"index": 0,
 			"loop": true,
@@ -34,6 +34,26 @@
 					"waitEnd": false,
 					"target": "Down",
 					"fnc": "Idle2Down"
+				},
+				"IdleSword": {
+					"waitEnd": false,
+					"target": "IdleSword",
+					"fnc": "Idle2Sword"
+				}
+			},
+			"collisions": {
+				"attack": {
+					"enabled": false
+				},
+
+				"hitbox": {
+					"enabled": true,
+					"pos": {
+						"top": 4, 
+						"left": 12, 
+						"width": 22, 
+						"height": 34
+					}
 				}
 			}
 		},
@@ -90,6 +110,21 @@
 					"target": "Glide",
 					"fnc": "Down2Glide"
 				}
+			},
+			"collisions": {
+				"attack": {
+					"enabled": false
+				},
+
+				"hitbox": {
+					"enabled": true,
+					"pos": {
+						"top": 15, 
+						"left": 12, 
+						"width": 22, 
+						"height": 23
+					}
+				}
 			}
 		},
 		"JumpStart": {
@@ -140,6 +175,21 @@
 					"target": "DoubleJump",
 					"fnc": "Jump2DoubleJump"
 				}
+			},
+			"collisions": {
+				"attack": {
+					"enabled": false
+				},
+
+				"hitbox": {
+					"enabled": true,
+					"pos": {
+						"top": 5, 
+						"left": 12, 
+						"width": 22, 
+						"height": 25
+					}
+				}
 			}
 		},
 		"Fall": {
@@ -180,6 +230,21 @@
 					"target": "Idle",
 					"fnc": null
 				}
+			},
+			"collisions": {
+				"attack": {
+					"enabled": false
+				},
+
+				"hitbox": {
+					"enabled": true,
+					"pos": {
+						"top": 15, 
+						"left": 12, 
+						"width": 22, 
+						"height": 23
+					}
+				}
 			}
 		},
 		"DoubleJump": {
@@ -199,6 +264,21 @@
 					"waitEnd": false,
 					"target": "Land",
 					"fnc": "Fall2Land"
+				}
+			},
+			"collisions": {
+				"attack": {
+					"enabled": false
+				},
+
+				"hitbox": {
+					"enabled": true,
+					"pos": {
+						"top": 5, 
+						"left": 12, 
+						"width": 22, 
+						"height": 25
+					}
 				}
 			}
 		},
@@ -224,6 +304,294 @@
 					"waitEnd": false,
 					"target": "Fall",
 					"fnc": "Idle2Fall"
+				}
+			},
+			"collisions": {
+				"attack": {
+					"enabled": false
+				},
+
+				"hitbox": {
+					"enabled": true,
+					"pos": {
+						"top": 20, 
+						"left": 10, 
+						"width": 35, 
+						"height": 20
+					}
+				}
+			}
+		},
+		"IdleSword": {
+			"name": "IdleSword",
+			"fps": 10,
+			"count": 4,
+			"index": 3,
+			"loop": true,
+			"row": 5,
+			"links": {
+				"Idle": {
+					"waitEnd": true,
+					"target": "Idle",
+					"fnc": "Sword2Idle"
+				},
+				"Sword1_Start": {
+					"waitEnd": false,
+					"target": "Sword1_Start",
+					"fnc": "Idle2Attack1"
+				}
+			},
+			"collisions": {
+				"enabled": false,
+				"pos": {
+					"top": 0, 
+					"left": 0, 
+					"width": 0, 
+					"height": 0
+				}
+			}
+		},
+		"Sword1_Start": {
+			"name": "Sword1_Start",
+			"fps": 10,
+			"count": 3,
+			"index": 0,
+			"loop": false,
+			"row": 6,
+			"links": {
+				"Sword1": {
+					"waitEnd": true,
+					"target": "Sword1",
+					"fnc": null
+				},
+			},
+			"collisions": {
+				"attack": {
+					"enabled": false,
+					"pos": {
+						"top": 0, 
+						"left": 0, 
+						"width": 0, 
+						"height": 0
+					}
+				}
+			}
+		},
+		"Sword1": {
+			"name": "Sword1",
+			"fps": 10,
+			"count": 3,
+			"index": 2,
+			"loop": false,
+			"row": 6,
+			"links": {
+				"Sword1_End": {
+					"waitEnd": true,
+					"target": "Sword1_End",
+					"fnc": "attack_end"
+				}
+			},
+			"collisions": {
+				"attack": {
+					"enabled": true,
+					"pos": {
+						"top": 0, 
+						"left": 25, 
+						"width": 35, 
+						"height": 40
+					}
+				}
+			}
+		},
+		"Sword1_End": {
+			"name": "Sword1_End",
+			"fps": 5,
+			"count": 3,
+			"index": 4,
+			"loop": false,
+			"row": 6,
+			"links": {
+				"Sword2": {
+					"waitEnd": false,
+					"target": "Sword2_Start",
+					"fnc": "Attack2"
+				},
+				"IdleSword": {
+					"waitEnd": true,
+					"target": "IdleSword",
+					"fnc": "Attack2Idle"
+				},
+			},
+			"collisions": {
+				"attack": {
+					"enabled": true,
+					"pos": {
+						"top": 0, 
+						"left": 25, 
+						"width": 35, 
+						"height": 40
+					}
+				}
+			}
+		},
+		"Sword2_Start": {
+			"name": "Sword2_Start",
+			"fps": 10,
+			"count": 2,
+			"index": 7,
+			"loop": false,
+			"row": 6,
+			"links": {
+				"Sword2": {
+					"waitEnd": true,
+					"target": "Sword2",
+					"fnc": null
+				},
+			},
+			"collisions": {
+				"attack": {
+					"enabled": false,
+					"pos": {
+						"top": 0, 
+						"left": 0, 
+						"width": 0, 
+						"height": 0
+					}
+				}
+			}
+		},
+		"Sword2": {
+			"name": "Sword2",
+			"fps": 10,
+			"count": 3,
+			"index": 1,
+			"loop": false,
+			"row": 7,
+			"links": {
+				"Sword2_End": {
+					"waitEnd": true,
+					"target": "Sword2_End",
+					"fnc": "attack_end"
+				}
+			},
+			"collisions": {
+				"attack": {
+					"enabled": true,
+					"pos": {
+						"top": 0, 
+						"left": 10, 
+						"width": 35, 
+						"height": 37
+					}
+				}
+			}
+		},
+		"Sword2_End": {
+			"name": "Sword2_End",
+			"fps": 5,
+			"count": 2,
+			"index": 2,
+			"loop": false,
+			"row": 7,
+			"links": {
+				"Sword3": {
+					"waitEnd": true,
+					"target": "Sword3_Start",
+					"fnc": "Attack3"
+				},
+				"IdleSword": {
+					"waitEnd": true,
+					"target": "IdleSword",
+					"fnc": "Attack2Idle"
+				},
+			},
+			"collisions": {
+				"attack": {
+					"enabled": false,
+					"pos": {
+						"top": 0, 
+						"left": 0, 
+						"width": 0, 
+						"height": 0
+					}
+				}
+			}
+		},
+		"Sword3_Start": {
+			"name": "Sword3_Start",
+			"fps": 10,
+			"count": 2,
+			"index": 4,
+			"loop": false,
+			"row": 7,
+			"links": {
+				"Sword3": {
+					"waitEnd": true,
+					"target": "Sword3",
+					"fnc": null
+				}
+			},
+			"collisions": {
+				"attack": {
+					"enabled": false,
+					"pos": {
+						"top": 0, 
+						"left": 0, 
+						"width": 0, 
+						"height": 0
+					}
+				}
+			}
+		},
+		"Sword3": {
+			"name": "Sword3",
+			"fps": 10,
+			"count": 2,
+			"index": 5,
+			"loop": false,
+			"row": 7,
+			"links": {
+				"IdleSword": {
+					"waitEnd": true,
+					"target": "Sword3_End",
+					"fnc": "attack_end"
+				}
+			},
+			"collisions": {
+				"attack": {
+					"enabled": true,
+					"pos": {
+						"top": 10, 
+						"left": 0, 
+						"width": 50, 
+						"height": 25
+					}
+				}
+			}
+		},
+		"Sword3_End": {
+			"name": "Sword3_End",
+			"fps": 5,
+			"count": 2,
+			"index": 1,
+			"loop": false,
+			"row": 8,
+			"links": {
+				"IdleSword": {
+					"waitEnd": true,
+					"target": "IdleSword",
+					"fnc": "Attack2Idle"
+				}
+			},
+			"collisions": {
+				"attack": {
+					"enabled": true,
+					"pos": {
+						"top": 10, 
+						"left": 0, 
+						"width": 50, 
+						"height": 25
+					}
 				}
 			}
 		}

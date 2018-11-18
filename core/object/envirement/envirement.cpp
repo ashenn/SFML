@@ -3,6 +3,22 @@
 #include "../../collision/collision.h"
 #include "../../controller/ai/aiCtrl.h"
 
+EnvObj::EnvObj(const char* name, const char* path, const char* conf, vector* pos, unsigned int z, IntRect* resize) :
+EnvObj(name, path, conf, pos, z) {
+	Log::err(LOG_CHAR, "RESIZE Height: %d | Width: %d!!!!", resize->height, resize->width);
+	if (!resize->width) {
+		resize->width = this->clip->width;
+	}
+
+	if (!resize->height) {
+		resize->height = this->clip->height;
+	}
+
+
+	Log::dbg(LOG_CHAR, "RESIZE Height: %d | Width: %d!!!!", resize->height, resize->width);
+	this->setClip(resize, true);
+}
+
 EnvObj::EnvObj(const char* name, const char* path, const char* conf, vector* pos, unsigned int z)
 : Object(name, pos, z) {
 	AssetMgr* ast = AssetMgr::get();
@@ -28,6 +44,8 @@ EnvObj::EnvObj(const char* name, const char* path, const char* conf, vector* pos
 	jsonGetValue(sizeJ, "1", &(objPos->height));
 
 	this->setClip(objPos, true);
+	Log::dbg(LOG_CHAR, "TEST Height: %d | Width: %d!!!!", objPos->height, objPos->width);
+	Log::dbg(LOG_CHAR, "DEFAULT Height: %d | Width: %d!!!!", this->clip->height, this->clip->width);
 
 	Log::inf(LOG_ENV_OBJ, "Setting Texture");
 	sf::Texture* text = ast->getMultiTexture(path, conf);
@@ -85,7 +103,7 @@ EnvSection::EnvSection(Json* conf) {
 
 	Log::dbg(LOG_ENV_OBJ, "-- sprite %s", this->sprite);
 
-	jsonPrint(conf, 0);
+	//jsonPrint(conf, 0);
 	Json* posJ = jsonGetData(conf, "pos");
 	
 	int data[2];
@@ -149,14 +167,38 @@ void EnvSection::loadObjects(ListManager* objects) {
 		Log::dbg(LOG_ENV_OBJ, "-- Pos: X: %lf | Y: %lf | Z: %d", pos.x, pos.y, data[2]);
 
 
-
 		int len = 13 + strlen(this->name) + strlen(sprite) + (n->id / 10);
 		char name[len];
 		memset(name, 0, len);
 		snprintf(name, len, "section-%s_#%d_%s", this->name, n->id, sprite);
 
 		Log::dbg(LOG_ENV_OBJ, "-- name: %s", name);
-		EnvObj* obj = new EnvObj(name, this->sprite, sprite, &pos, data[2]);
+
+		EnvObj* obj = NULL;
+		Json* resizeJ = jsonGetData(objJ, "resize");
+
+		if (resizeJ != NULL && resizeJ->type != JSON_NULL) {
+			Log::err(LOG_CHAR, "RESIZE FOUND !!!!");
+			IntRect* resizeR = new IntRect(0,0,0,0);
+
+			Json* resize = jsonGetData(resizeJ, "width");
+			if (resize != NULL && resize->type != JSON_NULL) {
+				resizeR->width = resize->integer;
+				Log::err(LOG_CHAR, "RESIZE Width: %s %d!!!!", getJsonTypeName(resize->type), resizeR->width);
+			}
+
+			resize = jsonGetData(resizeJ, "height");
+			if (resize != NULL && resize->type != JSON_NULL) {
+				resizeR->height = resize->integer;
+				Log::err(LOG_CHAR, "RESIZE Height: %d!!!!", resizeR->height);
+			}
+
+			Log::err(LOG_CHAR, "RESIZE Height: %d | Width: %d!!!!", resizeR->height, resizeR->width);
+			obj = new EnvObj(name, this->sprite, sprite, &pos, data[2], resizeR);
+		}
+		else{
+			obj = new EnvObj(name, this->sprite, sprite, &pos, data[2]);
+		}
 
 		Node* objN = addNodeV(this->objects, name, obj, false);
 		objN->del = deleteSectionObjects;
@@ -201,12 +243,22 @@ void EnvSection::spawnMonsters(ListManager* monsters) {
 		char name[len];
 		snprintf(name, len, "%s_%d", key, n->id);
 
-		Log::war(LOG_ENV_OBJ, "%s x: %lf Y: %lf Z: %d", name, pos.x, pos.y, data[2]);
+		Log::dbg(LOG_ENV_OBJ, "%s x: %lf Y: %lf Z: %d", name, pos.x, pos.y, data[2]);
 
-		AiCtrl* mon = new AiCtrl(name, key, &pos, data[2]);
+		AiCtrl* mon = new AiCtrl(name, key, &pos, data[2], this);
 		Node* monN = addNodeV(this->monsters, name, mon, false);
 		monN->del = deleteAbstract;
 
 		free(key);
 	}
+}
+
+void EnvSection::removeAi(AiCtrl* ai) {
+	Node* n = getNodeByValue(this->monsters, ai);
+	if (n == NULL) {
+		return;
+	}
+
+	n->del = NULL;
+	removeAndFreeNode(this->monsters, n);
 }
